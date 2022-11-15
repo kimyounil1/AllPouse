@@ -1,7 +1,7 @@
 package com.perfume.allpouse.data.entity;
-
+import com.perfume.allpouse.data.entity.enumDirectory.LoginType;
+import com.perfume.allpouse.data.entity.enumDirectory.Permission;
 import lombok.Getter;
-
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +23,8 @@ public class User extends BaseTimeEntity {
 
     private String gender;
 
-    private String loginType;
+    @Enumerated(EnumType.STRING)
+    private LoginType loginType;
 
     @Enumerated(EnumType.STRING)
     private Permission permission;
