@@ -1,24 +1,30 @@
 package com.perfume.allpouse.data.entity;
 
-import lombok.Getter;
+import com.perfume.allpouse.service.dto.SaveReviewDto;
+import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import static javax.persistence.GenerationType.AUTO;
 
-import static javax.persistence.GenerationType.*;
 
 @Entity
-@Getter
+@Getter @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ReviewBoard extends BaseTimeEntity{
 
     @Id @GeneratedValue(strategy = AUTO)
     @Column(name = "review_id")
-    private int id;
+    private Long id;
 
+    @ColumnDefault("0")
     private int hitCnt;
 
+    @ColumnDefault("0")
     private int recommendCnt;
 
     private String subject;
@@ -32,11 +38,34 @@ public class ReviewBoard extends BaseTimeEntity{
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "perfume_board_id")
-    private PerfumeBoard perfumeBoard;
+    private PerfumeBoard perfume;
 
     private String imagePath;
 
+    @Builder.Default
     @OneToMany(mappedBy = "review", cascade = CascadeType.ALL)
-    List<Comment> comments = new ArrayList<>();
+    private List<Comment> comments = new ArrayList<>();
 
+
+    //== 연관관계 메소드==//
+    // 1. User
+    public void setUser(User user){
+        this.user = user;
+        user.getReviews().add(this);
+    }
+
+    // 2. PerfumeBoard
+    public void setPerfume(PerfumeBoard perfume) {
+        this.perfume = perfume;
+        perfume.getReviews().add(this);
+    }
+
+
+    //== 리뷰 내용 변경 =//
+    // 변경가능항목 : subject, content, image_path
+    public void changeReview(SaveReviewDto saveReviewDto) {
+        this.subject = saveReviewDto.getSubject();
+        this.content = saveReviewDto.getContent();
+        this.imagePath = saveReviewDto.getImagePath();
+    }
 }

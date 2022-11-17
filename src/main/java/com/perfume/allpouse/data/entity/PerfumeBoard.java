@@ -1,6 +1,6 @@
 package com.perfume.allpouse.data.entity;
 
-import lombok.Getter;
+import lombok.*;
 
 import javax.persistence.*;
 
@@ -11,13 +11,16 @@ import java.util.List;
 import static javax.persistence.GenerationType.*;
 
 @Entity
-@Getter
+@Getter @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class PerfumeBoard extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = AUTO)
     @Column(name = "perfume_id")
-    private String id;
+    private Long id;
 
     private int hitCnt;
 
@@ -30,12 +33,23 @@ public class PerfumeBoard extends BaseTimeEntity {
 
     // 향수를 User가 등록하게 할 것인지 -> 논의 필요
 
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "brand_id")
     private Brand brand;
 
     private String imagePath;
 
-    @OneToMany(mappedBy = "perfumeBoard", cascade = CascadeType.ALL)
+    @Builder.Default
+    @OneToMany(mappedBy = "perfume", cascade = CascadeType.ALL)
     private List<ReviewBoard> reviews = new ArrayList<>();
+
+
+    //== 연관관계 메소드 ==//
+    // 1. Brand
+    public void addBrand(Brand brand){
+        this.brand = brand;
+        brand.getPerfumes().add(this);
+    }
+
 }

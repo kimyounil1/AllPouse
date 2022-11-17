@@ -1,6 +1,6 @@
 package com.perfume.allpouse.data.entity;
 
-import lombok.Getter;
+import lombok.*;
 
 import javax.persistence.*;
 
@@ -10,12 +10,15 @@ import java.util.List;
 import static javax.persistence.GenerationType.*;
 
 @Entity
-@Getter
+@Getter @Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class Brand {
 
     @Id @GeneratedValue(strategy = AUTO)
     @Column(name = "brand_id")
-    private int id;
+    private Long id;
 
     private String name;
 
@@ -24,7 +27,8 @@ public class Brand {
 
     private String imagePath;
 
+    @Builder.Default
     @OneToMany(mappedBy = "brand", cascade = CascadeType.ALL)
-    List<PerfumeBoard> perfumes = new ArrayList<>();
+    private List<PerfumeBoard> perfumes = new ArrayList<>();
 
 }
