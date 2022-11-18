@@ -25,10 +25,10 @@ public class ReviewService {
 
     // 리뷰 저장
     @Transactional
-    public Long save(SaveReviewDto reviewDto) {
+    public Long save(SaveReviewDto saveReviewDto) {
 
-        ReviewBoard review = toEntity(reviewDto);
-        ReviewBoard savedReview = reviewRepository.save(review);
+        ReviewBoard reviewBoard = toEntity(saveReviewDto);
+        ReviewBoard savedReview = reviewRepository.save(reviewBoard);
 
         return savedReview.getId();
     }
@@ -36,10 +36,10 @@ public class ReviewService {
 
     // 리뷰 수정
     @Transactional
-    public Long update(SaveReviewDto reviewDto) {
+    public Long update(SaveReviewDto saveReviewDto) {
 
-        ReviewBoard review = reviewRepository.findById(reviewDto.getId()).get();
-        review.changeReview(reviewDto);
+        ReviewBoard review = reviewRepository.findById(saveReviewDto.getId()).get();
+        review.changeReview(saveReviewDto);
 
         return review.getId();
     }

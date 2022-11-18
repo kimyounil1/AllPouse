@@ -63,9 +63,9 @@ public class ReviewBoard extends BaseTimeEntity{
 
     //== 리뷰 내용 변경 =//
     // 변경가능항목 : subject, content, image_path
-    public void changeReview(SaveReviewDto saveReviewDto) {
-        this.subject = saveReviewDto.getSubject();
-        this.content = saveReviewDto.getContent();
-        this.imagePath = saveReviewDto.getImagePath();
+    public void changeReview(SaveReviewDto reviewDto) {
+        this.subject = reviewDto.getSubject();
+        this.content = reviewDto.getContent();
+        this.imagePath = reviewDto.getImagePath();
     }
 }

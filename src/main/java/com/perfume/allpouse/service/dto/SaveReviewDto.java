@@ -1,12 +1,15 @@
 package com.perfume.allpouse.service.dto;
 
 import com.perfume.allpouse.data.entity.ReviewBoard;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 
 @Getter
 @AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class SaveReviewDto {
 
     private Long id;

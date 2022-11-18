@@ -128,6 +128,7 @@ class ReviewServiceTest {
 
         //when
         SaveReviewDto saveReviewDto = new SaveReviewDto("asdf", "content", userId, perfumeId, "impagePath");
+
         Long savedId = reviewService.save(saveReviewDto);
 
 
