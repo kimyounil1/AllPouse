@@ -1,5 +1,4 @@
 package com.perfume.allpouse.service;
-
 import com.perfume.allpouse.data.entity.PerfumeBoard;
 import com.perfume.allpouse.data.entity.ReviewBoard;
 import com.perfume.allpouse.data.entity.User;
@@ -11,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +22,7 @@ public class ReviewService {
     private final UserRepository userRepository;
     private final PerfumeBoardRepository perfumeRepository;
 
+
     // 리뷰 저장
     @Transactional
     public Long save(SaveReviewDto reviewDto) {
@@ -30,6 +32,7 @@ public class ReviewService {
 
         return savedReview.getId();
     }
+
 
     // 리뷰 수정
     @Transactional
@@ -42,6 +45,23 @@ public class ReviewService {
     }
 
 
+    // 리뷰 삭제
+    @Transactional
+    public void delete(Long id) {
+
+        Optional<ReviewBoard> review = reviewRepository.findById(id);
+
+        if (review.isPresent()) {
+            reviewRepository.delete(review.get());
+        } else {
+            throw new IllegalStateException("리뷰가 없습니다.");
+        }
+    }
+
+
+
+
+
     // 향수에 대한 리뷰 전체 조회
     // id : PerfumeBoard id
     //public List<ReviewBoard> findAll(Long id) {
@@ -51,6 +71,8 @@ public class ReviewService {
 
 
     private ReviewBoard toEntity(SaveReviewDto reviewDto) {
+
+        //Optional 예외처리 필요
         User user = userRepository.findById(reviewDto.getUserId()).get();
         PerfumeBoard perfume = perfumeRepository.findById(reviewDto.getPerfumeId()).get();
 
