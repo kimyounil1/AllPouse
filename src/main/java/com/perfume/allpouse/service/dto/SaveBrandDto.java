@@ -20,6 +20,12 @@ public class SaveBrandDto {
     private String imagePath;
 
 
+    public SaveBrandDto(String name, String content, String imagePath) {
+        this.name = name;
+        this.content = content;
+        this.imagePath = imagePath;
+    }
+
     public SaveBrandDto(Brand brand) {
         this.id = brand.getId();
         this.name = brand.getName();

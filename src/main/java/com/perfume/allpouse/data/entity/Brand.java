@@ -1,5 +1,6 @@
 package com.perfume.allpouse.data.entity;
 
+import com.perfume.allpouse.service.dto.SaveBrandDto;
 import lombok.*;
 
 import javax.persistence.*;
@@ -31,4 +32,12 @@ public class Brand {
     @OneToMany(mappedBy = "brand", cascade = CascadeType.ALL)
     private List<PerfumeBoard> perfumes = new ArrayList<>();
 
+
+    //== Brand 수정 ==//
+    // 변경 가능항목 : name, content, image_path
+    public void changeBrand(SaveBrandDto brandDto) {
+        this.name = brandDto.getName();
+        this.content = brandDto.getContent();
+        this.imagePath = brandDto.getImagePath();
+    }
 }
