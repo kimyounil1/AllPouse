@@ -1,5 +1,6 @@
 package com.perfume.allpouse.service;
 
+import com.perfume.allpouse.data.entity.Brand;
 import com.perfume.allpouse.service.dto.SaveBrandDto;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -8,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -47,7 +50,51 @@ class BrandServiceTest {
         Long newId = brandService.update(newBrandDto);
 
         //then
-        Assertions.assertThat(newId).isEqualTo(brandId);
+        assertThat(newId).isEqualTo(brandId);
+    }
+
+
+    @Test
+    @Transactional
+    @DisplayName("전체 브랜드 조회")
+    public void findAllTest() throws Exception{
+        //given
+        SaveBrandDto brandDto1 = new SaveBrandDto("dior", "luxury_perfume", "path_123");
+        Long brandId1 = brandService.save(brandDto1);
+
+        SaveBrandDto brandDto2 = new SaveBrandDto("chanel", "luxury_perfume", "path_123");
+        Long brandId2 = brandService.save(brandDto2);
+
+        //when
+        List<Brand> brands = brandService.findAll();
+
+        //then
+        assertThat(brands.size()).isEqualTo(2);
+    }
+
+
+    @Test
+    @Transactional
+    @DisplayName("ID로 브랜드 조회")
+    public void findByIdTest() throws Exception{
+        //given
+        SaveBrandDto brandDto1 = new SaveBrandDto("dior", "luxury_perfume", "path_123");
+        Long brandId1 = brandService.save(brandDto1);
+
+        SaveBrandDto brandDto2 = new SaveBrandDto("chanel", "luxury_perfume", "path_123");
+        Long brandId2 = brandService.save(brandDto2);
+
+        //when
+        Brand findBrand = brandService.findOne(brandId1);
+
+        //then
+
+        //DB에 있는 브랜드 id 검색 -> 해당 브랜드 반환
+        assertThat(findBrand.getName()).isEqualTo("dior");
+
+        //DB에 없는 브랜드 id 검색 -> IllegalStateException
+        assertThrows(IllegalStateException.class,
+                ()->brandService.findOne(101L));
     }
 
 }

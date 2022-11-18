@@ -8,6 +8,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Optional;
+
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -25,6 +28,7 @@ public class BrandService {
         return savedBrand.getId();
     }
 
+
     // 브랜드 수정
     @Transactional
     public Long update(SaveBrandDto saveBrandDto) {
@@ -32,6 +36,23 @@ public class BrandService {
         brand.changeBrand(saveBrandDto);
 
         return brand.getId();
+    }
+
+
+    // 브랜드 전체 조회
+    public List<Brand> findAll() {
+        return brandRepository.findAll();
+    }
+
+    // 브랜드 단건 조회(with id)
+    public Brand findOne(Long id) {
+        Optional<Brand> findBrand = brandRepository.findById(id);
+
+        if(findBrand.isPresent()) {
+            return findBrand.get();
+        } else {
+            throw new IllegalStateException("저장되지 않은 브랜드입니다.");
+        }
     }
 
 
