@@ -44,6 +44,7 @@ public class BrandService {
         return brandRepository.findAll();
     }
 
+
     // 브랜드 단건 조회(with id)
     public Brand findOne(Long id) {
         Optional<Brand> findBrand = brandRepository.findById(id);
@@ -51,9 +52,24 @@ public class BrandService {
         if(findBrand.isPresent()) {
             return findBrand.get();
         } else {
-            throw new IllegalStateException("저장되지 않은 브랜드입니다.");
+            throw new IllegalStateException("브랜드를 찾을 수 없습니다.");
         }
     }
+
+
+    // 브랜드 조회(파라미터 name을 포함한 브랜드 검색)
+    // 기본정렬 : 이름순 오름차순
+    public List<Brand> find(String name) {
+        List<Brand> brands = brandRepository.findByNameContainingOrderByNameAsc(name);
+
+        if(brands.isEmpty()) {
+            throw new IllegalStateException("브랜드를 찾을 수 없습니다.");
+        } else {
+            return brands;
+        }
+    }
+
+
 
 
 

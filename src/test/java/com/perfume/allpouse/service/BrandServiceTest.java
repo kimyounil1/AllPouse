@@ -97,4 +97,29 @@ class BrandServiceTest {
                 ()->brandService.findOne(101L));
     }
 
+    @Test
+    @Transactional
+    @DisplayName("이름으로 브랜드 조회")
+    public void findByNameTest() throws Exception{
+        //given
+        SaveBrandDto brandDto1 = new SaveBrandDto("dior", "luxury_perfume", "path_123");
+        Long brandId1 = brandService.save(brandDto1);
+
+
+        SaveBrandDto brandDto2 = new SaveBrandDto("diorhanel", "luxury_perfume", "path_123");
+        Long brandId2 = brandService.save(brandDto2);
+
+        SaveBrandDto brandDto3 = new SaveBrandDto("chanel", "luxury_perfume", "path_123");
+        Long brandId3 = brandService.save(brandDto3);
+
+
+        //when
+        List<Brand> brands = brandService.find("dior");
+
+
+        //then
+        assertThat(brands.size()).isEqualTo(2);
+        assertThat(brands.get(0).getName()).isEqualTo("dior");
+
+    }
 }
