@@ -15,12 +15,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
-import javax.crypto.SecretKey;
 import javax.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
-import java.util.List;
 
 @Component
 public class TokenProvider implements InitializingBean{
@@ -40,7 +38,7 @@ public class TokenProvider implements InitializingBean{
 
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         LOGGER.info("INIT : JWT SecretKey 초기화 시작");
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8)); // 22년 이후 BASE64에서 HMAC 사용을 권장
         LOGGER.info("INIT : JWT SecretKey 초기화 완료");
@@ -53,9 +51,9 @@ public class TokenProvider implements InitializingBean{
         return name;
     }
 
-    public String createToken(String userName , List<String> roles) {
+    public String createToken(String socialId , String roles) {
 
-        Claims claims = Jwts.claims().setSubject(userName);
+        Claims claims = Jwts.claims().setSubject(socialId);
         claims.put("roles", roles);
         Date now = new Date();
 

@@ -1,11 +1,8 @@
 package com.perfume.allpouse.data.entity;
 
 import lombok.Getter;
-import org.hibernate.annotations.Fetch;
 
 import javax.persistence.*;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 import static javax.persistence.FetchType.*;
 

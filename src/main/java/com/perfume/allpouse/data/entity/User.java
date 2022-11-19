@@ -1,5 +1,6 @@
 package com.perfume.allpouse.data.entity;
 
+import com.perfume.allpouse.model.enums.Permission;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -31,10 +32,9 @@ public class User extends BaseTimeEntity implements UserDetails {
 
     private String gender;
 
-    private String loginType;
-
-    @Enumerated(EnumType.STRING)
     private Permission permission;
+
+    private String loginType;
 
     private String userStatus;
 
@@ -44,10 +44,6 @@ public class User extends BaseTimeEntity implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Comment> comments = new ArrayList<>();
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @Builder.Default
-    private List<String> roles = new ArrayList<>();
-
     public User() {
 
     }
@@ -55,7 +51,9 @@ public class User extends BaseTimeEntity implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return this.roles.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
+        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+        authorities.add(new SimpleGrantedAuthority(getPermission().getValue()));
+        return authorities;
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.perfume.allpouse.model;
+package com.perfume.allpouse.model.reponse;
 
 import lombok.Data;
 import lombok.ToString;

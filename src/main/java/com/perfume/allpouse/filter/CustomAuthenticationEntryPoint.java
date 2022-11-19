@@ -1,7 +1,7 @@
 package com.perfume.allpouse.filter;
 
 import com.perfume.allpouse.config.security.TokenProvider;
-import com.perfume.allpouse.model.EntryPointErrorResponse;
+import com.perfume.allpouse.model.reponse.EntryPointErrorResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.AuthenticationException;
