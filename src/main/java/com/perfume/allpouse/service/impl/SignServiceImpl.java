@@ -2,15 +2,12 @@ package com.perfume.allpouse.service.impl;
 
 import com.perfume.allpouse.config.security.TokenProvider;
 import com.perfume.allpouse.data.entity.User;
-import com.perfume.allpouse.data.repository.UserRepository;
+import com.perfume.allpouse.repository.UserRepository;
 import com.perfume.allpouse.model.enums.Permission;
 import com.perfume.allpouse.service.SignService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 public class SignServiceImpl implements SignService {

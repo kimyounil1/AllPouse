@@ -4,7 +4,6 @@ import com.perfume.allpouse.data.entity.PerfumeBoard;
 import com.perfume.allpouse.repository.PerfumeBoardRepository;
 import com.perfume.allpouse.service.dto.SaveBrandDto;
 import com.perfume.allpouse.service.dto.SavePerfumeDto;
-import com.perfume.allpouse.service.impl.BrandServiceImpl;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class PerfumeServiceTest {
 
     @Autowired
-    BrandServiceImpl brandService;
+    BrandService brandService;
 
     @Autowired
     PerfumeService perfumeService;

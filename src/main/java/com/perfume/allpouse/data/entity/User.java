@@ -10,7 +10,6 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "users")
@@ -22,7 +21,7 @@ public class User extends BaseTimeEntity implements UserDetails {
 
     @Id @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "user_id")
-    private int id;
+    private Long id;
 
     private String socialId;
 
@@ -32,6 +31,7 @@ public class User extends BaseTimeEntity implements UserDetails {
 
     private String gender;
 
+    @Enumerated(EnumType.STRING)
     private Permission permission;
 
     private String loginType;
@@ -39,9 +39,11 @@ public class User extends BaseTimeEntity implements UserDetails {
     private String userStatus;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<ReviewBoard> reviews = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<Comment> comments = new ArrayList<>();
 
     public User() {

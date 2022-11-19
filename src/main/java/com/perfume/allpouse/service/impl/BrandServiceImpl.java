@@ -12,8 +12,8 @@ import java.util.Optional;
 
 
 
-@Transactional(readOnly = true)
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class BrandServiceImpl implements BrandService {
 

@@ -1,7 +1,7 @@
 package com.perfume.allpouse.service.impl;
 
 import com.perfume.allpouse.data.entity.User;
-import com.perfume.allpouse.data.repository.UserRepository;
+import com.perfume.allpouse.repository.UserRepository;
 import com.perfume.allpouse.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

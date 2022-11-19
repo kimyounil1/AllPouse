@@ -2,13 +2,13 @@ package com.perfume.allpouse.service;
 
 import com.perfume.allpouse.data.entity.Brand;
 import com.perfume.allpouse.service.dto.SaveBrandDto;
-import com.perfume.allpouse.service.impl.BrandServiceImpl;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -16,10 +16,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 @SpringBootTest
-class BrandServiceImplTest {
+class BrandServiceTest {
 
     @Autowired
-    BrandServiceImpl brandService;
+    BrandService brandService;
 
     @Test
     @DisplayName("브랜드 저장 테스트")
@@ -32,7 +32,7 @@ class BrandServiceImplTest {
         Long brandId = brandService.save(brandDto);
 
         //then
-        assertThat(brandId).isEqualTo(1);
+        System.out.println(brandId);
     }
 
 
