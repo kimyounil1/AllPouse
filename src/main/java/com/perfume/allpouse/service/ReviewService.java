@@ -60,6 +60,20 @@ public class ReviewService {
     }
 
 
+    /**
+     * 리뷰 조회 메소드
+     */
+
+    // 회원이 작성한 전체 리뷰 조회(파라미터 user_id)
+    // 기본정렬 : 작성일자(cre_dt)
+    //public List<ReviewBoard> findByUser(Long id) {
+//
+    //
+    //
+    //}
+
+
+
 
 
 

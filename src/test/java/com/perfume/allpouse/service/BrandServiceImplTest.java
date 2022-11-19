@@ -2,6 +2,7 @@ package com.perfume.allpouse.service;
 
 import com.perfume.allpouse.data.entity.Brand;
 import com.perfume.allpouse.service.dto.SaveBrandDto;
+import com.perfume.allpouse.service.impl.BrandServiceImpl;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,10 +16,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 @SpringBootTest
-class BrandServiceTest {
+class BrandServiceImplTest {
 
     @Autowired
-    BrandService brandService;
+    BrandServiceImpl brandService;
 
     @Test
     @DisplayName("브랜드 저장 테스트")
