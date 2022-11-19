@@ -25,6 +25,7 @@ public class SaveReviewDto {
     private String imagePath;
 
 
+    // ReviewBoard -> Dto
     public SaveReviewDto(ReviewBoard reviewBoard) {
         this.id = reviewBoard.getId();
         this.subject = reviewBoard.getSubject();
@@ -32,6 +33,7 @@ public class SaveReviewDto {
         this.perfumeId = reviewBoard.getPerfume().getId();
         this.imagePath = reviewBoard.getImagePath();
     }
+
 
     public SaveReviewDto(String subject, String content, Long userId, Long perfumeId, String imagePath) {
         this.subject = subject;

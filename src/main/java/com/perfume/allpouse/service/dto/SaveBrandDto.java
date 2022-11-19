@@ -20,6 +20,7 @@ public class SaveBrandDto {
     private String imagePath;
 
 
+    // Brand -> Dto
     public SaveBrandDto(String name, String content, String imagePath) {
         this.name = name;
         this.content = content;

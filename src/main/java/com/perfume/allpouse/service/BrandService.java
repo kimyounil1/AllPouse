@@ -1,15 +1,14 @@
 package com.perfume.allpouse.service;
 
-
 import com.perfume.allpouse.data.entity.Brand;
 import com.perfume.allpouse.repository.BrandRepository;
 import com.perfume.allpouse.service.dto.SaveBrandDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 import java.util.Optional;
+
 
 @Service
 @Transactional(readOnly = true)
@@ -75,11 +74,6 @@ public class BrandService {
             return brands;
         }
     }
-
-
-
-
-
 
 
 
