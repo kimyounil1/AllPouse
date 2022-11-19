@@ -75,7 +75,7 @@ public class PerfumeService {
     }
 
 
-    // 향수 조회(파라미터 Brand로 조회)
+    // 향수 조회(파라미터 Brand_id로 조회)
     // 기본정렬 : 이름(subject) 오름차순
     public List<PerfumeBoard> findByBrandId(Long id) {
 
@@ -87,6 +87,7 @@ public class PerfumeService {
             return perfumes;
         }
     }
+
 
     // Dto -> PerfumeBoard
     private PerfumeBoard toEntity(SavePerfumeDto perfumeDto) {
@@ -105,7 +106,5 @@ public class PerfumeService {
 
         return perfume;
     }
-
-
 
 }
