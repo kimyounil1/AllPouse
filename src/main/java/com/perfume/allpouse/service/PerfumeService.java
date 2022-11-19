@@ -10,7 +10,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
+
 
 @Service
 @RequiredArgsConstructor
@@ -56,6 +58,35 @@ public class PerfumeService {
         }
     }
 
+
+    // 전체 향수 조회
+    public List<PerfumeBoard> findAll() {return perfumeRepository.findAll();}
+
+
+    // 향수 단건 조회(with id)
+    public PerfumeBoard findOne(Long id) {
+        Optional<PerfumeBoard> findPerfume = perfumeRepository.findById(id);
+
+        if (findPerfume.isPresent()) {
+            return findPerfume.get();
+        } else {
+            throw new IllegalStateException("향수를 찾을 수 없습니다.");
+        }
+    }
+
+
+    // 향수 조회(파라미터 Brand로 조회)
+    // 기본정렬 : 이름(subject) 오름차순
+    public List<PerfumeBoard> findByBrandId(Long id) {
+
+        List<PerfumeBoard> perfumes = perfumeRepository.findByBrandId(id);
+
+        if (perfumes.isEmpty()) {
+            throw new IllegalStateException("검색된 향수가 없습니다.");
+        } else {
+            return perfumes;
+        }
+    }
 
     // Dto -> PerfumeBoard
     private PerfumeBoard toEntity(SavePerfumeDto perfumeDto) {

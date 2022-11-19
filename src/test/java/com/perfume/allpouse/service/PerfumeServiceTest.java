@@ -4,17 +4,19 @@ import com.perfume.allpouse.data.entity.PerfumeBoard;
 import com.perfume.allpouse.repository.PerfumeBoardRepository;
 import com.perfume.allpouse.service.dto.SaveBrandDto;
 import com.perfume.allpouse.service.dto.SavePerfumeDto;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 
 @SpringBootTest
 class PerfumeServiceTest {
@@ -35,7 +37,7 @@ class PerfumeServiceTest {
     public void saveTest() throws Exception{
         //given
         Long brandId = saveBrand();
-        Long perfumeId = savePerfume(brandId);
+        Long perfumeId = savePerfume(brandId, "subject");
 
         //when
 
@@ -51,7 +53,7 @@ class PerfumeServiceTest {
     public void updateTest() throws Exception{
         //given
         Long brandId = saveBrand();
-        Long perfumeId = savePerfume(brandId);
+        Long perfumeId = savePerfume(brandId, "subject");
 
         //when
         SavePerfumeDto newDto = new SavePerfumeDto(perfumeId, "new_subject", "new_content", 30000, brandId, "new_path");
@@ -67,7 +69,7 @@ class PerfumeServiceTest {
     public void deleteTest() throws Exception{
         //given
         Long brandId = saveBrand();
-        Long perfumeId = savePerfume(brandId);
+        Long perfumeId = savePerfume(brandId, "subject");
 
         //when
         perfumeService.delete(perfumeId);
@@ -80,12 +82,31 @@ class PerfumeServiceTest {
     }
 
 
+    @Test
+    @Transactional
+    @DisplayName("브랜드 pk로 향수 검색하기")
+    @Rollback(false)
+    public void findByBrandIdTest() throws Exception{
+        //given
+        Long brandId = saveBrand();
+
+        Long perfume1 = savePerfume(brandId, "perfume1");
+        Long perfume2 = savePerfume(brandId, "perfume2");
+        Long perfume3 = savePerfume(brandId, "asdf");
+
+        //when
+        List<PerfumeBoard> perfumes = perfumeService.findByBrandId(brandId);
+
+        //then
+        assertThat(perfumes.size()).isEqualTo(3);
+        assertThat(perfumes.get(0).getSubject()).isEqualTo("asdf");
+    }
 
 
 
 
-    private Long savePerfume(Long brandId) {
-        SavePerfumeDto perfumeDto = new SavePerfumeDto("subject", "content", 10000, brandId, "path");
+    private Long savePerfume(Long brandId, String subject) {
+        SavePerfumeDto perfumeDto = new SavePerfumeDto(subject, "content", 10000, brandId, "path");
         return perfumeService.save(perfumeDto);
     }
 

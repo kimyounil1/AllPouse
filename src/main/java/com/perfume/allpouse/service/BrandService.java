@@ -52,7 +52,7 @@ public class BrandService {
     }
 
 
-    // 브랜드 전체 조회
+    // 전체 브랜드 조회
     public List<Brand> findAll() {
         return brandRepository.findAll();
     }
@@ -75,7 +75,7 @@ public class BrandService {
     public List<Brand> find(String name) {
         List<Brand> brands = brandRepository.findByNameContainingOrderByNameAsc(name);
 
-        if(brands.isEmpty()) {
+        if (brands.isEmpty()) {
             throw new IllegalStateException("브랜드를 찾을 수 없습니다.");
         } else {
             return brands;
