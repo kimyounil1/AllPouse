@@ -39,6 +39,13 @@ public class BrandService {
     }
 
 
+    // 브랜드 삭제(By id)
+    @Transactional
+    public void delete(Long id) {
+        brandRepository.deleteById(id);
+    }
+
+
     // 브랜드 전체 조회
     public List<Brand> findAll() {
         return brandRepository.findAll();
@@ -68,6 +75,9 @@ public class BrandService {
             return brands;
         }
     }
+
+
+
 
 
 

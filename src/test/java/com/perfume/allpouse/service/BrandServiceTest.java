@@ -97,6 +97,7 @@ class BrandServiceTest {
                 ()->brandService.findOne(101L));
     }
 
+
     @Test
     @Transactional
     @DisplayName("이름으로 브랜드 조회")
@@ -120,6 +121,24 @@ class BrandServiceTest {
         //then
         assertThat(brands.size()).isEqualTo(2);
         assertThat(brands.get(0).getName()).isEqualTo("dior");
+
+    }
+
+
+    @Test
+    @Transactional
+    @DisplayName("브랜드 삭제")
+    public void deleteTest() throws Exception{
+        //given
+        SaveBrandDto brandDto1 = new SaveBrandDto("dior", "luxury_perfume", "path_123");
+        Long brandId1 = brandService.save(brandDto1);
+
+        //when
+        brandService.delete(brandId1);
+
+        //then
+        assertThrows(IllegalStateException.class,
+                ()->brandService.findOne(brandId1));
 
     }
 }
