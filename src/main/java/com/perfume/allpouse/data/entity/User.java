@@ -1,47 +1,92 @@
 package com.perfume.allpouse.data.entity;
-import com.perfume.allpouse.data.entity.enumDirectory.LoginType;
-import com.perfume.allpouse.data.entity.enumDirectory.Permission;
+
+import com.perfume.allpouse.model.enums.Permission;
 import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "users")
-@Getter @Setter
+@Data
 @Builder
+@ToString
 @AllArgsConstructor
-@NoArgsConstructor
-public class User extends BaseTimeEntity {
+public class User extends BaseTimeEntity implements UserDetails {
 
     @Id @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "user_id")
-    private Long id;
+    private int id;
 
-    @Column(unique = true)
     private String socialId;
 
-    @Column(unique = true)
     private String userName;
 
     private int age;
 
     private String gender;
 
-    @Enumerated(EnumType.STRING)
-    private LoginType loginType;
-
-    @Enumerated(EnumType.STRING)
     private Permission permission;
+
+    private String loginType;
 
     private String userStatus;
 
-    @Builder.Default
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<ReviewBoard> reviews = new ArrayList<>();
 
-    @Builder.Default
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Comment> comments = new ArrayList<>();
 
+    public User() {
+
+    }
+
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+        authorities.add(new SimpleGrantedAuthority(getPermission().getValue()));
+        return authorities;
+    }
+
+    @Override
+    public String getPassword() {
+        return null;
+    }
+
+    @Override
+    public String getUsername() {
+        return null;
+    }
+
+    public String getUserName() {
+        return this.userName;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 }
