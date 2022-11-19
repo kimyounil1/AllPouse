@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -29,6 +31,7 @@ public class PerfumeService {
         return savedPerfume.getId();
     }
 
+
     // 향수 수정
     @Transactional
     public Long update(SavePerfumeDto savePerfumeDto) {
@@ -37,6 +40,20 @@ public class PerfumeService {
         perfume.changePerfume(savePerfumeDto);
 
         return perfume.getId();
+    }
+
+
+    // 향수 삭제
+    @Transactional
+    public void delete(Long id) {
+
+        Optional<PerfumeBoard> perfume = perfumeRepository.findById(id);
+
+        if (perfume.isPresent()) {
+            perfumeRepository.deleteById(id);
+        } else {
+            throw new IllegalStateException("삭제할 향수가 없습니다.");
+        }
     }
 
 

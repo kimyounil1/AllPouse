@@ -41,7 +41,14 @@ public class BrandService {
     // 브랜드 삭제(By id)
     @Transactional
     public void delete(Long id) {
-        brandRepository.deleteById(id);
+
+        Optional<Brand> brand = brandRepository.findById(id);
+
+        if (brand.isPresent()) {
+            brandRepository.deleteById(id);
+        } else {
+            throw new IllegalStateException("삭제할 브랜드가 없습니다.");
+        }
     }
 
 

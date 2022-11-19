@@ -54,7 +54,7 @@ public class ReviewService {
         if (review.isPresent()) {
             reviewRepository.delete(review.get());
         } else {
-            throw new IllegalStateException("리뷰가 없습니다.");
+            throw new IllegalStateException("삭제할 리뷰가 없습니다.");
         }
     }
 
