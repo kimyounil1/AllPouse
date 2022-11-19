@@ -42,6 +42,4 @@ public class SavePerfumeDto {
         this.brandId = brandId;
         this.imagePath = imagePath;
     }
-
-
 }

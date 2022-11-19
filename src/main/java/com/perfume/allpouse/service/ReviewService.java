@@ -70,6 +70,8 @@ public class ReviewService {
     //}
 
 
+
+    // Dto -> ReviewBoard
     private ReviewBoard toEntity(SaveReviewDto reviewDto) {
 
         //Optional 예외처리 필요
