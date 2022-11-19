@@ -1,5 +1,6 @@
 package com.perfume.allpouse.data.entity;
 
+import com.perfume.allpouse.service.dto.SavePerfumeDto;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
@@ -51,6 +52,16 @@ public class PerfumeBoard extends BaseTimeEntity {
     public void addBrand(Brand brand){
         this.brand = brand;
         brand.getPerfumes().add(this);
+    }
+
+
+    //== 향수 내용 변경 ==//
+    // 변경가능항목 : subject, content, price, image_path
+    public void changePerfume(SavePerfumeDto perfumeDto) {
+        this.subject = perfumeDto.getSubject();
+        this.content = perfumeDto.getContent();
+        this.price = perfumeDto.getPrice();
+        this.imagePath = perfumeDto.getImagePath();
     }
 
 }

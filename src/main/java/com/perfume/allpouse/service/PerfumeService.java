@@ -29,6 +29,16 @@ public class PerfumeService {
         return savedPerfume.getId();
     }
 
+    // 향수 수정
+    @Transactional
+    public Long update(SavePerfumeDto savePerfumeDto) {
+
+        PerfumeBoard perfume = perfumeRepository.findById(savePerfumeDto.getId()).get();
+        perfume.changePerfume(savePerfumeDto);
+
+        return perfume.getId();
+    }
+
 
     // Dto -> PerfumeBoard
     private PerfumeBoard toEntity(SavePerfumeDto perfumeDto) {

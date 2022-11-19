@@ -37,6 +37,25 @@ class PerfumeServiceTest {
 
     }
 
+    @Test
+    @Transactional
+    @DisplayName("향수 수정 테스트")
+    @Rollback(false)
+    public void updateTest() throws Exception{
+        //given
+        Long brandId = saveBrand();
+        Long perfumeId = savePerfume(brandId);
+
+        //when
+        SavePerfumeDto newDto = new SavePerfumeDto(perfumeId, "new_subject", "new_content", 30000, brandId, "new_path");
+        Long updatedId = perfumeService.update(newDto);
+
+        //then
+        assertThat(updatedId).isEqualTo(perfumeId);
+    }
+
+
+
 
 
     private Long savePerfume(Long brandId) {
