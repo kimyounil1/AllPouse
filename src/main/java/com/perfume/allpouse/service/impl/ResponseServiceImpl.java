@@ -4,6 +4,7 @@ import com.perfume.allpouse.model.reponse.CommonResponse;
 import com.perfume.allpouse.model.reponse.ListResponse;
 import com.perfume.allpouse.model.reponse.SingleResponse;
 import com.perfume.allpouse.service.ResponseService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

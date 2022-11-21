@@ -3,6 +3,7 @@ package com.perfume.allpouse.service;
 import com.perfume.allpouse.model.reponse.CommonResponse;
 import com.perfume.allpouse.model.reponse.ListResponse;
 import com.perfume.allpouse.model.reponse.SingleResponse;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 

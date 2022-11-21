@@ -1,6 +1,7 @@
 package com.perfume.allpouse.exception;
 
 import com.perfume.allpouse.model.reponse.CommonResponse;
+import com.perfume.allpouse.model.reponse.ErrorResponse;
 import com.perfume.allpouse.service.impl.ResponseServiceImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -15,19 +16,19 @@ public class GlobalExceptionHandler {
 
     ResponseServiceImpl responseService;
 
-    @ExceptionHandler({CustomeException.class})
-    protected CommonResponse handleCustomException(CustomeException ex) {
-        return responseService.getErrorResponse(ex.getExceptionEnum().getCode(), ex.getExceptionEnum().getMsg());
+    @ExceptionHandler({CustomException.class})
+    private ResponseEntity<ErrorResponse> handleCustomException(CustomException ex) {
+        return ErrorResponse.toResponseEntity(ex.getExceptionEnum());
     }
 
     @ExceptionHandler({ MissingServletRequestParameterException.class })
-    protected CommonResponse handleMissingParamException(Exception ex) {
-        return responseService.getErrorResponse(INVALID_PARAMETER.getCode(), INVALID_PARAMETER.getMsg());
+    protected ResponseEntity<ErrorResponse> handleMissingParamException(Exception ex) {
+        return ErrorResponse.toResponseEntity(INVALID_PARAMETER);
     }
 
     @ExceptionHandler({ Exception.class })
-    protected CommonResponse handleServerException(Exception ex) {
-        return responseService.getErrorResponse(INTERNAL_SERVER_ERROR.getCode(), INTERNAL_SERVER_ERROR.getMsg());
+    protected ResponseEntity<ErrorResponse> handleServerException(Exception ex) {
+        return ErrorResponse.toResponseEntity(INTERNAL_SERVER_ERROR);
     }
 
 

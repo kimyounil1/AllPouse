@@ -37,7 +37,8 @@ public class SpringSecurityConfig {
         return (web) -> web.ignoring().mvcMatchers(
                 "/v3/api-docs/**",
                 "/swagger-ui.html",
-                "/swagger/**"
+                "/swagger/**",
+                "**Exception**"
         );
     }
 
@@ -54,7 +55,7 @@ public class SpringSecurityConfig {
                 .antMatchers("/sign-api/sign-in","/sign-api/sign-up","/sign-api/sign-exception","/swagger-ui/**" ).permitAll()
                 .antMatchers("/swagger-resources/**").permitAll()
                 .antMatchers("**exception**").permitAll()
-                .anyRequest().hasRole("USER")
+                .anyRequest().hasRole("ADMIN")
                 .and()
                 .exceptionHandling().accessDeniedHandler(new CustomAccessDeniedHandler())
                 .and()

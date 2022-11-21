@@ -7,8 +7,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 class UserRepositoryTest {
 
-    @Autowired
-    UserRepository userRepository;
 
 
 }
