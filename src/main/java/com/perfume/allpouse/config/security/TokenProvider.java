@@ -34,7 +34,7 @@ public class TokenProvider implements InitializingBean{
     @Value("${springboot.jwt.secret}")
     private String secretKey;
     private Key key;
-    private final long tokenValidMillisecond = 1000L * 60 * 60;
+    private final long tokenValidMillisecond = 1000L * 60 * 60 * 24 * 30;
 
 
     @Override
@@ -44,17 +44,18 @@ public class TokenProvider implements InitializingBean{
         LOGGER.info("INIT : JWT SecretKey 초기화 완료");
     }
 
-    public String getUserName(String token) {
-        LOGGER.info("[getUserName] 토큰에서 회원 네임 추출 ");
-        String name = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getSubject();
-        LOGGER.info("[getUserName] 토큰에서 회원 네임 추출 완료 name : {}" ,name);
-        return name;
+    public String getSocialId(String token) {
+        LOGGER.info("[getUserName] 토큰에서 회원 ID 추출 ");
+        String socialId = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getSubject();
+        LOGGER.info("[getUserName] 토큰에서 회원 ID 추출 완료 socialID : {}" ,socialId);
+        return socialId;
     }
 
-    public String createToken(String socialId , String roles) {
+    public String createToken(String socialId , String roles, long id) {
 
         Claims claims = Jwts.claims().setSubject(socialId);
         claims.put("roles", roles);
+        claims.put("id", id);
         Date now = new Date();
 
         String token = Jwts.builder()
@@ -70,7 +71,7 @@ public class TokenProvider implements InitializingBean{
     public Authentication getAuthentication (String token) {
 
         LOGGER.info("[getAuthentication] 토큰 인증 정보 조회 시작");
-        User user = userServiceImpl.loadUserByUserName(this.getUserName(token));
+        User user = userServiceImpl.loadUserBySocialId(this.getSocialId(token));
         LOGGER.info("[getAuthentication] 토큰 인증 정보 조회 완료 user : {}", user.toString());
 
         return new UsernamePasswordAuthenticationToken(user, "",user.getAuthorities());

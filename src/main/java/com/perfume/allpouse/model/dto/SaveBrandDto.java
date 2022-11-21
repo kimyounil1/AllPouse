@@ -1,4 +1,4 @@
-package com.perfume.allpouse.service.dto;
+package com.perfume.allpouse.model.dto;
 
 import com.perfume.allpouse.data.entity.Brand;
 import lombok.AccessLevel;

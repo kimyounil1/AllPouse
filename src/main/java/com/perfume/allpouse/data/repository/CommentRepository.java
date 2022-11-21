@@ -1,4 +1,4 @@
-package com.perfume.allpouse.repository;
+package com.perfume.allpouse.data.repository;
 
 import com.perfume.allpouse.data.entity.Comment;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -2,12 +2,15 @@ package com.perfume.allpouse.service.impl;
 
 import com.perfume.allpouse.config.security.TokenProvider;
 import com.perfume.allpouse.data.entity.User;
-import com.perfume.allpouse.repository.UserRepository;
+import com.perfume.allpouse.data.repository.UserRepository;
 import com.perfume.allpouse.model.enums.Permission;
 import com.perfume.allpouse.service.SignService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class SignServiceImpl implements SignService {
@@ -61,7 +64,7 @@ public class SignServiceImpl implements SignService {
         LOGGER.info("[signIn] User 정보 조회");
         User user = userRepository.findBySocialId(socialId);
         LOGGER.info("[signIn] User 정보 조회 완료 SocialId : {}", user.getSocialId());
-        String token = tokenProvider.createToken(user.getSocialId(),user.getPermission().getValue());
+        String token = tokenProvider.createToken(user.getSocialId(),user.getPermission().getValue(), user.getId());
         LOGGER.info("[signIn] token 발급 완료 token : {}", token);
         return token;
     }

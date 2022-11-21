@@ -1,7 +1,7 @@
 package com.perfume.allpouse.service;
 
 import com.perfume.allpouse.data.entity.ReviewBoard;
-import com.perfume.allpouse.service.dto.SaveReviewDto;
+import com.perfume.allpouse.model.dto.SaveReviewDto;
 
 import java.util.List;
 

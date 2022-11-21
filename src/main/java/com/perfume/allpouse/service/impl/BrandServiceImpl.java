@@ -1,9 +1,9 @@
 package com.perfume.allpouse.service.impl;
 
 import com.perfume.allpouse.data.entity.Brand;
-import com.perfume.allpouse.repository.BrandRepository;
+import com.perfume.allpouse.data.repository.BrandRepository;
 import com.perfume.allpouse.service.BrandService;
-import com.perfume.allpouse.service.dto.SaveBrandDto;
+import com.perfume.allpouse.model.dto.SaveBrandDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

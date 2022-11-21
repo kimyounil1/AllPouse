@@ -1,7 +1,7 @@
 package com.perfume.allpouse.service;
 
 import com.perfume.allpouse.data.entity.Brand;
-import com.perfume.allpouse.service.dto.SaveBrandDto;
+import com.perfume.allpouse.model.dto.SaveBrandDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

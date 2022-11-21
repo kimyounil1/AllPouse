@@ -1,6 +1,6 @@
 package com.perfume.allpouse.data.entity;
 
-import com.perfume.allpouse.service.dto.SaveBrandDto;
+import com.perfume.allpouse.model.dto.SaveBrandDto;
 import lombok.*;
 
 import javax.persistence.*;

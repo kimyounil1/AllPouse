@@ -1,12 +1,11 @@
 package com.perfume.allpouse.controller;
 
-import com.perfume.allpouse.model.SignDto;
+import com.perfume.allpouse.model.dto.SignDto;
 import com.perfume.allpouse.model.reponse.CommonResponse;
 import com.perfume.allpouse.model.reponse.SingleResponse;
 import com.perfume.allpouse.service.impl.ResponseServiceImpl;
 import com.perfume.allpouse.service.impl.SignServiceImpl;
 import io.swagger.annotations.ApiParam;
-import lombok.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PostMapping;

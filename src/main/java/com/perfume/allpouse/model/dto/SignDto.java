@@ -1,4 +1,4 @@
-package com.perfume.allpouse.model;
+package com.perfume.allpouse.model.dto;
 
 import lombok.Builder;
 import lombok.Getter;

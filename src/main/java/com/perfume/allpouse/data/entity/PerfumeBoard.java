@@ -1,6 +1,6 @@
 package com.perfume.allpouse.data.entity;
 
-import com.perfume.allpouse.service.dto.SavePerfumeDto;
+import com.perfume.allpouse.model.dto.SavePerfumeDto;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 

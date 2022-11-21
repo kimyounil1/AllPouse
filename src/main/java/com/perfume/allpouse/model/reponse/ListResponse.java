@@ -5,5 +5,6 @@ import lombok.*;
 import java.util.List;
 @Data
 public class ListResponse<T> extends CommonResponse {
-    List<T> dataList;
+    private List<T> dataList;
+    private int count;
 }

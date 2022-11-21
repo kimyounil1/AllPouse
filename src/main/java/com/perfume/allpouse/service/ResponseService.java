@@ -16,4 +16,6 @@ public interface ResponseService {
 
     public void setFalseResponse(CommonResponse response);
 
+    public CommonResponse getErrorResponse(int code, String msg);
+
 }

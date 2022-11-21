@@ -7,7 +7,7 @@ import lombok.Data;
 public class CommonResponse {
 
     private boolean success;
-    private String code = "";
+    private int code;
     private String msg;
 
 }

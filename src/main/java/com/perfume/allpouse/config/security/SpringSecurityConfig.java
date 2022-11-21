@@ -1,5 +1,7 @@
 package com.perfume.allpouse.config.security;
 
+import com.perfume.allpouse.filter.CustomAccessDeniedHandler;
+import com.perfume.allpouse.filter.CustomAuthenticationEntryPoint;
 import com.perfume.allpouse.filter.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -53,6 +55,10 @@ public class SpringSecurityConfig {
                 .antMatchers("/swagger-resources/**").permitAll()
                 .antMatchers("**exception**").permitAll()
                 .anyRequest().hasRole("USER")
+                .and()
+                .exceptionHandling().accessDeniedHandler(new CustomAccessDeniedHandler())
+                .and()
+                .exceptionHandling().authenticationEntryPoint(new CustomAuthenticationEntryPoint())
                 .and()
                 .addFilterBefore(new JwtAuthenticationFilter(tokenProvider), UsernamePasswordAuthenticationFilter.class);
 
