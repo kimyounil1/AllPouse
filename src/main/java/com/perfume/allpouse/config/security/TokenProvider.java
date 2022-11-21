@@ -89,7 +89,7 @@ public class TokenProvider implements InitializingBean{
 
             return !claims.getBody().getExpiration().before(new Date());
         } catch (Exception e) {
-            LOGGER.info("[valiateToken] 토큰 유효성 예외 발생 ");
+            LOGGER.info("[validateToken] 토큰 유효성 예외 발생 ");
             return false;
         }
 

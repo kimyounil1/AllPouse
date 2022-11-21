@@ -32,6 +32,5 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
             //objectMapper.writeValue(os, new CustomException(AUTHORITY_FORBIDDEN));
             //os.flush();
         }
-
     }
 }

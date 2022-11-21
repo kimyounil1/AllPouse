@@ -85,7 +85,6 @@ public class BrandServiceImpl implements BrandService {
     }
 
 
-
     private Brand toEntity(SaveBrandDto brandDto) {
 
         return Brand.builder()
