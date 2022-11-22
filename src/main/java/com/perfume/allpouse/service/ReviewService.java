@@ -16,4 +16,6 @@ public interface ReviewService {
     List<ReviewBoard> findByUserId(Long id);
 
     List<ReviewBoard> findByPerfumeId(Long id);
+
+    ReviewBoard findById(Long id);
 }

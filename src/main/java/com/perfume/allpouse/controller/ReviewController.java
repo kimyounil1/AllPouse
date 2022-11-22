@@ -1,7 +1,9 @@
 package com.perfume.allpouse.controller;
 
 import com.perfume.allpouse.config.security.TokenProvider;
+import com.perfume.allpouse.data.entity.ReviewBoard;
 import com.perfume.allpouse.model.dto.SaveReviewDto;
+import com.perfume.allpouse.model.reponse.CommonResponse;
 import com.perfume.allpouse.model.reponse.SingleResponse;
 import com.perfume.allpouse.service.ResponseService;
 import com.perfume.allpouse.service.ReviewService;
@@ -13,11 +15,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Objects;
 
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/review/")
+@RequestMapping("/review")
 public class ReviewController {
 
 
@@ -31,7 +34,7 @@ public class ReviewController {
 
 
     @ResponseBody
-    @PostMapping(value = "create")
+    @PostMapping
     public SingleResponse<Long> saveReview(
             HttpServletRequest request,
             @ApiParam(value = "saveReviewDto", required = true) @RequestBody SaveReviewDto saveReviewDto) {
@@ -60,6 +63,44 @@ public class ReviewController {
             responseService.setSuccessResponse(response);
             return response;
         }
+    }
+
+
+    @ResponseBody
+    @DeleteMapping
+    public CommonResponse deleteReview(
+            HttpServletRequest request,
+            @ApiParam(value = "reviewId", required = true) @RequestParam Long reviewId) {
+
+        String token = tokenProvider.resolveToken(request);
+
+        Long userId = Long.valueOf(tokenProvider.getUserId(token));
+
+        ReviewBoard review = reviewService.findById(reviewId);
+
+        Long reviewUserId = review.getUser().getId();
+
+        if (userId.equals(reviewUserId)) {
+            reviewService.delete(reviewId);
+
+            //response
+            CommonResponse response = new CommonResponse();
+            responseService.setSuccessResponse(response);
+
+            return response;
+        }
+
+        else {
+            //response
+            CommonResponse response = new CommonResponse();
+            response.setCode(400);
+            response.setSuccess(false);
+            response.setMsg("파라미터 값을 확인해주세요.");
+
+            return response;
+        }
+
+
     }
 
 

@@ -55,7 +55,7 @@ public class SpringSecurityConfig {
                 .antMatchers("/sign-api/sign-in","/sign-api/sign-up","/sign-api/sign-exception","/swagger-ui/**").permitAll()
                 .antMatchers("/swagger-resources/**").permitAll()
                 .antMatchers("**exception**").permitAll()
-                .antMatchers("/review/create").permitAll()
+                .antMatchers("/review").permitAll()
                 .anyRequest().hasRole("ADMIN")
                 .and()
                 .exceptionHandling().accessDeniedHandler(new CustomAccessDeniedHandler())

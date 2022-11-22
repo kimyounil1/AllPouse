@@ -93,6 +93,17 @@ public class ReviewServiceImpl implements ReviewService {
 
     }
 
+    // 리뷰 id로 조회
+    public ReviewBoard findById(Long id) {
+        Optional<ReviewBoard> review = reviewRepository.findById(id);
+
+        if (review.isEmpty()) {
+            throw new IllegalStateException("존재하지 않는 리뷰입니다.");
+        } else {
+            return review.get();
+        }
+
+    }
 
 
     // Dto -> ReviewBoard
