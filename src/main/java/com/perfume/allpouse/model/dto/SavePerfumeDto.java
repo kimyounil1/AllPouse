@@ -4,7 +4,7 @@ import com.perfume.allpouse.data.entity.PerfumeBoard;
 import lombok.*;
 
 
-@Getter @Setter
+@Data
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class SavePerfumeDto {

@@ -3,7 +3,7 @@ package com.perfume.allpouse.model.dto;
 import com.perfume.allpouse.data.entity.Brand;
 import lombok.*;
 
-@Getter @Setter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class SaveBrandDto {

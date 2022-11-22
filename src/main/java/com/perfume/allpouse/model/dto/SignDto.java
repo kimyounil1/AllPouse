@@ -1,12 +1,12 @@
 package com.perfume.allpouse.model.dto;
 
 import lombok.Builder;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
 @Builder
-@Getter
-@Setter
+@Data
 public class SignDto {
 
     private String token;

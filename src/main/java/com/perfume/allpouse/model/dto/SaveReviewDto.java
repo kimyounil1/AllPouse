@@ -4,7 +4,7 @@ import com.perfume.allpouse.data.entity.ReviewBoard;
 import lombok.*;
 
 
-@Getter @Setter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class SaveReviewDto {
