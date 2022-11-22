@@ -14,7 +14,7 @@ import static javax.persistence.GenerationType.*;
 @Getter @Setter
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Brand {
 
     @Id @GeneratedValue(strategy = AUTO)

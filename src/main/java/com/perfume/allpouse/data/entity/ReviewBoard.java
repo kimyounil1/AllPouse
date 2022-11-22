@@ -13,8 +13,8 @@ import static javax.persistence.GenerationType.AUTO;
 @Entity
 @Getter @Setter
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ReviewBoard extends BaseTimeEntity{
 
     @Id @GeneratedValue(strategy = AUTO)
@@ -47,7 +47,7 @@ public class ReviewBoard extends BaseTimeEntity{
     private List<Comment> comments = new ArrayList<>();
 
 
-    //== 연관관계 메소드==//
+    //== 연관관계 메소드 ==//
     // 1. User
     public void setUser(User user){
         this.user = user;
