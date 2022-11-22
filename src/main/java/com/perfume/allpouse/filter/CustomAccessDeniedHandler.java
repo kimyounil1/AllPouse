@@ -18,6 +18,7 @@ import java.io.OutputStream;
 
 import static com.perfume.allpouse.exception.ExceptionEnum.AUTHORITY_FORBIDDEN;
 
+
 public class CustomAccessDeniedHandler implements AccessDeniedHandler {
     private final Logger LOGGER = LoggerFactory.getLogger(TokenProvider.class);
     @Override

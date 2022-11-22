@@ -1,12 +1,10 @@
 package com.perfume.allpouse.model.dto;
 
 import com.perfume.allpouse.data.entity.PerfumeBoard;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Getter
+
+@Getter @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class SavePerfumeDto {

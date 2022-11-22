@@ -1,37 +1,77 @@
 package com.perfume.allpouse.controller;
 
+import com.perfume.allpouse.config.security.TokenProvider;
 import com.perfume.allpouse.model.dto.SaveReviewDto;
-import com.perfume.allpouse.model.reponse.CommonResponse;
+import com.perfume.allpouse.model.reponse.SingleResponse;
+import com.perfume.allpouse.service.ResponseService;
+import com.perfume.allpouse.service.ReviewService;
 import io.swagger.annotations.ApiParam;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+
+@Slf4j
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/review")
 public class ReviewController {
 
+
+    private final Logger LOGGER = LoggerFactory.getLogger(ReviewController.class);
+
+    private final TokenProvider tokenProvider;
+
+    private final ReviewService reviewService;
+
+    private final ResponseService responseService;
+
+    @ResponseBody
     @PostMapping(value = "/")
-    public CommonResponse saveReview(
-            @ApiParam(value = "subject", required = true) @RequestParam String subject,
-            @ApiParam(value = "content", required = true) @RequestParam String content,
-            @ApiParam(value = "userId", required = true) @RequestParam Long userId,
-            @APiParam()){
+    public SingleResponse<Long> saveReview(
+            HttpServletRequest request,
+            @ApiParam(value = "saveReviewDto", required = true) @RequestBody SaveReviewDto saveReviewDto) {
+
+        String token = tokenProvider.resolveToken(request);
+
+        // 토큰 검증
+        //boolean isValidToken = tokenProvider.validateToken(token);
+//
+        //if (!isValidToken) {
+        //    return responseService.getErrorResponse(401, "Bad AccessToken");
+        //}
+//
+        //LOGGER.info("[saveReview] Token 검증 완료 - 정상적 Token");
+
+        Long userId = tokenProvider.getUserId(token);
+
+        Long reviewId = saveReviewDto.getId();
 
 
-        CommonResponse response = new CommonResponse();
+        if (reviewId == null) {
+            saveReviewDto.setUserId(userId);
+            Long savedId = reviewService.save(saveReviewDto);
 
+            //response
+            SingleResponse<Long> response = responseService.getSingleResponse(savedId);
+            responseService.setSuccessResponse(response);
+            return response;
+        }
 
+        else {
+            Long savedId = reviewService.update(saveReviewDto);
+
+            //response
+            SingleResponse<Long> response = responseService.getSingleResponse(savedId);
+            responseService.setSuccessResponse(response);
+            return response;
+        }
     }
 
 
-
-
-    // review 작성
-
-
-    // review 수정
 
     // review 삭제
 

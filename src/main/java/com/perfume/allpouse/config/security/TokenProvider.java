@@ -51,6 +51,13 @@ public class TokenProvider implements InitializingBean{
         return socialId;
     }
 
+    public Long getUserId(String token) {
+        LOGGER.info("[getUserId] 토큰에서 회원 저장 ID 추출");
+        Long userId = (Long) Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().get("id");
+        LOGGER.info("[getUserId] 토큰에서 회원 저장 ID 추출 완료 userId : {}", userId);
+        return userId;
+    }
+
     public String createToken(String socialId , String roles, long id) {
 
         Claims claims = Jwts.claims().setSubject(socialId);
@@ -82,8 +89,8 @@ public class TokenProvider implements InitializingBean{
         return request.getHeader("X-AUTH-TOKEN");
     }
 
-    public boolean valiateToken(String token) {
-        LOGGER.info("[valiateToken] 토큰 유효성 검증");
+    public boolean validateToken(String token) {
+        LOGGER.info("[validateToken] 토큰 유효성 검증");
         try {
             Jws<Claims> claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
 

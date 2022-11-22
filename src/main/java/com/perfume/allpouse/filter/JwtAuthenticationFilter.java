@@ -27,7 +27,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token = tokenProvider.resolveToken(request);
         LOGGER.info("[doFilterInternal] 토큰 정보 읽어오기 token : {} ",token);
         LOGGER.info("[doFilterInternal] 토큰 유효성 체크 ");
-        if(token != null && tokenProvider.valiateToken(token)){
+        if(token != null && tokenProvider.validateToken(token)){
             Authentication authentication = tokenProvider.getAuthentication(token);
             SecurityContextHolder.getContext().setAuthentication(authentication); // 토큰이 유효하다면 sercuritycontextholder에 추가한다.
             LOGGER.info("[doFilterInternal] 토큰 유효성 체크 완료 ");
