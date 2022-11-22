@@ -30,7 +30,4 @@ public class GlobalExceptionHandler {
     protected ResponseEntity<ErrorResponse> handleServerException(Exception ex) {
         return ErrorResponse.toResponseEntity(INTERNAL_SERVER_ERROR);
     }
-
-
-
 }

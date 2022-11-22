@@ -17,7 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/review")
+@RequestMapping("/review/")
 public class ReviewController {
 
 
@@ -29,30 +29,21 @@ public class ReviewController {
 
     private final ResponseService responseService;
 
+
     @ResponseBody
-    @PostMapping(value = "/")
+    @PostMapping(value = "create")
     public SingleResponse<Long> saveReview(
             HttpServletRequest request,
             @ApiParam(value = "saveReviewDto", required = true) @RequestBody SaveReviewDto saveReviewDto) {
 
         String token = tokenProvider.resolveToken(request);
 
-        // 토큰 검증
-        //boolean isValidToken = tokenProvider.validateToken(token);
-//
-        //if (!isValidToken) {
-        //    return responseService.getErrorResponse(401, "Bad AccessToken");
-        //}
-//
-        //LOGGER.info("[saveReview] Token 검증 완료 - 정상적 Token");
-
-        Long userId = tokenProvider.getUserId(token);
+        Integer userId = tokenProvider.getUserId(token);
 
         Long reviewId = saveReviewDto.getId();
 
-
         if (reviewId == null) {
-            saveReviewDto.setUserId(userId);
+            saveReviewDto.setUserId(Long.valueOf(userId));
             Long savedId = reviewService.save(saveReviewDto);
 
             //response

@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
@@ -21,6 +22,7 @@ import java.security.Key;
 import java.util.Date;
 
 @Component
+@Transactional
 public class TokenProvider implements InitializingBean{
 
     private final Logger LOGGER = LoggerFactory.getLogger(TokenProvider.class);
@@ -51,14 +53,14 @@ public class TokenProvider implements InitializingBean{
         return socialId;
     }
 
-    public Long getUserId(String token) {
+    public Integer getUserId(String token) {
         LOGGER.info("[getUserId] 토큰에서 회원 저장 ID 추출");
-        Long userId = (Long) Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().get("id");
+        Integer userId = (Integer) Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().get("id");
         LOGGER.info("[getUserId] 토큰에서 회원 저장 ID 추출 완료 userId : {}", userId);
         return userId;
     }
 
-    public String createToken(String socialId , String roles, long id) {
+    public String createToken(String socialId , String roles, Long id) {
 
         Claims claims = Jwts.claims().setSubject(socialId);
         claims.put("roles", roles);
