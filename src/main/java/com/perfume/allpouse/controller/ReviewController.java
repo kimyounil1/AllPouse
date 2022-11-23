@@ -46,7 +46,7 @@ public class ReviewController {
         Long reviewId = saveReviewDto.getId();
 
         if (reviewId == null) {
-            saveReviewDto.setUserId(userId);
+            saveReviewDto.setUserId(Long.valueOf(userId));
             Long savedId = reviewService.save(saveReviewDto);
 
             //response

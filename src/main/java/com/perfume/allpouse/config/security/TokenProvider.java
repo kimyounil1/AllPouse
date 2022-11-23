@@ -1,11 +1,9 @@
 package com.perfume.allpouse.config.security;
 
 import com.perfume.allpouse.data.entity.User;
+import com.perfume.allpouse.filter.JwtAuthenticationFilter;
 import com.perfume.allpouse.service.impl.UserServiceImpl;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,13 +15,15 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 
 @Component
 @Transactional
-public class TokenProvider implements InitializingBean{
+public class TokenProvider implements InitializingBean {
 
     private final Logger LOGGER = LoggerFactory.getLogger(TokenProvider.class);
 
@@ -36,7 +36,7 @@ public class TokenProvider implements InitializingBean{
     @Value("${springboot.jwt.secret}")
     private String secretKey;
     private Key key;
-    private final long tokenValidMillisecond = 1000L * 60 * 60 * 24 * 30;
+    private final long tokenValidMillisecond = 1000L;//60 * 60 * 24 * 30
 
 
     @Override
@@ -49,7 +49,7 @@ public class TokenProvider implements InitializingBean{
     public long getId(String token) {
         LOGGER.info("[getUserName] 토큰에서 회원 ID 추출 ");
         long id = Long.parseLong(Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getSubject());
-        LOGGER.info("[getUserName] 토큰에서 회원 ID 추출 완료 iD : {}" ,id);
+        LOGGER.info("[getUserName] 토큰에서 회원 ID 추출 완료 iD : {}", id);
         return id;
     }
 
@@ -71,13 +71,13 @@ public class TokenProvider implements InitializingBean{
         return token;
     }
 
-    public Authentication getAuthentication (String token) {
+    public Authentication getAuthentication(String token) {
 
         LOGGER.info("[getAuthentication] 토큰 인증 정보 조회 시작");
         User user = userServiceImpl.loadUserById(this.getId(token));
         LOGGER.info("[getAuthentication] 토큰 인증 정보 조회 완료 user : {}", user.toString());
 
-        return new UsernamePasswordAuthenticationToken(user, "",user.getAuthorities());
+        return new UsernamePasswordAuthenticationToken(user, "", user.getAuthorities());
     }
 
     public String resolveToken(HttpServletRequest request) {
@@ -87,16 +87,8 @@ public class TokenProvider implements InitializingBean{
 
     public boolean validateToken(String token) {
         LOGGER.info("[validateToken] 토큰 유효성 검증");
-        try {
-            Jws<Claims> claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
-
-            return !claims.getBody().getExpiration().before(new Date());
-        } catch (Exception e) {
-            LOGGER.info("[validateToken] 토큰 유효성 예외 발생 ");
-            return false;
-        }
-
-
+        Jws<Claims> claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+        return !claims.getBody().getExpiration().before(new Date());
     }
 
 }

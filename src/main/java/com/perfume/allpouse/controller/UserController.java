@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
+
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -18,7 +20,7 @@ public class UserController {
 
     ResponseServiceImpl responseService;
     @GetMapping(value = "user-info")
-    public CommonResponse userInfo() {
+    public CommonResponse userInfo(HttpServletRequest request) {
         Jwts.parserBuilder().build();
         CommonResponse commonResponse = new CommonResponse();
         responseService.setSuccessResponse(commonResponse);

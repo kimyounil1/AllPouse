@@ -1,5 +1,6 @@
 package com.perfume.allpouse.controller;
 
+import com.perfume.allpouse.exception.CustomException;
 import com.perfume.allpouse.model.dto.SignDto;
 import com.perfume.allpouse.model.reponse.CommonResponse;
 import com.perfume.allpouse.model.reponse.SingleResponse;
@@ -8,11 +9,11 @@ import com.perfume.allpouse.service.impl.SignServiceImpl;
 import io.swagger.annotations.ApiParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
+
+import static com.perfume.allpouse.exception.ExceptionEnum.AUTHORITY_FORBIDDEN;
+import static com.perfume.allpouse.exception.ExceptionEnum.TOKEN_NOT_FOUND;
 
 @RestController
 @RequestMapping("sign-api")
@@ -57,6 +58,18 @@ public class SignController {
         CommonResponse response = new CommonResponse();
         responseServiceImpl.setSuccessResponse(response);
         return response;
+    }
+
+    @ApiIgnore
+    @GetMapping(value = "auth-exception")
+    public void authException() throws RuntimeException {
+        throw new CustomException(TOKEN_NOT_FOUND);
+    }
+
+    @ApiIgnore
+    @GetMapping(value = "access-exception")
+    public void accessException() throws RuntimeException {
+        throw new CustomException(AUTHORITY_FORBIDDEN);
     }
 
 }

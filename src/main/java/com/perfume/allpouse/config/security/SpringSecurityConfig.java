@@ -3,6 +3,7 @@ package com.perfume.allpouse.config.security;
 import com.perfume.allpouse.filter.CustomAccessDeniedHandler;
 import com.perfume.allpouse.filter.CustomAuthenticationEntryPoint;
 import com.perfume.allpouse.filter.JwtAuthenticationFilter;
+import com.perfume.allpouse.filter.JwtExceptionFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -52,16 +53,17 @@ public class SpringSecurityConfig {
                         SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                .antMatchers("/sign-api/sign-in","/sign-api/sign-up","/sign-api/sign-exception","/swagger-ui/**" ).permitAll()
+                .antMatchers("/sign-api/**","/swagger-ui/**" ).permitAll()
                 .antMatchers("/swagger-resources/**").permitAll()
                 .antMatchers("**exception**").permitAll()
-                .anyRequest().hasRole("USER")
+                .anyRequest().authenticated()
                 .and()
                 .exceptionHandling().accessDeniedHandler(new CustomAccessDeniedHandler())
                 .and()
                 .exceptionHandling().authenticationEntryPoint(new CustomAuthenticationEntryPoint())
                 .and()
-                .addFilterBefore(new JwtAuthenticationFilter(tokenProvider), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new JwtAuthenticationFilter(tokenProvider), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtExceptionFilter(), JwtAuthenticationFilter.class);
 
                 return http.build();
     }
