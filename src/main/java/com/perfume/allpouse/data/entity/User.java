@@ -1,5 +1,6 @@
 package com.perfume.allpouse.data.entity;
 
+import com.perfume.allpouse.model.dto.UserInfoDto;
 import com.perfume.allpouse.model.enums.Permission;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -56,6 +57,14 @@ public class User extends BaseTimeEntity implements UserDetails {
         List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
         authorities.add(new SimpleGrantedAuthority(getPermission().getValue()));
         return authorities;
+    }
+
+    public UserInfoDto toDto(){
+        return UserInfoDto.builder()
+                .age(age)
+                .gender(gender)
+                .userName(userName)
+                .build();
     }
 
     @Override

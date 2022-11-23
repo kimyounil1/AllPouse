@@ -23,13 +23,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
         LOGGER.info("[commence] 인증 실패 ");
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.setStatus(HttpStatus.FORBIDDEN.value());
-        try (OutputStream os = response.getOutputStream()) {
-            ObjectMapper objectMapper = new ObjectMapper();
-            objectMapper.writeValue(os, new CustomException(SOCIAL_ID_NOT_FOUND));
-            os.flush();
-        }
+        response.sendRedirect("/sign-api/auth-exception");
     }
 
 }

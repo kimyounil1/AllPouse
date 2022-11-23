@@ -25,13 +25,6 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
     public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException, ServletException {
         LOGGER.info("[handle] 페이지 액세스 권한 없음 ");
 
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.setStatus(HttpStatus.UNAUTHORIZED.value());
-        try (OutputStream os = response.getOutputStream()) {
-            ObjectMapper objectMapper = new ObjectMapper();
-            throw new CustomException(AUTHORITY_FORBIDDEN);
-            //objectMapper.writeValue(os, new CustomException(AUTHORITY_FORBIDDEN));
-            //os.flush();
-        }
+        response.sendRedirect("/sign-api/access-exception");
     }
 }

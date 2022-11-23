@@ -1,6 +1,10 @@
 package com.perfume.allpouse.filter;
 
 import com.perfume.allpouse.config.security.TokenProvider;
+import com.perfume.allpouse.exception.CustomException;
+import com.perfume.allpouse.exception.ExceptionEnum;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
@@ -13,6 +17,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+
 
 @Transactional
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -29,10 +34,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token = tokenProvider.resolveToken(request);
         LOGGER.info("[doFilterInternal] 토큰 정보 읽어오기 token : {} ",token);
         LOGGER.info("[doFilterInternal] 토큰 유효성 체크 ");
-        if(token != null && tokenProvider.validateToken(token)){
-            Authentication authentication = tokenProvider.getAuthentication(token);
-            SecurityContextHolder.getContext().setAuthentication(authentication); // 토큰이 유효하다면 sercuritycontextholder에 추가한다.
-            LOGGER.info("[doFilterInternal] 토큰 유효성 체크 완료 ");
+        try {
+            if (token != null && tokenProvider.validateToken(token)) {
+                Authentication authentication = tokenProvider.getAuthentication(token);
+                SecurityContextHolder.getContext().setAuthentication(authentication); // 토큰이 유효하다면 sercuritycontextholder에 추가한다.
+                LOGGER.info("[doFilterInternal] 토큰 유효성 체크 완료 ");
+            }
+        }
+        catch (ExpiredJwtException e) {
+            LOGGER.info("[doFilterInternal] 토큰 유효 기간 끝 ");
+            throw new ExpiredJwtException(e.getHeader(), e.getClaims(),token);
+
+        }
+        catch (JwtException e){
+            LOGGER.info("[doFilterInternal] 토큰 시그니처 에러");
+            throw new JwtException("토큰 시그니처 에러");
         }
 
         filterChain.doFilter(request, response);
