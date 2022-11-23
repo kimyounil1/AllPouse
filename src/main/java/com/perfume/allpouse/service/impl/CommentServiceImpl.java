@@ -44,7 +44,10 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
     public Long update(SaveCommentDto saveCommentDto) {
 
-        return null;
+        Comment comment = commentRepository.findById(saveCommentDto.getId()).get();
+        comment.changeComment(saveCommentDto);
+
+        return comment.getId();
     }
 
 
@@ -52,7 +55,6 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @Transactional
     public void delete(Long id) {
-
     }
 
 
@@ -79,7 +81,7 @@ public class CommentServiceImpl implements CommentService {
 
 
     // Dto -> Comment
-    public Comment toEntity(SaveCommentDto commentDto) {
+    private Comment toEntity(SaveCommentDto commentDto) {
 
         Long userId = commentDto.getUserId();
         Long reviewId = commentDto.getReviewId();

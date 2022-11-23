@@ -1,23 +1,26 @@
 package com.perfume.allpouse.service.impl;
 
+import com.perfume.allpouse.data.entity.Comment;
+import com.perfume.allpouse.data.repository.CommentRepository;
 import com.perfume.allpouse.model.dto.SaveCommentDto;
 import com.perfume.allpouse.service.CommentService;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 class CommentServiceImplTest {
 
     @Autowired
     CommentService commentService;
+
+    @Autowired
+    CommentRepository commentRepository;
+
 
     @Transactional
     @DisplayName("저장 테스트")
@@ -41,11 +44,19 @@ class CommentServiceImplTest {
     @Test
     public void updateTest() throws Exception {
         //given
-
+        SaveCommentDto dto = new SaveCommentDto(
+                15L, "new_title", "new_content", 3L, 12L
+        );
 
         //when
+        Long newId = commentService.update(dto);
+        Comment comment = commentRepository.findById(newId).get();
 
         //then
+        assertThat(newId).isEqualTo(15L);
+        assertThat(comment.getTitle()).isEqualTo("new_title");
+        assertThat(comment.getContent()).isEqualTo("new_content");
+
     }
 
 

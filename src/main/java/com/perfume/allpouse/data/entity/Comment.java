@@ -1,5 +1,6 @@
 package com.perfume.allpouse.data.entity;
 
+import com.perfume.allpouse.model.dto.SaveCommentDto;
 import lombok.*;
 
 import javax.persistence.*;
@@ -49,9 +50,9 @@ public class Comment extends BaseTimeEntity {
 
     //== 댓글 내용 변경 ==//
     // 변경가능항목 : title, content
-    //public void changeComment(SaveCommentDto commentDto) {
-    //
-    //}
+    public void changeComment(SaveCommentDto commentDto) {
 
-
+        this.title = commentDto.getTitle();
+        this.content = commentDto.getContent();
+    }
 }
