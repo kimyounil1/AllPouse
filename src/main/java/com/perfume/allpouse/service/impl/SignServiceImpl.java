@@ -72,7 +72,7 @@ public class SignServiceImpl implements SignService {
         LOGGER.info("[signIn] User 정보 조회");
         Optional<User> user = validateDuplicateUser(socialId, loginType);
         LOGGER.info("[signIn] User 정보 조회 완료 SocialId : {}", user.get().getSocialId());
-        String token = tokenProvider.createToken(user.get().getSocialId(),user.get().getPermission().getValue(), user.get().getId());
+        String token = tokenProvider.createToken(user.get().getPermission().getValue(), user.get().getId());
         LOGGER.info("[signIn] token 발급 완료 token : {}", token);
         return token;
     }

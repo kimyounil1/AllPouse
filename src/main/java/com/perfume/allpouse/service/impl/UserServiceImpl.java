@@ -21,8 +21,9 @@ public class UserServiceImpl implements UserService {
         this.userRepository = userRepository;
     }
 
-    public User loadUserBySocialId(String socialId) {
-        LOGGER.info("[loadUserByUserName] 함수 실행. socialID : {}",socialId);
-        return userRepository.getBySocialId(socialId);
+    public User loadUserById(long id) {
+        LOGGER.info("[loadUserById] 함수 실행. id : {}",id);
+        return userRepository.getReferenceById(id);
     }
+
 }
