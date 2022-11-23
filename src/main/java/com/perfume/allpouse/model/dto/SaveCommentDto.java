@@ -38,9 +38,4 @@ public class SaveCommentDto {
         this.userId = userId;
         this.reviewId = reviewId;
     }
-
-
-
-
-
 }

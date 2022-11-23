@@ -22,6 +22,7 @@ public class BrandServiceImpl implements BrandService {
 
     // 브랜드 저장
     @Transactional
+    @Override
     public Long save(SaveBrandDto saveBrandDto) {
 
         Brand savedBrand = brandRepository.save(toEntity(saveBrandDto));
@@ -32,6 +33,7 @@ public class BrandServiceImpl implements BrandService {
 
     // 브랜드 수정
     @Transactional
+    @Override
     public Long update(SaveBrandDto saveBrandDto) {
         Brand brand = brandRepository.findById(saveBrandDto.getId()).get();
         brand.changeBrand(saveBrandDto);
@@ -42,6 +44,7 @@ public class BrandServiceImpl implements BrandService {
 
     // 브랜드 삭제(By id)
     @Transactional
+    @Override
     public void delete(Long id) {
 
         Optional<Brand> brand = brandRepository.findById(id);
@@ -55,12 +58,14 @@ public class BrandServiceImpl implements BrandService {
 
 
     // 전체 브랜드 조회
+    @Override
     public List<Brand> findAll() {
         return brandRepository.findAll();
     }
 
 
     // 브랜드 단건 조회(with id)
+    @Override
     public Brand findOne(Long id) {
         Optional<Brand> findBrand = brandRepository.findById(id);
 
@@ -74,6 +79,7 @@ public class BrandServiceImpl implements BrandService {
 
     // 브랜드 조회(파라미터 name을 포함한 브랜드 검색)
     // 기본정렬 : 이름순 오름차순
+    @Override
     public List<Brand> find(String name) {
         List<Brand> brands = brandRepository.findByNameContainingOrderByNameAsc(name);
 

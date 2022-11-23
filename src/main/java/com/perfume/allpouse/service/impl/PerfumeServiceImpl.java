@@ -26,6 +26,7 @@ public class PerfumeServiceImpl implements PerfumeService {
 
     // 향수 저장
     @Transactional
+    @Override
     public Long save(SavePerfumeDto savePerfumeDto) {
 
         PerfumeBoard perfumeBoard = toEntity(savePerfumeDto);
@@ -37,6 +38,7 @@ public class PerfumeServiceImpl implements PerfumeService {
 
     // 향수 수정
     @Transactional
+    @Override
     public Long update(SavePerfumeDto savePerfumeDto) {
 
         PerfumeBoard perfume = perfumeRepository.findById(savePerfumeDto.getId()).get();
@@ -48,6 +50,7 @@ public class PerfumeServiceImpl implements PerfumeService {
 
     // 향수 삭제
     @Transactional
+    @Override
     public void delete(Long id) {
 
         Optional<PerfumeBoard> perfume = perfumeRepository.findById(id);
@@ -61,10 +64,12 @@ public class PerfumeServiceImpl implements PerfumeService {
 
 
     // 전체 향수 조회
+    @Override
     public List<PerfumeBoard> findAll() {return perfumeRepository.findAll();}
 
 
     // 향수 단건 조회(with id)
+    @Override
     public PerfumeBoard findOne(Long id) {
         Optional<PerfumeBoard> findPerfume = perfumeRepository.findById(id);
 
@@ -78,6 +83,7 @@ public class PerfumeServiceImpl implements PerfumeService {
 
     // 향수 조회(파라미터 Brand_id로 조회)
     // 기본정렬 : 이름(subject) 오름차순
+    @Override
     public List<PerfumeBoard> findByBrandId(Long id) {
 
         List<PerfumeBoard> perfumes = perfumeRepository.findByBrandId(id);

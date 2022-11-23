@@ -21,12 +21,15 @@ import java.util.Optional;
 public class ReviewServiceImpl implements ReviewService {
 
     private final ReviewBoardRepository reviewRepository;
+
     private final PerfumeBoardRepository perfumeRepository;
+
     private final UserRepository userRepository;
 
 
     // 리뷰 저장
     @Transactional
+    @Override
     public Long save(SaveReviewDto saveReviewDto) {
 
         ReviewBoard reviewBoard = toEntity(saveReviewDto);
@@ -38,6 +41,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     // 리뷰 수정
     @Transactional
+    @Override
     public Long update(SaveReviewDto saveReviewDto) {
 
         ReviewBoard review = reviewRepository.findById(saveReviewDto.getId()).get();
@@ -49,6 +53,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     // 리뷰 삭제
     @Transactional
+    @Override
     public void delete(Long id) {
 
         Optional<ReviewBoard> review = reviewRepository.findById(id);
@@ -67,6 +72,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     //회원이 작성한 전체 리뷰 조회(파라미터 user_id)
     //기본정렬 : 작성일자(cre_dt)
+    @Override
     public List<ReviewBoard> findByUserId(Long id) {
 
         List<ReviewBoard> reviews = reviewRepository.findReviewsByUserId(id);
@@ -81,6 +87,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     //향수에 대한 리뷰 전체 조회(파라미터 perfumeBoard_id)
     //기본정렬 : 작성일자(cre_dt)
+    @Override
     public List<ReviewBoard> findByPerfumeId(Long id) {
 
         List<ReviewBoard> reviews = reviewRepository.findReviewsByPerfumeId(id);
@@ -94,6 +101,7 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     // 리뷰 id로 조회
+    @Override
     public ReviewBoard findById(Long id) {
         Optional<ReviewBoard> review = reviewRepository.findById(id);
 
