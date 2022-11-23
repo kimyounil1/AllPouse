@@ -41,12 +41,12 @@ public class ReviewController {
 
         String token = tokenProvider.resolveToken(request);
 
-        Integer userId = tokenProvider.getUserId(token);
+        Long userId = tokenProvider.getId(token);
 
         Long reviewId = saveReviewDto.getId();
 
         if (reviewId == null) {
-            saveReviewDto.setUserId(Long.valueOf(userId));
+            saveReviewDto.setUserId(userId);
             Long savedId = reviewService.save(saveReviewDto);
 
             //response
@@ -74,7 +74,7 @@ public class ReviewController {
 
         String token = tokenProvider.resolveToken(request);
 
-        Long userId = Long.valueOf(tokenProvider.getUserId(token));
+        Long userId = tokenProvider.getId(token);
 
         ReviewBoard review = reviewService.findById(reviewId);
 

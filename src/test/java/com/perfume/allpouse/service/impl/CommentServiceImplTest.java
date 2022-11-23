@@ -4,13 +4,17 @@ import com.perfume.allpouse.data.entity.Comment;
 import com.perfume.allpouse.data.repository.CommentRepository;
 import com.perfume.allpouse.model.dto.SaveCommentDto;
 import com.perfume.allpouse.service.CommentService;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.InstanceOfAssertFactories.optional;
 
 @SpringBootTest
 class CommentServiceImplTest {
@@ -23,7 +27,7 @@ class CommentServiceImplTest {
 
 
     @Transactional
-    @DisplayName("저장 테스트")
+    @DisplayName("댓글 저장 테스트")
     @Test
     public void saveTest() throws Exception {
         //given
@@ -40,7 +44,7 @@ class CommentServiceImplTest {
     }
 
     @Transactional
-    @DisplayName("업데이트 테스트")
+    @DisplayName("댓글 업데이트 테스트")
     @Test
     public void updateTest() throws Exception {
         //given
@@ -56,8 +60,36 @@ class CommentServiceImplTest {
         assertThat(newId).isEqualTo(15L);
         assertThat(comment.getTitle()).isEqualTo("new_title");
         assertThat(comment.getContent()).isEqualTo("new_content");
+    }
+
+    @Transactional
+    @DisplayName("댓글 삭제 테스트")
+    @Test
+    public void deleteTest() throws Exception {
+        //given
+        SaveCommentDto dto = new SaveCommentDto(
+                "testTitle", "testContent", 4L, 12L
+        );
+
+        Long savedId = commentService.save(dto);
+
+
+        //when
+        Optional<Comment> optionalComment
+                = commentRepository.findById(savedId);
+        Comment comment = optionalComment.get();
+
+        //then
+        assertThat(comment.getContent()).isEqualTo("testContent");
+
+        commentService.delete(savedId);
+        Assertions.assertThrows(IllegalStateException.class,
+                ()->commentService.delete(savedId));
+
 
     }
+
+
 
 
 

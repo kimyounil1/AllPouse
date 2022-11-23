@@ -10,15 +10,20 @@ import com.perfume.allpouse.data.repository.UserRepository;
 import com.perfume.allpouse.model.dto.SaveCommentDto;
 import com.perfume.allpouse.service.CommentService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class CommentServiceImpl implements CommentService {
+
+    private final Logger LOGGER = LoggerFactory.getLogger(CommentServiceImpl.class);
 
     private final CommentRepository commentRepository;
 
@@ -55,6 +60,14 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @Transactional
     public void delete(Long id) {
+
+        Optional<Comment> comment = commentRepository.findById(id);
+
+        if (comment.isPresent()) {
+            commentRepository.delete(comment.get());
+        } else {
+            throw new IllegalStateException("존재하지 않는 댓글입니다.");
+        }
     }
 
 
