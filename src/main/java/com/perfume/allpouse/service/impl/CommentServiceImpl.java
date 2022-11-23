@@ -8,7 +8,6 @@ import com.perfume.allpouse.data.repository.CommentRepository;
 import com.perfume.allpouse.data.repository.ReviewBoardRepository;
 import com.perfume.allpouse.data.repository.UserRepository;
 import com.perfume.allpouse.exception.CustomException;
-import com.perfume.allpouse.exception.ExceptionEnum;
 import com.perfume.allpouse.model.dto.SaveCommentDto;
 import com.perfume.allpouse.service.CommentService;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
-import static com.perfume.allpouse.exception.ExceptionEnum.*;
+import static com.perfume.allpouse.exception.ExceptionEnum.INVALID_PARAMETER;
 
 @Service
 @Transactional(readOnly = true)
@@ -70,7 +69,7 @@ public class CommentServiceImpl implements CommentService {
         if (comment.isPresent()) {
             commentRepository.delete(comment.get());
         } else {
-            throw new CustomException(INVALID_PARAMETER);
+            throw new IllegalStateException("존재하지 않는 댓글입니다.");
         }
     }
 
@@ -105,11 +104,9 @@ public class CommentServiceImpl implements CommentService {
         }
     }
 
-
     // 댓글 단건 조회(파라미터 : comment_id)
     @Override
-    public Comment findById(Long id) {
-
+    public Comment findOne(Long id) {
         Optional<Comment> comment = commentRepository.findById(id);
 
         if (comment.isEmpty()) {
