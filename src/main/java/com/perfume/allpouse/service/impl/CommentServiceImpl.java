@@ -32,6 +32,10 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
     public Long save(SaveCommentDto saveCommentDto) {
 
+        Comment comment = toEntity(saveCommentDto);
+        Comment savedComment = commentRepository.save(comment);
+
+        return savedComment.getId();
     }
 
 
@@ -39,6 +43,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @Transactional
     public Long update(SaveCommentDto saveCommentDto) {
+
         return null;
     }
 
