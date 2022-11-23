@@ -36,7 +36,7 @@ public class TokenProvider implements InitializingBean {
     @Value("${springboot.jwt.secret}")
     private String secretKey;
     private Key key;
-    private final long tokenValidMillisecond = 1000L;//60 * 60 * 24 * 30
+    private final long tokenValidMillisecond = 1000L * 60 * 60 * 24 * 30;
 
 
     @Override

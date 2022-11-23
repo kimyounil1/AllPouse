@@ -2,6 +2,7 @@ package com.perfume.allpouse.service.impl;
 
 import com.perfume.allpouse.data.entity.User;
 import com.perfume.allpouse.data.repository.UserRepository;
+import com.perfume.allpouse.model.dto.UserInfoDto;
 import com.perfume.allpouse.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,5 +26,6 @@ public class UserServiceImpl implements UserService {
         LOGGER.info("[loadUserById] 함수 실행. id : {}",id);
         return userRepository.getReferenceById(id);
     }
+
 
 }
