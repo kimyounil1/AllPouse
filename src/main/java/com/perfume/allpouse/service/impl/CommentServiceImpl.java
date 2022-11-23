@@ -74,17 +74,33 @@ public class CommentServiceImpl implements CommentService {
     /*
      * 댓글 조회 메소드
      */
-    //
+    // 회원이 작성한 전체 댓글 조회(파라미터 user_id)
+    // 기본정렬 : 작성일자(cre_dt)
     @Override
     public List<Comment> findByUserId(Long id) {
-        return null;
+
+        List<Comment> comments = commentRepository.findCommentsByUserId(id);
+
+        if (comments.size() == 0) {
+            throw new IllegalStateException("해당 유저가 작성한 댓글이 없습니다.");
+        } else {
+            return comments;
+        }
     }
 
-    //
+    // 리뷰에 대한 전체 댓글 조회(파라미터 ReviewBoard_id)
+    // 기본정렬 : 작성일자(cre_dt)
     @Override
     public List<Comment> findByReviewId(Long id) {
-        return null;
+        List<Comment> comments = commentRepository.findCommentsByReviewId(id);
+
+        if (comments.size() == 0) {
+            throw new IllegalStateException("해당 리뷰에 대한 댓글이 없습니다.");
+        } else {
+            return comments;
+        }
     }
+
 
     //
     @Override
