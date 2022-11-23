@@ -16,6 +16,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+
 @Component
 public class JwtExceptionFilter extends OncePerRequestFilter {
 
@@ -43,6 +44,5 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
                     + "\", \"success\" : \"" + ExceptionEnum.INVALID_TOKEN.isSuccess()
                     + "\", \"errors\" : \""+ ExceptionEnum.INVALID_TOKEN.name()+"\"}");
         }
-
     }
 }

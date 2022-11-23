@@ -7,6 +7,8 @@ import com.perfume.allpouse.data.entity.User;
 import com.perfume.allpouse.data.repository.CommentRepository;
 import com.perfume.allpouse.data.repository.ReviewBoardRepository;
 import com.perfume.allpouse.data.repository.UserRepository;
+import com.perfume.allpouse.exception.CustomException;
+import com.perfume.allpouse.exception.ExceptionEnum;
 import com.perfume.allpouse.model.dto.SaveCommentDto;
 import com.perfume.allpouse.service.CommentService;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+
+import static com.perfume.allpouse.exception.ExceptionEnum.*;
 
 @Service
 @Transactional(readOnly = true)
@@ -66,7 +70,7 @@ public class CommentServiceImpl implements CommentService {
         if (comment.isPresent()) {
             commentRepository.delete(comment.get());
         } else {
-            throw new IllegalStateException("존재하지 않는 댓글입니다.");
+            throw new CustomException(INVALID_PARAMETER);
         }
     }
 
@@ -74,7 +78,7 @@ public class CommentServiceImpl implements CommentService {
     /*
      * 댓글 조회 메소드
      */
-    // 회원이 작성한 전체 댓글 조회(파라미터 user_id)
+    // 회원이 작성한 전체 댓글 조회(파라미터 : user_id)
     // 기본정렬 : 작성일자(cre_dt)
     @Override
     public List<Comment> findByUserId(Long id) {
@@ -82,30 +86,37 @@ public class CommentServiceImpl implements CommentService {
         List<Comment> comments = commentRepository.findCommentsByUserId(id);
 
         if (comments.size() == 0) {
-            throw new IllegalStateException("해당 유저가 작성한 댓글이 없습니다.");
+            throw new CustomException(INVALID_PARAMETER);
         } else {
             return comments;
         }
     }
 
-    // 리뷰에 대한 전체 댓글 조회(파라미터 ReviewBoard_id)
+    // 리뷰에 대한 전체 댓글 조회(파라미터: ReviewBoard_id)
     // 기본정렬 : 작성일자(cre_dt)
     @Override
     public List<Comment> findByReviewId(Long id) {
         List<Comment> comments = commentRepository.findCommentsByReviewId(id);
 
         if (comments.size() == 0) {
-            throw new IllegalStateException("해당 리뷰에 대한 댓글이 없습니다.");
+            throw new CustomException(INVALID_PARAMETER);
         } else {
             return comments;
         }
     }
 
 
-    //
+    // 댓글 단건 조회(파라미터 : comment_id)
     @Override
     public Comment findById(Long id) {
-        return null;
+
+        Optional<Comment> comment = commentRepository.findById(id);
+
+        if (comment.isEmpty()) {
+            throw new CustomException(INVALID_PARAMETER);
+        } else {
+            return comment.get();
+        }
     }
 
 
