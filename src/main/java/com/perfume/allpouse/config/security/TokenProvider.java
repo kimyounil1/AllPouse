@@ -46,25 +46,18 @@ public class TokenProvider implements InitializingBean{
         LOGGER.info("INIT : JWT SecretKey 초기화 완료");
     }
 
-    public String getSocialId(String token) {
+    public long getId(String token) {
         LOGGER.info("[getUserName] 토큰에서 회원 ID 추출 ");
-        String socialId = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getSubject();
-        LOGGER.info("[getUserName] 토큰에서 회원 ID 추출 완료 socialID : {}" ,socialId);
-        return socialId;
+        long id = Long.parseLong(Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getSubject());
+        LOGGER.info("[getUserName] 토큰에서 회원 ID 추출 완료 iD : {}" ,id);
+        return id;
     }
 
-    public Integer getUserId(String token) {
-        LOGGER.info("[getUserId] 토큰에서 회원 저장 ID 추출");
-        Integer userId = (Integer) Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().get("id");
-        LOGGER.info("[getUserId] 토큰에서 회원 저장 ID 추출 완료 userId : {}", userId);
-        return userId;
-    }
+    public String createToken(String roles, long id) {
+        LOGGER.info("[createToken] 토큰 생성 시작 ");
 
-    public String createToken(String socialId , String roles, Long id) {
-
-        Claims claims = Jwts.claims().setSubject(socialId);
+        Claims claims = Jwts.claims().setSubject(String.valueOf(id));
         claims.put("roles", roles);
-        claims.put("id", id);
         Date now = new Date();
 
         String token = Jwts.builder()
@@ -74,13 +67,14 @@ public class TokenProvider implements InitializingBean{
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
 
+        LOGGER.info("[createToken] 토큰 생성 완료 token : ", token);
         return token;
     }
 
     public Authentication getAuthentication (String token) {
 
         LOGGER.info("[getAuthentication] 토큰 인증 정보 조회 시작");
-        User user = userServiceImpl.loadUserBySocialId(this.getSocialId(token));
+        User user = userServiceImpl.loadUserById(this.getId(token));
         LOGGER.info("[getAuthentication] 토큰 인증 정보 조회 완료 user : {}", user.toString());
 
         return new UsernamePasswordAuthenticationToken(user, "",user.getAuthorities());
