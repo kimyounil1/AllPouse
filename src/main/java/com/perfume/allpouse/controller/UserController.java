@@ -37,7 +37,7 @@ public class UserController {
     public SingleResponse<UserInfoDto> userInfo(HttpServletRequest request) {
         LOGGER.info("[userInfo] user 정보 불러오기 ");
         long id = tokenProvider.getId(tokenProvider.resolveToken(request));
-        UserInfoDto user = userServiceImpl.loadUserById(id).toDto();
+        UserInfoDto user = userServiceImpl.loadUserById(id).toUserInfoDto();
         return responseServiceImpl.getSingleResponse(user);
     }
 }
