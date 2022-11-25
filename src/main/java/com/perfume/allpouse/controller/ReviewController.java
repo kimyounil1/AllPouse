@@ -2,6 +2,7 @@ package com.perfume.allpouse.controller;
 
 import com.perfume.allpouse.config.security.TokenProvider;
 import com.perfume.allpouse.data.entity.ReviewBoard;
+import com.perfume.allpouse.exception.CustomException;
 import com.perfume.allpouse.model.dto.SaveReviewDto;
 import com.perfume.allpouse.model.reponse.CommonResponse;
 import com.perfume.allpouse.model.reponse.SingleResponse;
@@ -15,6 +16,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+
+import static com.perfume.allpouse.exception.ExceptionEnum.INVALID_PARAMETER;
 
 @Slf4j
 @RestController
@@ -81,8 +84,6 @@ public class ReviewController {
 
         if (userId.equals(reviewUserId)) {
             reviewService.delete(reviewId);
-
-            //response
             CommonResponse response = new CommonResponse();
             responseService.setSuccessResponse(response);
 
@@ -90,13 +91,7 @@ public class ReviewController {
         }
 
         else {
-            //response
-            CommonResponse response = new CommonResponse();
-            response.setCode(400);
-            response.setSuccess(false);
-            response.setMsg("파라미터 값을 확인해주세요.");
-
-            return response;
+            throw new CustomException(INVALID_PARAMETER);
         }
 
 

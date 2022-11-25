@@ -59,7 +59,7 @@ public class User extends BaseTimeEntity implements UserDetails {
         return authorities;
     }
 
-    public UserInfoDto toDto(){
+    public UserInfoDto toUserInfoDto(){
         return UserInfoDto.builder()
                 .age(age)
                 .gender(gender)
