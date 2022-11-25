@@ -16,10 +16,10 @@ build/
 bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
-!**/src/test/
+!**/src/test/**
 
 ### IntelliJ IDEA ###
-application-secret.properties
+**/application-secret.properties
 .idea
 *.iws
 *.iml
