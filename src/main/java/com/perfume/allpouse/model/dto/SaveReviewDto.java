@@ -28,7 +28,6 @@ public class SaveReviewDto {
         this.subject = reviewBoard.getSubject();
         this.userId = reviewBoard.getUser().getId();
         this.perfumeId = reviewBoard.getPerfume().getId();
-        this.imagePath = reviewBoard.getImagePath();
     }
 
 
@@ -37,6 +36,5 @@ public class SaveReviewDto {
         this.content = content;
         this.userId = userId;
         this.perfumeId = perfumeId;
-        this.imagePath = imagePath;
     }
 }

@@ -40,8 +40,6 @@ public class ReviewBoard extends BaseTimeEntity{
     @JoinColumn(name = "perfume_board_id")
     private PerfumeBoard perfume;
 
-    private String imagePath;
-
     @Builder.Default
     @OneToMany(mappedBy = "review", cascade = CascadeType.ALL)
     private List<Comment> comments = new ArrayList<>();
@@ -66,6 +64,5 @@ public class ReviewBoard extends BaseTimeEntity{
     public void changeReview(SaveReviewDto reviewDto) {
         this.subject = reviewDto.getSubject();
         this.content = reviewDto.getContent();
-        this.imagePath = reviewDto.getImagePath();
     }
 }

@@ -38,16 +38,16 @@ public class DatabaseTest {
 
 
 
-    private void savePerfume(String subject, String content, int price, Long brandId, String imagePath) {
+    private void savePerfume(String subject, String content, int price, Long brandId) {
         perfumeService.save(
-                new SavePerfumeDto(subject, content, price, brandId, imagePath)
+                new SavePerfumeDto(subject, content, price, brandId)
         );
     }
 
 
-    private void saveBrand(String name, String content, String imagePath) {
+    private void saveBrand(String name, String content) {
         brandService.save(
-                new SaveBrandDto(name, content, imagePath)
+                new SaveBrandDto(name, content)
         );
     }
 

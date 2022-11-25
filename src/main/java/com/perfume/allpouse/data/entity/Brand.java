@@ -26,7 +26,6 @@ public class Brand {
     @Column(columnDefinition = "TEXT")
     private String content;
 
-    private String imagePath;
 
     @Builder.Default
     @OneToMany(mappedBy = "brand", cascade = CascadeType.ALL)
@@ -38,6 +37,5 @@ public class Brand {
     public void changeBrand(SaveBrandDto brandDto) {
         this.name = brandDto.getName();
         this.content = brandDto.getContent();
-        this.imagePath = brandDto.getImagePath();
     }
 }

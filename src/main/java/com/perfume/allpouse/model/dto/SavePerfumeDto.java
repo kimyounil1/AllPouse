@@ -19,7 +19,6 @@ public class SavePerfumeDto {
 
     private Long brandId;
 
-    private String imagePath;
 
 
     // PerfumeBoard -> Dto
@@ -29,15 +28,13 @@ public class SavePerfumeDto {
         this.content = perfumeBoard.getContent();
         this.price = perfumeBoard.getPrice();
         this.brandId = perfumeBoard.getBrand().getId();
-        this.imagePath = perfumeBoard.getImagePath();
     }
 
 
-    public SavePerfumeDto(String subject, String content, int price, Long brandId, String imagePath) {
+    public SavePerfumeDto(String subject, String content, int price, Long brandId) {
         this.subject = subject;
         this.content = content;
         this.price = price;
         this.brandId = brandId;
-        this.imagePath = imagePath;
     }
 }

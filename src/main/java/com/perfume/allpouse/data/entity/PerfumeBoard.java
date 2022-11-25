@@ -38,7 +38,6 @@ public class PerfumeBoard extends BaseTimeEntity {
     @JoinColumn(name = "brand_id")
     private Brand brand;
 
-    private String imagePath;
 
     @Builder.Default
     @OneToMany(mappedBy = "perfume", cascade = CascadeType.ALL)
@@ -59,7 +58,6 @@ public class PerfumeBoard extends BaseTimeEntity {
         this.subject = perfumeDto.getSubject();
         this.content = perfumeDto.getContent();
         this.price = perfumeDto.getPrice();
-        this.imagePath = perfumeDto.getImagePath();
     }
 
 }

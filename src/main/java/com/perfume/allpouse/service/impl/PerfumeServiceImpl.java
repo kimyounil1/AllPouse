@@ -106,7 +106,6 @@ public class PerfumeServiceImpl implements PerfumeService {
                 .subject(perfumeDto.getSubject())
                 .content(perfumeDto.getContent())
                 .price(perfumeDto.getPrice())
-                .imagePath(perfumeDto.getImagePath())
                 .build();
 
         perfume.addBrand(brand);

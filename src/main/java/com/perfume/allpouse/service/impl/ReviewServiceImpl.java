@@ -125,7 +125,6 @@ public class ReviewServiceImpl implements ReviewService {
                 .id(reviewDto.getId())
                 .subject(reviewDto.getSubject())
                 .content(reviewDto.getContent())
-                .imagePath(reviewDto.getImagePath())
                 .build();
 
         addUserAndPerfume(review, user, perfume);

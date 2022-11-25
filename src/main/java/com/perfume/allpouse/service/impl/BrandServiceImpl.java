@@ -97,7 +97,6 @@ public class BrandServiceImpl implements BrandService {
                 .id(brandDto.getId())
                 .name(brandDto.getName())
                 .content(brandDto.getContent())
-                .imagePath(brandDto.getImagePath())
                 .build();
     }
 }
