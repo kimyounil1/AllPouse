@@ -57,7 +57,6 @@ public class S3ServiceImpl implements S3Service {
         String s3FileName = UUID.randomUUID() + "-" + uploadFile.getName();
         String uploadImageUrl = putS3(uploadFile, s3FileName);
         removeNewFile(uploadFile);  // 로컬에 생성된 File 삭제 (MultipartFile -> File 전환 하며 로컬에 파일 생성됨)
-
         LOGGER.info("[upload] 파일 업로드 완료 Link : {}" ,uploadImageUrl);
         return uploadImageUrl;      // 업로드된 파일의 S3 URL 주소 반환
     }

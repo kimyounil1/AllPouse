@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface PhotoService {
 
-    List<String> save(List<MultipartFile> multipartFileList) throws IOException;
+    List<String> save(List<MultipartFile> multipartFileList, String type, Long boardId) throws IOException;
 
 }
