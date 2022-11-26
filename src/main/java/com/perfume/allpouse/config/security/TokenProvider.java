@@ -2,6 +2,7 @@ package com.perfume.allpouse.config.security;
 
 import com.perfume.allpouse.data.entity.User;
 import com.perfume.allpouse.filter.JwtAuthenticationFilter;
+import com.perfume.allpouse.model.dto.SignDto;
 import com.perfume.allpouse.service.impl.UserServiceImpl;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
@@ -38,6 +39,8 @@ public class TokenProvider implements InitializingBean {
     private Key key;
     private final long tokenValidMillisecond = 1000L * 60 * 60 * 24 * 30;
 
+    private final long refreshTokenValidMillisecond = 1000L * 60 * 60 * 24 * 30 * 3;
+
 
     @Override
     public void afterPropertiesSet() {
@@ -53,22 +56,40 @@ public class TokenProvider implements InitializingBean {
         return id;
     }
 
-    public String createToken(String roles, long id) {
+    public String getRole(String token) {
+        LOGGER.info("[getUserName] 토큰에서 회원 ID 추출 ");
+        String role = String.valueOf(Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().get("roles"));
+        LOGGER.info("[getUserName] 토큰에서 회원 ID 추출 완료 role : {}", role);
+        return role;
+    }
+
+    public SignDto createToken(String roles, long id) {
         LOGGER.info("[createToken] 토큰 생성 시작 ");
 
         Claims claims = Jwts.claims().setSubject(String.valueOf(id));
         claims.put("roles", roles);
         Date now = new Date();
 
-        String token = Jwts.builder()
+        String accessToken = Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(now)
                 .setExpiration(new Date(now.getTime() + tokenValidMillisecond))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
 
-        LOGGER.info("[createToken] 토큰 생성 완료 token : ", token);
-        return token;
+        String refreshToken = Jwts.builder()
+                .setSubject(String.valueOf(id))
+                .setIssuedAt(now)
+                .setExpiration(new Date(now.getTime() + tokenValidMillisecond))
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+
+        SignDto signDto = SignDto.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
+        LOGGER.info("[createToken] 토큰 생성 완료 token : ", accessToken);
+        return signDto;
     }
 
     public Authentication getAuthentication(String token) {
