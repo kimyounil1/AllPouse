@@ -114,16 +114,40 @@ public class ReviewController {
             }
         }
     }
+
+
+    @ResponseBody
+    @DeleteMapping("review")
+    public CommonResponse deleteReview(
+            HttpServletRequest request,
+            @ApiParam(value = "삭제하려는 리뷰 id", required = true) @RequestParam Long reviewId) {
+
+        String token = tokenProvider.resolveToken(request);
+        Long userId = tokenProvider.getId(token);
+
+        ReviewBoard review = reviewService.findById(reviewId);
+
+        Long reviewUserId = review.getUser().getId();
+
+        if (userId.equals(reviewUserId)) {
+            reviewService.delete(reviewId);
+
+            // response
+            CommonResponse response = new CommonResponse();
+            responseService.setSuccessResponse(response);
+            return response;
+
+        } else {
+            throw new CustomException(INVALID_PARAMETER);
+        }
+
+    }
+
+
+    // 회원이 쓴 리뷰
+
+
 }
 
 
-
-
-
-
-
-
-    // review 삭제
-
-    // review 조회 -> UserController에서
 
