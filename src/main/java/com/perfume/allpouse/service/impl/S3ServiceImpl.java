@@ -2,6 +2,7 @@ package com.perfume.allpouse.service.impl;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.perfume.allpouse.controller.ReviewController;
 import com.perfume.allpouse.service.S3Service;
@@ -31,7 +32,6 @@ public class S3ServiceImpl implements S3Service {
     private final AmazonS3 amazonS3;
 
 
-
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
@@ -58,6 +58,7 @@ public class S3ServiceImpl implements S3Service {
         String uploadImageUrl = putS3(uploadFile, s3FileName);
         removeNewFile(uploadFile);  // 로컬에 생성된 File 삭제 (MultipartFile -> File 전환 하며 로컬에 파일 생성됨)
         LOGGER.info("[upload] 파일 업로드 완료 Link : {}" ,uploadImageUrl);
+
         return uploadImageUrl;      // 업로드된 파일의 S3 URL 주소 반환
     }
 
@@ -87,5 +88,11 @@ public class S3ServiceImpl implements S3Service {
         }
         return Optional.empty();
     }
+
+    public void delete(String fileName) {
+        amazonS3.deleteObject(new DeleteObjectRequest(bucket, fileName));
+    }
+
+
 
 }

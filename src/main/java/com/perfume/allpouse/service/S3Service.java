@@ -9,4 +9,5 @@ public interface S3Service {
 
     List<String> upload(List<MultipartFile> multipartFileList) throws IOException;
 
+
 }

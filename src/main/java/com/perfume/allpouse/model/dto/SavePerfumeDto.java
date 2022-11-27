@@ -21,6 +21,8 @@ public class SavePerfumeDto {
 
 
 
+
+
     // PerfumeBoard -> Dto
     public SavePerfumeDto(PerfumeBoard perfumeBoard) {
         this.id = perfumeBoard.getId();

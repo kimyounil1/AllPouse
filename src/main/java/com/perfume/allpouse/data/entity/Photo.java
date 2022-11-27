@@ -1,9 +1,11 @@
 package com.perfume.allpouse.data.entity;
 
+import com.perfume.allpouse.model.enums.BoardType;
 import lombok.*;
 
 import javax.persistence.*;
 
+import static javax.persistence.EnumType.*;
 import static javax.persistence.GenerationType.AUTO;
 
 @Entity
@@ -18,7 +20,8 @@ public class Photo {
     @GeneratedValue(strategy = AUTO)
     private Long id;
 
-    private String type;
+    @Enumerated(value = STRING)
+    private BoardType boardType;
 
     private String path;
 
