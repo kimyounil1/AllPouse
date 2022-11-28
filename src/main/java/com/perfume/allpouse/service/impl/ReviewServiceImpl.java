@@ -6,12 +6,15 @@ import com.perfume.allpouse.data.entity.User;
 import com.perfume.allpouse.data.repository.PerfumeBoardRepository;
 import com.perfume.allpouse.data.repository.ReviewBoardRepository;
 import com.perfume.allpouse.data.repository.UserRepository;
+import com.perfume.allpouse.exception.CustomException;
+import com.perfume.allpouse.exception.ExceptionEnum;
 import com.perfume.allpouse.model.dto.ReviewResponseDto;
 import com.perfume.allpouse.model.dto.SaveReviewDto;
 import com.perfume.allpouse.service.PhotoService;
 import com.perfume.allpouse.service.ReviewService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Pageable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +37,8 @@ public class ReviewServiceImpl implements ReviewService {
     private final PhotoService photoService;
 
     private final EntityManager em;
+
+    private final Logger LOGGER = LoggerFactory.getLogger(ReviewServiceImpl.class);
 
 
     // 리뷰 저장
@@ -148,6 +153,7 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
 
+    // 유저가 작성한 리뷰와 사진 ReviewResponseDto로 변환해서 가져옴
     @Override
     public List<ReviewResponseDto> getReviewDto(Long userId) {
 
@@ -162,4 +168,23 @@ public class ReviewServiceImpl implements ReviewService {
                 .getResultList();
     }
 
+
+    // 전체 리뷰와 사진을 ReviewResponseDto로 변환해서 가져옴
+    // 기본설정 -> 작성일자 기준 내림차순
+    public List<ReviewResponseDto> getRecentReviewDto() {
+
+        try {
+            return em.createQuery(
+                            "select new com.perfume.allpouse.model.dto.ReviewResponseDto(r.id, r.subject, r.content, r.perfume.subject, r.perfume.brand.name, r.hitCnt, r.recommendCnt, p.path, r.createDateTime)"
+                                    + " from ReviewBoard r"
+                                    + " inner join Photo p"
+                                    + " on r.id = p.boardId"
+                                    + " where p.boardType = 'REVIEW'"
+                                    + " order by r.createDateTime DESC", ReviewResponseDto.class)
+                    .getResultList();
+
+        } catch (Exception e) {
+            throw new CustomException(ExceptionEnum.INVALID_PARAMETER);
+        }
+    }
 }

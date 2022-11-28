@@ -22,4 +22,6 @@ public interface ReviewService {
     ReviewBoard findById(Long id);
 
     List<ReviewResponseDto> getReviewDto(Long userId);
+
+    List<ReviewResponseDto> getRecentReviewDto();
 }

@@ -151,11 +151,14 @@ public class ReviewController {
 
     // 회원이 쓴 리뷰 페이지 별로 가져옴
     // 쿼리파라미터로 페이지네이션 옵션 설정
+    // Sort 옵션은 Service 계층에서 긁어올 때 대입
     @ResponseBody
     @GetMapping("review/me")
-    public Page<ReviewResponseDto> myReviewList(HttpServletRequest request,
-                                                @ApiParam(value = "페이지네이션 옵션")
-                                                @PageableDefault(page = 0, size = 20, sort = "subject", direction = Sort.Direction.DESC) Pageable pageable) {
+    public Page<ReviewResponseDto> myReviewList(
+            HttpServletRequest request,
+            @ApiParam(value = "페이지네이션 옵션")
+            @PageableDefault(page = 0, size = 20, sort = "createdDateTime", direction = Sort.Direction.DESC) Pageable pageable)
+    {
 
         String token = tokenProvider.resolveToken(request);
 
@@ -169,6 +172,23 @@ public class ReviewController {
 
         //LOGGER.info(sortCri);
         //LOGGER.info(sortDir);
+
+        int start = (int)pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), reviewDtoList.size());
+        Page<ReviewResponseDto> page = new PageImpl<>(reviewDtoList.subList(start, end), pageable, reviewDtoList.size());
+
+        return page;
+    }
+
+
+    @ResponseBody
+    @GetMapping("review/recent")
+    public Page<ReviewResponseDto> recentReview(
+            @ApiParam(value = "페이지네이션 옵션", required = true)
+            @PageableDefault(page = 0, size = 20, sort = "createdDateTime", direction = Sort.Direction.DESC) Pageable pageable)
+    {
+
+        List<ReviewResponseDto> reviewDtoList = reviewService.getRecentReviewDto();
 
         int start = (int)pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), reviewDtoList.size());

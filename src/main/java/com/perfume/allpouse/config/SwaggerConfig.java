@@ -80,5 +80,8 @@ public class SwaggerConfig {
         @ApiModelProperty(value = "한 페이지당 데이터 개수")
         private Integer size;
 
+        @ApiModelProperty(value = "정렬 방법 (ex. id,ASC")
+        private String sort;
+
     }
 }
