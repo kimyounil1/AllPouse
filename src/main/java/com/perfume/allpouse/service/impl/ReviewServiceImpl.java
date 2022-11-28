@@ -1,16 +1,21 @@
 package com.perfume.allpouse.service.impl;
+
 import com.perfume.allpouse.data.entity.PerfumeBoard;
 import com.perfume.allpouse.data.entity.ReviewBoard;
 import com.perfume.allpouse.data.entity.User;
 import com.perfume.allpouse.data.repository.PerfumeBoardRepository;
 import com.perfume.allpouse.data.repository.ReviewBoardRepository;
 import com.perfume.allpouse.data.repository.UserRepository;
-import com.perfume.allpouse.service.ReviewService;
+import com.perfume.allpouse.model.dto.ReviewResponseDto;
 import com.perfume.allpouse.model.dto.SaveReviewDto;
+import com.perfume.allpouse.service.PhotoService;
+import com.perfume.allpouse.service.ReviewService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,6 +30,10 @@ public class ReviewServiceImpl implements ReviewService {
     private final PerfumeBoardRepository perfumeRepository;
 
     private final UserRepository userRepository;
+
+    private final PhotoService photoService;
+
+    private final EntityManager em;
 
 
     // 리뷰 저장
@@ -85,6 +94,7 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
 
+
     //향수에 대한 리뷰 전체 조회(파라미터 perfumeBoard_id)
     //기본정렬 : 작성일자(cre_dt)
     @Override
@@ -136,4 +146,20 @@ public class ReviewServiceImpl implements ReviewService {
         reviewBoard.setUser(user);
         reviewBoard.setPerfume(perfumeBoard);
     }
+
+
+    @Override
+    public List<ReviewResponseDto> getReviewDto(Long userId) {
+
+        return em.createQuery(
+                        "select new com.perfume.allpouse.model.dto.ReviewResponseDto(r.id, r.subject, r.content, r.perfume.subject, r.perfume.brand.name, r.hitCnt, r.recommendCnt, p.path, r.createDateTime)"
+                                + " from ReviewBoard r"
+                                + " inner join Photo p "
+                                + " on r.id = p.boardId"
+                                + " where p.boardType = 'REVIEW'"
+                                + " and r.user.id = :userId", ReviewResponseDto.class)
+                .setParameter("userId", userId)
+                .getResultList();
+    }
+
 }

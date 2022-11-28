@@ -11,4 +11,6 @@ public interface PhotoService {
     List<String> save(List<MultipartFile> multipartFileList, BoardType boardType, Long boardId) throws IOException;
 
     void delete(BoardType type, Long boardId);
+
+    List<String> getImagePath(BoardType type, Long boardId);
 }

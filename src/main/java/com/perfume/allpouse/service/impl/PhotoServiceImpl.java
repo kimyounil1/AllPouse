@@ -5,6 +5,7 @@ import com.perfume.allpouse.data.entity.Photo;
 import com.perfume.allpouse.data.repository.PhotoRepository;
 import com.perfume.allpouse.model.enums.BoardType;
 import com.perfume.allpouse.service.PhotoService;
+import com.perfume.allpouse.utils.StringListConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -25,49 +26,54 @@ public class PhotoServiceImpl implements PhotoService {
 
     private final PhotoRepository photoRepository;
 
+    StringListConverter stringListConverter;
+
     public PhotoServiceImpl(S3ServiceImpl s3ServiceImpl, PhotoRepository photoRepository) {
         this.s3ServiceImpl = s3ServiceImpl;
         this.photoRepository = photoRepository;
     }
 
     @Override
+    @Transactional
     public List<String> save(List<MultipartFile> multipartFileList, BoardType boardType, Long boardId) throws IOException {
         List<String> result = s3ServiceImpl.upload(multipartFileList);
-        for ( String path : result) {
-            Photo photo = Photo.builder()
-                    .boardId(boardId)
-                    .path(path)
-                    .boardType(boardType)
-                    .build();
-            photoRepository.save(photo);
-            LOGGER.info("[save] 사진 Entity 저장 완료");
-        }
-        
+
+        Photo photo = Photo.builder()
+                .boardId(boardId)
+                .path(result)
+                .boardType(boardType)
+                .build();
+
+        photoRepository.save(photo);
+        LOGGER.info("[save] 사진 Entity 저장 완료");
+
         return result;
     }
 
     @Override
+    @Transactional
     public void delete(BoardType type, Long boardId) {
 
-        List<Photo> photos = photoRepository.findPhotoByBoardTypeAndBoardId(type, boardId);
+        Photo photo = photoRepository.findPhotoByBoardTypeAndBoardId(type, boardId);
 
-        if (!photos.isEmpty()){
+        if (photo != null) {
 
-            List<String> fileNameList = new ArrayList<>();
+            List<String> fileNameList = photo.getPath();
 
-            photos.forEach(photo -> {
-                fileNameList.add(photo.getPath());
-            });
-
-            photoRepository.deleteAll(photos);
+            photoRepository.delete(photo);
 
             for (String fileName : fileNameList) {
                 s3ServiceImpl.delete(fileName);
             }
         }
+
     }
 
 
+    public List<String> getImagePath(BoardType type, Long boardId) {
 
+        Photo photo = photoRepository.findPhotoByBoardTypeAndBoardId(type, boardId);
 
+        return photo.getPath();
+    }
 }
