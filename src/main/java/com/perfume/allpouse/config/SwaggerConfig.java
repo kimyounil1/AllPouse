@@ -1,10 +1,17 @@
 package com.perfume.allpouse.config;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.domain.Pageable;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
+import springfox.documentation.schema.AlternateTypeRule;
+import springfox.documentation.schema.AlternateTypeRules;
 import springfox.documentation.service.ApiInfo;
 import springfox.documentation.service.ApiKey;
 import springfox.documentation.service.AuthorizationScope;
@@ -29,7 +36,10 @@ public class SwaggerConfig {
                 .build()
                 .apiInfo(apiInfo())
                 .securityContexts(Arrays.asList(securityContext()))
-                .securitySchemes(Arrays.asList(apiKey()));
+                .securitySchemes(Arrays.asList(apiKey()))
+                .alternateTypeRules(
+                        AlternateTypeRules.newRule(Pageable.class, Page.class)
+                );
     }
 
     private SecurityContext securityContext() {
@@ -56,5 +66,19 @@ public class SwaggerConfig {
 
     private ApiKey apiKey() {
         return new ApiKey("X-AUTH-TOKEN", "X-AUTH-TOKEN", "header");
+    }
+
+    // Swagger Pageable 파라미터 수정
+    @Getter
+    @Setter
+    @ApiModel
+    static class Page {
+
+        @ApiModelProperty(value = "페이지 번호")
+        private Integer page;
+
+        @ApiModelProperty(value = "한 페이지당 데이터 개수")
+        private Integer size;
+
     }
 }

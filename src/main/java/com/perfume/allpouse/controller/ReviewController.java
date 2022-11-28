@@ -3,12 +3,10 @@ package com.perfume.allpouse.controller;
 import com.perfume.allpouse.config.security.TokenProvider;
 import com.perfume.allpouse.data.entity.ReviewBoard;
 import com.perfume.allpouse.exception.CustomException;
-import com.perfume.allpouse.model.dto.PhotoDto;
 import com.perfume.allpouse.model.dto.ReviewResponseDto;
 import com.perfume.allpouse.model.dto.SaveReviewDto;
 import com.perfume.allpouse.model.enums.BoardType;
 import com.perfume.allpouse.model.reponse.CommonResponse;
-import com.perfume.allpouse.model.reponse.ListResponse;
 import com.perfume.allpouse.model.reponse.SingleResponse;
 import com.perfume.allpouse.service.PhotoService;
 import com.perfume.allpouse.service.ResponseService;
@@ -20,15 +18,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
-
 import java.io.IOException;
 import java.util.List;
 
@@ -51,7 +48,6 @@ public class ReviewController {
 
     private final PhotoService photoService;
 
-    private final EntityManager em;
 
 
     // 리뷰 저장 및 업데이트
@@ -154,18 +150,25 @@ public class ReviewController {
 
 
     // 회원이 쓴 리뷰 페이지 별로 가져옴
-    // pageable : offset, pageNumber, pageSize, sort
+    // 쿼리파라미터로 페이지네이션 옵션 설정
     @ResponseBody
     @GetMapping("review/me")
     public Page<ReviewResponseDto> myReviewList(HttpServletRequest request,
-                                                @ApiParam(value = "페이지네이션 옵션", required = true) Pageable pageable
-    ) {
+                                                @ApiParam(value = "페이지네이션 옵션")
+                                                @PageableDefault(page = 0, size = 20, sort = "subject", direction = Sort.Direction.DESC) Pageable pageable) {
 
         String token = tokenProvider.resolveToken(request);
 
         Long userId = tokenProvider.getId(token);
 
         List<ReviewResponseDto> reviewDtoList = reviewService.getReviewDto(userId);
+
+        //String sortString = String.valueOf(pageable.getSort());
+        //String sortCri = sortString.substring(0, sortString.indexOf(":"));
+        //String sortDir = sortString.substring(sortString.indexOf(" ")+1, sortString.length());
+
+        //LOGGER.info(sortCri);
+        //LOGGER.info(sortDir);
 
         int start = (int)pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), reviewDtoList.size());
