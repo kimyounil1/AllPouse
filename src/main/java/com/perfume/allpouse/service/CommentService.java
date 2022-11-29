@@ -25,4 +25,6 @@ public interface CommentService {
     Page<CommentResponseDto> getUserCommentList(Long id, Pageable pageable);
 
     Page<CommentResponseDto> getAllCommentsList(Pageable pageable);
+
+    Page<CommentResponseDto> getReviewCommentList(Long id, Pageable pageable);
 }

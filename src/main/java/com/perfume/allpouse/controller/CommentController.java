@@ -131,6 +131,20 @@ public class CommentController {
     }
 
 
+    // 리뷰에 달린 댓글들 페이지별로 가져옴
+    @ResponseBody
+    @GetMapping("comment/{reviewId}")
+    public Page<CommentResponseDto> commentsOnReview(
+            @PageableDefault(page = 0, size = 20, sort = "createDateTime", direction = Sort.Direction.DESC) Pageable pageable,
+            @ApiParam(value = "리뷰 id", required = true) @PathVariable("reviewId") Long reviewId)
+    {
+        return commentService.getReviewCommentList(reviewId, pageable);
+
+    }
+
+
+
+
     // HttpServletRequest에서 userId 추출하는 메소드
     private Long getUserIdFromRequest(HttpServletRequest request) {
         String token = tokenProvider.resolveToken(request);

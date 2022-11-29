@@ -14,16 +14,21 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     @Query("select c from Comment c " +
             "where c.user.id = :userId " +
-            "order by c.createDateTime asc")
+            "order by c.createDateTime desc")
     List<Comment> findCommentsByUserId(@Param("userId") Long id);
 
 
     @Query("select c from Comment c " +
             "where c.review.id = :reviewId " +
-            "order by c.createDateTime asc")
+            "order by c.createDateTime desc")
     List<Comment> findCommentsByReviewId(@Param("reviewId") Long id);
+
 
     Page<Comment> findCommentsByUserId(Long userId, Pageable pageable);
 
     Page<Comment> findAll(Pageable pageable);
+
+    Page<Comment> findCommentsByReviewId(Long reviewId, Pageable pageable);
+
+
 }

@@ -153,6 +153,7 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
 
+
     // 유저가 작성한 리뷰와 사진 ReviewResponseDto로 변환해서 가져옴
     @Override
     public List<ReviewResponseDto> getReviewDto(Long userId) {
@@ -171,6 +172,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     // 전체 리뷰와 사진을 ReviewResponseDto로 변환해서 가져옴
     // 기본설정 -> 작성일자 기준 내림차순
+    @Override
     public List<ReviewResponseDto> getRecentReviewDto() {
 
         try {
@@ -182,6 +184,31 @@ public class ReviewServiceImpl implements ReviewService {
                                     + " where p.boardType = 'REVIEW'"
                                     + " order by r.createDateTime DESC", ReviewResponseDto.class)
                     .getResultList();
+
+        } catch (Exception e) {
+            throw new CustomException(ExceptionEnum.INVALID_PARAMETER);
+        }
+    }
+
+
+    @Override
+    public ReviewResponseDto getReviewDtoByReviewId(Long reviewId) {
+
+        try{
+            List<ReviewResponseDto> dtos = em.createQuery(
+                            "select new com.perfume.allpouse.model.dto.ReviewResponseDto(r.id, r.subject, r.content, r.perfume.subject, r.perfume.brand.name, r.hitCnt, r.recommendCnt, p.path, r.createDateTime)"
+                                    + " from ReviewBoard r"
+                                    + " inner join Photo p"
+                                    + " on r.id = p.boardId"
+                                    + " where p.boardType = 'REVIEW'"
+                                    + " and r.id = :reviewId", ReviewResponseDto.class)
+                    .setParameter("reviewId", reviewId).getResultList();
+
+            if (dtos.size() != 1) {
+                throw new CustomException(ExceptionEnum.INVALID_PARAMETER);
+            }
+
+            return dtos.get(0);
 
         } catch (Exception e) {
             throw new CustomException(ExceptionEnum.INVALID_PARAMETER);

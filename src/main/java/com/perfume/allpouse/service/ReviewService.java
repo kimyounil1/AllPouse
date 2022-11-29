@@ -24,4 +24,6 @@ public interface ReviewService {
     List<ReviewResponseDto> getReviewDto(Long userId);
 
     List<ReviewResponseDto> getRecentReviewDto();
+
+    ReviewResponseDto getReviewDtoByReviewId(Long reviewId);
 }

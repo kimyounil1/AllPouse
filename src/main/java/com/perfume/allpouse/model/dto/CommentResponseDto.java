@@ -22,7 +22,11 @@ public class CommentResponseDto {
 
     private Long userId;
 
+    private String userName;
+
     private Long reviewId;
+
+    private String perfumeName;
 
     private LocalDateTime createDateTime;
 
@@ -35,7 +39,9 @@ public class CommentResponseDto {
                 .title(comment.getTitle())
                 .content(comment.getContent())
                 .userId(comment.getUser().getId())
+                .userName(comment.getUser().getUserName())
                 .reviewId(comment.getReview().getId())
+                .perfumeName(comment.getReview().getPerfume().getSubject())
                 .createDateTime(comment.getCreateDateTime())
                 .build();
     }

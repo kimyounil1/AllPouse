@@ -1,7 +1,6 @@
 package com.perfume.allpouse.service.impl;
 
 
-import com.fasterxml.jackson.databind.util.Converter;
 import com.perfume.allpouse.data.entity.Comment;
 import com.perfume.allpouse.data.entity.ReviewBoard;
 import com.perfume.allpouse.data.entity.User;
@@ -141,6 +140,22 @@ public class CommentServiceImpl implements CommentService {
     public Page<CommentResponseDto> getAllCommentsList(Pageable pageable) {
 
         Page<Comment> comments = commentRepository.findAll(pageable);
+
+        Page<CommentResponseDto> dtoPage = comments.map(new Function<Comment, CommentResponseDto>() {
+
+            @Override
+            public CommentResponseDto apply(Comment comment) {
+                return CommentResponseDto.toDto(comment);
+            }
+        });
+
+        return dtoPage;
+    }
+
+    @Override
+    public Page<CommentResponseDto> getReviewCommentList(Long id, Pageable pageable) {
+
+        Page<Comment> comments = commentRepository.findCommentsByReviewId(id, pageable);
 
         Page<CommentResponseDto> dtoPage = comments.map(new Function<Comment, CommentResponseDto>() {
 

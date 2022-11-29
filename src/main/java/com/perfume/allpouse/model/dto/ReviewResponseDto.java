@@ -1,5 +1,6 @@
 package com.perfume.allpouse.model.dto;
 
+import com.perfume.allpouse.data.entity.ReviewBoard;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -31,7 +32,5 @@ public class ReviewResponseDto {
     private List<String> images;
 
     private LocalDateTime createDateTime;
-
-
 }
 

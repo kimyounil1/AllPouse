@@ -1,17 +1,22 @@
 package com.perfume.allpouse.controller;
 
 import com.perfume.allpouse.config.security.TokenProvider;
+import com.perfume.allpouse.data.entity.Comment;
 import com.perfume.allpouse.data.entity.ReviewBoard;
 import com.perfume.allpouse.exception.CustomException;
+import com.perfume.allpouse.model.dto.CommentResponseDto;
+import com.perfume.allpouse.model.dto.ReviewCommentDto;
 import com.perfume.allpouse.model.dto.ReviewResponseDto;
 import com.perfume.allpouse.model.dto.SaveReviewDto;
 import com.perfume.allpouse.model.enums.BoardType;
 import com.perfume.allpouse.model.reponse.CommonResponse;
 import com.perfume.allpouse.model.reponse.SingleResponse;
+import com.perfume.allpouse.service.CommentService;
 import com.perfume.allpouse.service.PhotoService;
 import com.perfume.allpouse.service.ResponseService;
 import com.perfume.allpouse.service.ReviewService;
 import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -28,6 +33,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.perfume.allpouse.exception.ExceptionEnum.INVALID_PARAMETER;
 
@@ -36,7 +42,6 @@ import static com.perfume.allpouse.exception.ExceptionEnum.INVALID_PARAMETER;
 @RequiredArgsConstructor
 @RequestMapping(value = "/api/v1/")
 public class ReviewController {
-
 
     private final Logger LOGGER = LoggerFactory.getLogger(ReviewController.class);
 
@@ -47,6 +52,8 @@ public class ReviewController {
     private final ResponseService responseService;
 
     private final PhotoService photoService;
+
+    private final CommentService commentService;
 
 
 
@@ -182,9 +189,10 @@ public class ReviewController {
 
 
 
-    // 최근에 작성된 리뷰 페이지별로 가져옴
+    // 최근에 작성된 리뷰를 가져옴
     @ResponseBody
     @GetMapping("review/recent")
+    @Operation(summary = "최근에 작성된 리뷰", description = "최근에 작성된 리뷰를 페이지별로 보여주는 API.")
     public Page<ReviewResponseDto> recentReview(
             @ApiParam(value = "페이지네이션 옵션", required = true)
             @PageableDefault(page = 0, size = 20, sort = "createDateTime", direction = Sort.Direction.DESC) Pageable pageable)
@@ -198,6 +206,33 @@ public class ReviewController {
 
         return page;
     }
+
+
+    // 리뷰 상세 내용과 댓글 N개(N Default : 5)
+    // 댓글은 최신순으로 가져옴
+    @ResponseBody
+    @GetMapping("review/{reviewId}")
+    @Operation(summary = "리뷰/댓글(N개)", description = "리뷰와 해당 리뷰에 달린 댓글(N개)을 가져오는 API")
+    public ReviewCommentDto getReviewPage(
+            @ApiParam(value = "리뷰 id", required = true) @PathVariable("reviewId") Long reviewId) {
+
+        final int size = 5;
+
+        ReviewResponseDto reviewDto = reviewService.getReviewDtoByReviewId(reviewId);
+
+        List<Comment> comments = commentService.findByReviewId(reviewId);
+        int sizOfComments = Math.min(size, comments.size());
+        List<Comment> slicedComments = comments.subList(0, sizOfComments);
+
+        List<CommentResponseDto> commentDtoList = slicedComments.stream()
+                .map(CommentResponseDto::toDto)
+                .collect(Collectors.toList());
+
+        ReviewCommentDto reviewCommentDto = new ReviewCommentDto(reviewDto, commentDtoList);
+
+        return reviewCommentDto;
+    }
+
 }
 
 
