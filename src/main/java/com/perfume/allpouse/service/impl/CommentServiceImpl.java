@@ -74,7 +74,7 @@ public class CommentServiceImpl implements CommentService {
         if (comment.isPresent()) {
             commentRepository.delete(comment.get());
         } else {
-            throw new IllegalStateException("존재하지 않는 댓글입니다.");
+            throw new CustomException(INVALID_PARAMETER);
         }
     }
 

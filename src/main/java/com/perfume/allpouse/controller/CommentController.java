@@ -52,17 +52,22 @@ public class CommentController {
 
         if (reviewId == null) {
             commentService.save(saveCommentDto);
+
             //response
             CommonResponse response = new CommonResponse();
             responseService.setSuccessResponse(response);
             return response;
         } else {
-            if (userId.equals(reviewId)) {
+            if (userId.equals(saveCommentDto.getUserId())) {
                 commentService.update(saveCommentDto);
+
+
+
                 //response
                 CommonResponse response = new CommonResponse();
                 responseService.setSuccessResponse(response);
                 return response;
+
             } else {
                 throw new CustomException(INVALID_PARAMETER);
             }
