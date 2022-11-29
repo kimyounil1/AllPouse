@@ -22,5 +22,7 @@ public interface CommentService {
 
     Comment findOne(Long id);
 
-    Page<CommentResponseDto> getUserReviewList(Long id, Pageable pageable);
+    Page<CommentResponseDto> getUserCommentList(Long id, Pageable pageable);
+
+    Page<CommentResponseDto> getAllCommentsList(Pageable pageable);
 }

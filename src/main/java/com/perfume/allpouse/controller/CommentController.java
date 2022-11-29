@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
@@ -101,23 +102,33 @@ public class CommentController {
     }
 
 
-
     // 회원이 쓴 댓글 페이지 별로 가져옴
     // 쿼리 파라미터(pageable에 매핑됨)로 페이지네이션 옵션 설정
+    // 기본 설정 : 20 comments per Page, 최신순 정렬
     @ResponseBody
     @GetMapping("comment/me")
     public Page<CommentResponseDto> myCommentList(
             HttpServletRequest request,
             @ApiParam(value = "페이지네이션 옵션")
-            @PageableDefault(page = 0, size = 20) Pageable pageable)
+            @PageableDefault(page = 0, size = 20, sort = "createdDateTime", direction = Sort.Direction.DESC) Pageable pageable)
     {
         Long userId = getUserIdFromRequest(request);
 
-        return commentService.getUserReviewList(userId, pageable);
+        return commentService.getUserCommentList(userId, pageable);
     }
 
 
-
+    // 최신 댓글 페이지 별로 가져옴
+    // page/size만 쿼리파라미터로 받으면 됨(정렬은 기본설정 돼있음)
+    // 다른 회원들한테 열어주면 안되고, ADMIN한테만 열어줘야함
+    @ResponseBody
+    @GetMapping("comment/recent")
+    public Page<CommentResponseDto> recentCommentList(
+            @ApiParam(value = "페이지네이션 옵션")
+            @PageableDefault(page = 0, size = 20, sort = "createDateTime", direction = Sort.Direction.DESC) Pageable pageable)
+    {
+        return commentService.getAllCommentsList(pageable);
+    }
 
 
     // HttpServletRequest에서 userId 추출하는 메소드
@@ -126,6 +137,4 @@ public class CommentController {
 
         return tokenProvider.getId(token);
     }
-
-
 }

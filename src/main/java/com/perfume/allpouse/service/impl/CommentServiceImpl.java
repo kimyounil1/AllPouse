@@ -122,9 +122,25 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public Page<CommentResponseDto> getUserReviewList(Long id, Pageable pageable) {
+    public Page<CommentResponseDto> getUserCommentList(Long id, Pageable pageable) {
 
         Page<Comment> comments = commentRepository.findCommentsByUserId(id, pageable);
+
+        Page<CommentResponseDto> dtoPage = comments.map(new Function<Comment, CommentResponseDto>() {
+
+            @Override
+            public CommentResponseDto apply(Comment comment) {
+                return CommentResponseDto.toDto(comment);
+            }
+        });
+
+        return dtoPage;
+    }
+
+    @Override
+    public Page<CommentResponseDto> getAllCommentsList(Pageable pageable) {
+
+        Page<Comment> comments = commentRepository.findAll(pageable);
 
         Page<CommentResponseDto> dtoPage = comments.map(new Function<Comment, CommentResponseDto>() {
 
