@@ -1,14 +1,12 @@
 package com.perfume.allpouse.model.dto;
 
 import com.perfume.allpouse.data.entity.Comment;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@ToString
 public class SaveCommentDto {
 
     private Long id;

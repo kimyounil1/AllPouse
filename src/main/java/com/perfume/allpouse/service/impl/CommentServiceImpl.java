@@ -1,6 +1,7 @@
 package com.perfume.allpouse.service.impl;
 
 
+import com.fasterxml.jackson.databind.util.Converter;
 import com.perfume.allpouse.data.entity.Comment;
 import com.perfume.allpouse.data.entity.ReviewBoard;
 import com.perfume.allpouse.data.entity.User;
@@ -8,16 +9,20 @@ import com.perfume.allpouse.data.repository.CommentRepository;
 import com.perfume.allpouse.data.repository.ReviewBoardRepository;
 import com.perfume.allpouse.data.repository.UserRepository;
 import com.perfume.allpouse.exception.CustomException;
+import com.perfume.allpouse.model.dto.CommentResponseDto;
 import com.perfume.allpouse.model.dto.SaveCommentDto;
 import com.perfume.allpouse.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 import static com.perfume.allpouse.exception.ExceptionEnum.INVALID_PARAMETER;
 
@@ -114,6 +119,22 @@ public class CommentServiceImpl implements CommentService {
         } else {
             return comment.get();
         }
+    }
+
+    @Override
+    public Page<CommentResponseDto> getUserReviewList(Long id, Pageable pageable) {
+
+        Page<Comment> comments = commentRepository.findCommentsByUserId(id, pageable);
+
+        Page<CommentResponseDto> dtoPage = comments.map(new Function<Comment, CommentResponseDto>() {
+
+            @Override
+            public CommentResponseDto apply(Comment comment) {
+                return CommentResponseDto.toDto(comment);
+            }
+        });
+
+        return dtoPage;
     }
 
 

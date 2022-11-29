@@ -27,6 +27,5 @@ public interface ReviewBoardRepository extends JpaRepository<ReviewBoard, Long> 
             "where r.perfume.id = :perfumeId " +
             "order by r.createDateTime")
     List<ReviewBoard> findReviewsByPerfumeId(@Param("perfumeId") Long id);
-
 }
 

@@ -53,9 +53,9 @@ public class ReviewController {
     // 리뷰 저장 및 업데이트
     @ResponseBody
     @PostMapping(value = "review", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
-    public SingleResponse<Long> saveReview(
+    public SingleResponse<Long> saveReview (
             HttpServletRequest request,
-            @ApiParam(value = "리뷰 내용을 담는 DTO") @RequestPart SaveReviewDto saveReviewDto,
+            @ApiParam(value = "리뷰 내용을 담는 DTO", required = false) @RequestPart SaveReviewDto saveReviewDto,
             @ApiParam(value = "리뷰에 첨부하는 사진들") @RequestPart(value = "photo", required = false) List<MultipartFile> photos) throws IOException {
 
 
@@ -121,6 +121,7 @@ public class ReviewController {
     }
 
 
+    // 리뷰 삭제
     @ResponseBody
     @DeleteMapping("review")
     public CommonResponse deleteReview(
@@ -151,13 +152,12 @@ public class ReviewController {
 
     // 회원이 쓴 리뷰 페이지 별로 가져옴
     // 쿼리파라미터로 페이지네이션 옵션 설정
-    // Sort 옵션은 Service 계층에서 긁어올 때 대입
     @ResponseBody
     @GetMapping("review/me")
     public Page<ReviewResponseDto> myReviewList(
             HttpServletRequest request,
             @ApiParam(value = "페이지네이션 옵션")
-            @PageableDefault(page = 0, size = 20, sort = "createdDateTime", direction = Sort.Direction.DESC) Pageable pageable)
+            @PageableDefault(page = 0, size = 20, sort = "createDateTime", direction = Sort.Direction.DESC) Pageable pageable)
     {
 
         String token = tokenProvider.resolveToken(request);
@@ -181,11 +181,13 @@ public class ReviewController {
     }
 
 
+
+    // 최근에 작성된 리뷰 페이지별로 가져옴
     @ResponseBody
     @GetMapping("review/recent")
     public Page<ReviewResponseDto> recentReview(
             @ApiParam(value = "페이지네이션 옵션", required = true)
-            @PageableDefault(page = 0, size = 20, sort = "createdDateTime", direction = Sort.Direction.DESC) Pageable pageable)
+            @PageableDefault(page = 0, size = 20, sort = "createDateTime", direction = Sort.Direction.DESC) Pageable pageable)
     {
 
         List<ReviewResponseDto> reviewDtoList = reviewService.getRecentReviewDto();
@@ -196,7 +198,6 @@ public class ReviewController {
 
         return page;
     }
-
 }
 
 

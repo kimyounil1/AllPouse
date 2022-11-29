@@ -1,7 +1,10 @@
 package com.perfume.allpouse.service;
 
 import com.perfume.allpouse.data.entity.Comment;
+import com.perfume.allpouse.model.dto.CommentResponseDto;
 import com.perfume.allpouse.model.dto.SaveCommentDto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -19,8 +22,5 @@ public interface CommentService {
 
     Comment findOne(Long id);
 
-
-
-
-
+    Page<CommentResponseDto> getUserReviewList(Long id, Pageable pageable);
 }
