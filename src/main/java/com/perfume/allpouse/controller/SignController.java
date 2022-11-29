@@ -37,9 +37,7 @@ public class SignController {
             @ApiParam(value = "loginType", required = true) @RequestParam String loginType)
             {
         LOGGER.info("[signIn] Login 시도 중 ");
-        SignDto signDto = SignDto.builder()
-                .token(signServiceImpl.signIn(socialId, loginType))
-                .build();
+        SignDto signDto = signServiceImpl.signIn(socialId, loginType);
         return responseServiceImpl.getSingleResponse(signDto);
     }
 

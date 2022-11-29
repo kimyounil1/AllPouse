@@ -4,6 +4,7 @@ import com.perfume.allpouse.config.security.TokenProvider;
 import com.perfume.allpouse.data.entity.User;
 import com.perfume.allpouse.data.repository.UserRepository;
 import com.perfume.allpouse.exception.CustomException;
+import com.perfume.allpouse.model.dto.SignDto;
 import com.perfume.allpouse.model.enums.Permission;
 import com.perfume.allpouse.service.SignService;
 import org.slf4j.Logger;
@@ -68,13 +69,13 @@ public class SignServiceImpl implements SignService {
     }
 
     @Override
-    public String signIn(String socialId, String loginType) {
+    public SignDto signIn(String socialId, String loginType) {
         LOGGER.info("[signIn] User 정보 조회");
         Optional<User> user = validateDuplicateUser(socialId, loginType);
         LOGGER.info("[signIn] User 정보 조회 완료 SocialId : {}", user.get().getSocialId());
-        String token = tokenProvider.createToken(user.get().getPermission().getValue(), user.get().getId());
-        LOGGER.info("[signIn] token 발급 완료 token : {}", token);
-        return token;
+        SignDto signDto = tokenProvider.createToken(user.get().getPermission().getValue(), user.get().getId());
+        LOGGER.info("[signIn] token 발급 완료 token : {}", signDto.getAccessToken());
+        return signDto;
     }
 
 

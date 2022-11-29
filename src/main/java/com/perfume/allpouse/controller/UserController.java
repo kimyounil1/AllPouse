@@ -17,7 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/")
+@RequestMapping("/api/v1/user/")
 public class UserController {
 
     private final Logger LOGGER = LoggerFactory.getLogger(ReviewController.class);
