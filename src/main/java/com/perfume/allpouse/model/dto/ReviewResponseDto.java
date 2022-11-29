@@ -17,6 +17,8 @@ public class ReviewResponseDto {
 
     private Long id;
 
+    private String userName;
+
     private String subject;
 
     private String content;

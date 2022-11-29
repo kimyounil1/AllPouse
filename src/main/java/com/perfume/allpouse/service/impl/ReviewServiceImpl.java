@@ -10,6 +10,7 @@ import com.perfume.allpouse.exception.CustomException;
 import com.perfume.allpouse.exception.ExceptionEnum;
 import com.perfume.allpouse.model.dto.ReviewResponseDto;
 import com.perfume.allpouse.model.dto.SaveReviewDto;
+import com.perfume.allpouse.model.enums.Permission;
 import com.perfume.allpouse.service.PhotoService;
 import com.perfume.allpouse.service.ReviewService;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityManager;
 import java.util.List;
 import java.util.Optional;
+
+import static com.perfume.allpouse.exception.ExceptionEnum.*;
 
 
 @Service
@@ -83,7 +86,6 @@ public class ReviewServiceImpl implements ReviewService {
     /**
      * 리뷰 조회 메소드
      */
-
     //회원이 작성한 전체 리뷰 조회(파라미터 user_id)
     //기본정렬 : 작성일자(cre_dt)
     @Override
@@ -97,7 +99,6 @@ public class ReviewServiceImpl implements ReviewService {
             return reviews;
         }
     }
-
 
 
     //향수에 대한 리뷰 전체 조회(파라미터 perfumeBoard_id)
@@ -159,7 +160,7 @@ public class ReviewServiceImpl implements ReviewService {
     public List<ReviewResponseDto> getReviewDto(Long userId) {
 
         return em.createQuery(
-                        "select new com.perfume.allpouse.model.dto.ReviewResponseDto(r.id, r.subject, r.content, r.perfume.subject, r.perfume.brand.name, r.hitCnt, r.recommendCnt, p.path, r.createDateTime)"
+                        "select new com.perfume.allpouse.model.dto.ReviewResponseDto(r.id, r.user.userName r.subject, r.content, r.perfume.subject, r.perfume.brand.name, r.hitCnt, r.recommendCnt, p.path, r.createDateTime)"
                                 + " from ReviewBoard r"
                                 + " inner join Photo p "
                                 + " on r.id = p.boardId"
@@ -177,7 +178,7 @@ public class ReviewServiceImpl implements ReviewService {
 
         try {
             return em.createQuery(
-                            "select new com.perfume.allpouse.model.dto.ReviewResponseDto(r.id, r.subject, r.content, r.perfume.subject, r.perfume.brand.name, r.hitCnt, r.recommendCnt, p.path, r.createDateTime)"
+                            "select new com.perfume.allpouse.model.dto.ReviewResponseDto(r.id, r.user.userName, r.subject, r.content, r.perfume.subject, r.perfume.brand.name, r.hitCnt, r.recommendCnt, p.path, r.createDateTime)"
                                     + " from ReviewBoard r"
                                     + " inner join Photo p"
                                     + " on r.id = p.boardId"
@@ -185,9 +186,7 @@ public class ReviewServiceImpl implements ReviewService {
                                     + " order by r.createDateTime DESC", ReviewResponseDto.class)
                     .getResultList();
 
-        } catch (Exception e) {
-            throw new CustomException(ExceptionEnum.INVALID_PARAMETER);
-        }
+        } catch (Exception e) {throw new CustomException(INVALID_PARAMETER);}
     }
 
 
@@ -195,8 +194,8 @@ public class ReviewServiceImpl implements ReviewService {
     public ReviewResponseDto getReviewDtoByReviewId(Long reviewId) {
 
         try{
-            List<ReviewResponseDto> dtos = em.createQuery(
-                            "select new com.perfume.allpouse.model.dto.ReviewResponseDto(r.id, r.subject, r.content, r.perfume.subject, r.perfume.brand.name, r.hitCnt, r.recommendCnt, p.path, r.createDateTime)"
+            List<ReviewResponseDto> dtoList = em.createQuery(
+                            "select new com.perfume.allpouse.model.dto.ReviewResponseDto(r.id, r.user.userName, r.subject, r.content, r.perfume.subject, r.perfume.brand.name, r.hitCnt, r.recommendCnt, p.path, r.createDateTime)"
                                     + " from ReviewBoard r"
                                     + " inner join Photo p"
                                     + " on r.id = p.boardId"
@@ -204,14 +203,54 @@ public class ReviewServiceImpl implements ReviewService {
                                     + " and r.id = :reviewId", ReviewResponseDto.class)
                     .setParameter("reviewId", reviewId).getResultList();
 
-            if (dtos.size() != 1) {
-                throw new CustomException(ExceptionEnum.INVALID_PARAMETER);
-            }
+            if (dtoList.size() != 1) {throw new CustomException(INVALID_PARAMETER);}
 
-            return dtos.get(0);
+            return dtoList.get(0);
 
-        } catch (Exception e) {
-            throw new CustomException(ExceptionEnum.INVALID_PARAMETER);
-        }
+        } catch (Exception e) {throw new CustomException(INVALID_PARAMETER);}
+    }
+
+    @Override
+    public List<ReviewResponseDto> getReviewDtoByPerfumeId(Long perfumeId) {
+
+        try{
+            List<ReviewResponseDto> dtoList = em.createQuery(
+                            "select new com.perfume.allpouse.model.dto.ReviewResponseDto(r.id, r.user.userName, r.subject, r.content, r.perfume.subject, r.perfume.brand.name, r.hitCnt, r.recommendCnt, p.path, r.createDateTime)"
+                                    + " from ReviewBoard r"
+                                    + " inner join Photo p"
+                                    + " on (r.id = p.boardId"
+                                    + " and p.boardType = 'REVIEW')"
+                                    + " where r.perfume.id = :perfumeId"
+                                    + " order by r.recommendCnt desc", ReviewResponseDto.class)
+                    .setParameter("perfumeId", perfumeId)
+                    .setMaxResults(5)
+                    .getResultList();
+
+            return dtoList;
+
+        } catch (Exception e) {throw new CustomException(INVALID_PARAMETER);}
+    }
+
+    @Override
+    public List<ReviewResponseDto> getReviewDtoByPerfumeIdAndPermission(Long perfumeId, Permission permission) {
+
+        try{
+            List<ReviewResponseDto> dtoList = em.createQuery(
+                            "select new com.perfume.allpouse.model.dto.ReviewResponseDto(r.id, r.user.userName, r.subject, r.content, r.perfume.subject, r.perfume.brand.name, r.hitCnt, r.recommendCnt, p.path, r.createDateTime)"
+                                    + " from ReviewBoard r"
+                                    + " inner join Photo p"
+                                    + " on (r.id = p.boardId"
+                                    + " and p.boardType = 'REVIEW')"
+                                    + " where r.perfume.id = :perfumeId"
+                                    + " and r.user.permission = :permission"
+                                    + " order by r.recommendCnt desc", ReviewResponseDto.class)
+                    .setParameter("perfumeId", perfumeId)
+                    .setParameter("permission", permission)
+                    .setMaxResults(5)
+                    .getResultList();
+
+            return dtoList;
+
+        } catch (Exception e) {throw new CustomException(INVALID_PARAMETER);}
     }
 }

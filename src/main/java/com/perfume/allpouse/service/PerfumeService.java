@@ -13,7 +13,6 @@ public interface PerfumeService {
 
     void delete(Long id);
 
-
     List<PerfumeBoard> findAll();
 
     PerfumeBoard findOne(Long id);

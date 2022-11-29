@@ -1,8 +1,7 @@
 package com.perfume.allpouse.service.impl;
 
-import com.perfume.allpouse.data.entity.ReviewBoard;
+import com.perfume.allpouse.data.repository.ReviewBoardRepository;
 import com.perfume.allpouse.model.dto.ReviewResponseDto;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +15,9 @@ import java.util.List;
 class ReviewServiceImplTest {
 
     @Autowired
+    ReviewBoardRepository reviewRepository;
+
+    @Autowired
     ReviewServiceImpl reviewService;
 
     @Test
@@ -26,5 +28,16 @@ class ReviewServiceImplTest {
         List<ReviewResponseDto> result = reviewService.getReviewDto(5L);
         System.out.println(result);
 
+    }
+
+    @Test
+    @DisplayName("향수 id, 권한으로 리뷰 찾기")
+    @Transactional
+    public void findReviewsWithPerfumeIdAndPermission() throws Exception {
+        //given
+        List<ReviewResponseDto> result = reviewService.getReviewDtoByPerfumeId(9L);
+
+
+        System.out.println(result);
     }
 }

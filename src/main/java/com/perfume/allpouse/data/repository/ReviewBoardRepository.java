@@ -2,6 +2,7 @@ package com.perfume.allpouse.data.repository;
 
 import com.perfume.allpouse.data.entity.ReviewBoard;
 import com.perfume.allpouse.model.dto.ReviewResponseDto;
+import com.perfume.allpouse.model.enums.Permission;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -19,13 +20,20 @@ public interface ReviewBoardRepository extends JpaRepository<ReviewBoard, Long> 
 
     @Query("select r from ReviewBoard r " +
             "where r.user.id = :userId " +
-            "order by r.createDateTime asc")
+            "order by r.createDateTime desc")
     List<ReviewBoard> findReviewsByUserId(@Param("userId") Long id);
-
 
     @Query("select r from ReviewBoard r " +
             "where r.perfume.id = :perfumeId " +
             "order by r.createDateTime")
     List<ReviewBoard> findReviewsByPerfumeId(@Param("perfumeId") Long id);
+
+    @Query("select r from ReviewBoard r " +
+            "where r.perfume.id = :perfumeId " +
+            "and r.user.permission = :permission " +
+            "order by r.recommendCnt desc")
+    List<ReviewBoard> findReviewBoardByPerfumeIdAndUserPermission(@Param("perfumeId") Long perfumeId,
+                                                                  @Param("permission")Permission permission);
+
 }
 

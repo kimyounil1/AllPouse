@@ -2,19 +2,15 @@ package com.perfume.allpouse.controller;
 
 import com.perfume.allpouse.config.security.TokenProvider;
 import com.perfume.allpouse.data.entity.Comment;
+import com.perfume.allpouse.data.entity.PerfumeBoard;
 import com.perfume.allpouse.data.entity.ReviewBoard;
 import com.perfume.allpouse.exception.CustomException;
-import com.perfume.allpouse.model.dto.CommentResponseDto;
-import com.perfume.allpouse.model.dto.ReviewCommentDto;
-import com.perfume.allpouse.model.dto.ReviewResponseDto;
-import com.perfume.allpouse.model.dto.SaveReviewDto;
+import com.perfume.allpouse.model.dto.*;
 import com.perfume.allpouse.model.enums.BoardType;
+import com.perfume.allpouse.model.enums.Permission;
 import com.perfume.allpouse.model.reponse.CommonResponse;
 import com.perfume.allpouse.model.reponse.SingleResponse;
-import com.perfume.allpouse.service.CommentService;
-import com.perfume.allpouse.service.PhotoService;
-import com.perfume.allpouse.service.ResponseService;
-import com.perfume.allpouse.service.ReviewService;
+import com.perfume.allpouse.service.*;
 import io.swagger.annotations.ApiParam;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +32,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.perfume.allpouse.exception.ExceptionEnum.INVALID_PARAMETER;
+import static com.perfume.allpouse.model.enums.Permission.*;
 
 @Slf4j
 @RestController
@@ -55,12 +52,13 @@ public class ReviewController {
 
     private final CommentService commentService;
 
+    private final PerfumeService perfumeService;
 
 
     // 리뷰 저장 및 업데이트
     @ResponseBody
     @PostMapping(value = "review", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
-    public SingleResponse<Long> saveReview (
+    public SingleResponse<Long> saveReview(
             HttpServletRequest request,
             @ApiParam(value = "리뷰 내용을 담는 DTO", required = false) @RequestPart SaveReviewDto saveReviewDto,
             @ApiParam(value = "리뷰에 첨부하는 사진들") @RequestPart(value = "photo", required = false) List<MultipartFile> photos) throws IOException {
@@ -164,8 +162,7 @@ public class ReviewController {
     public Page<ReviewResponseDto> myReviewList(
             HttpServletRequest request,
             @ApiParam(value = "페이지네이션 옵션")
-            @PageableDefault(page = 0, size = 20, sort = "createDateTime", direction = Sort.Direction.DESC) Pageable pageable)
-    {
+            @PageableDefault(page = 0, size = 20, sort = "createDateTime", direction = Sort.Direction.DESC) Pageable pageable) {
 
         String token = tokenProvider.resolveToken(request);
 
@@ -180,13 +177,12 @@ public class ReviewController {
         //LOGGER.info(sortCri);
         //LOGGER.info(sortDir);
 
-        int start = (int)pageable.getOffset();
+        int start = (int) pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), reviewDtoList.size());
         Page<ReviewResponseDto> page = new PageImpl<>(reviewDtoList.subList(start, end), pageable, reviewDtoList.size());
 
         return page;
     }
-
 
 
     // 최근에 작성된 리뷰를 가져옴
@@ -195,12 +191,11 @@ public class ReviewController {
     @Operation(summary = "최근에 작성된 리뷰", description = "최근에 작성된 리뷰를 페이지별로 보여주는 API.")
     public Page<ReviewResponseDto> recentReview(
             @ApiParam(value = "페이지네이션 옵션", required = true)
-            @PageableDefault(page = 0, size = 20, sort = "createDateTime", direction = Sort.Direction.DESC) Pageable pageable)
-    {
+            @PageableDefault(page = 0, size = 20, sort = "createDateTime", direction = Sort.Direction.DESC) Pageable pageable) {
 
         List<ReviewResponseDto> reviewDtoList = reviewService.getRecentReviewDto();
 
-        int start = (int)pageable.getOffset();
+        int start = (int) pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), reviewDtoList.size());
         Page<ReviewResponseDto> page = new PageImpl<>(reviewDtoList.subList(start, end), pageable, reviewDtoList.size());
 
@@ -233,6 +228,26 @@ public class ReviewController {
         return reviewCommentDto;
     }
 
+
+    // 향수에 대한 review 분류별(조향사, 일반, 추천순)로 가져옴
+    // 기본정렬(세분류) : 추천 내림차순(5개)
+    @ResponseBody
+    @GetMapping("review/best/{perfumeId}")
+    @Operation(summary = "향수에 대한 분류별 리뷰", description = "향수에 대한 분류별 리뷰(조향사, 일반, 추천순) 가져옴")
+    public BestReviewDto getBestReviews(
+            @ApiParam(value = "향수 id", required = true) @PathVariable("perfumeId") Long perfumeId) {
+
+        PerfumeBoard perfume = perfumeService.findOne(perfumeId);
+        PerfumeResponseDto perfumeDto = PerfumeResponseDto.toDto(perfume);
+
+        List<ReviewResponseDto> perfumerReviews = reviewService.getReviewDtoByPerfumeIdAndPermission(perfumeId, ROLE_PERFUMER);
+
+        List<ReviewResponseDto> userReviews = reviewService.getReviewDtoByPerfumeIdAndPermission(perfumeId, ROLE_USER);
+
+        List<ReviewResponseDto> bestReviewsOnPerfume = reviewService.getReviewDtoByPerfumeId(perfumeId);
+
+        return new BestReviewDto(perfumeDto, perfumerReviews, userReviews, bestReviewsOnPerfume);
+    }
 }
 
 

@@ -143,8 +143,6 @@ public class CommentController {
     }
 
 
-
-
     // HttpServletRequest에서 userId 추출하는 메소드
     private Long getUserIdFromRequest(HttpServletRequest request) {
         String token = tokenProvider.resolveToken(request);
