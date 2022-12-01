@@ -57,9 +57,9 @@ public class TokenProvider implements InitializingBean {
     }
 
     public String getRole(String token) {
-        LOGGER.info("[getUserName] 토큰에서 회원 ID 추출 ");
+        LOGGER.info("[getRole] 토큰에서 회원 role 추출 ");
         String role = String.valueOf(Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().get("roles"));
-        LOGGER.info("[getUserName] 토큰에서 회원 ID 추출 완료 role : {}", role);
+        LOGGER.info("[getRole] 토큰에서 회원 role 추출 완료 role : {}", role);
         return role;
     }
 

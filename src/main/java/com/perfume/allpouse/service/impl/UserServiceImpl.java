@@ -2,12 +2,19 @@ package com.perfume.allpouse.service.impl;
 
 import com.perfume.allpouse.data.entity.User;
 import com.perfume.allpouse.data.repository.UserRepository;
+import com.perfume.allpouse.exception.CustomException;
+import com.perfume.allpouse.model.dto.ReviewResponseDto;
 import com.perfume.allpouse.model.dto.UserInfoDto;
 import com.perfume.allpouse.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.persistence.EntityManager;
+import java.util.List;
+
+import static com.perfume.allpouse.exception.ExceptionEnum.INVALID_PARAMETER;
 
 
 @Transactional
@@ -18,8 +25,11 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
 
-    public UserServiceImpl(UserRepository userRepository) {
+    private final EntityManager em;
+
+    public UserServiceImpl(UserRepository userRepository, EntityManager em) {
         this.userRepository = userRepository;
+        this.em = em;
     }
 
     public User loadUserById(long id) {
@@ -27,5 +37,24 @@ public class UserServiceImpl implements UserService {
         return userRepository.getReferenceById(id);
     }
 
+    @Override
+    public UserInfoDto getUserInfoDtoById(Long id) {
+
+        try{
+            List<UserInfoDto> dtoList = em.createQuery(
+                            "select new com.perfume.allpouse.model.dto.UserInfoDto(r.id, r.userName, r.age, r.gender, p.path)"
+                                    + " from User r"
+                                    + " left join Photo p"
+                                    + " on r.id = p.boardId"
+                                    + " and p.boardType = 'USER'"
+                                    + " where  r.id = :id", UserInfoDto.class)
+                    .setParameter("id", id).getResultList();
+
+            if (dtoList.size() != 1) {throw new CustomException(INVALID_PARAMETER);}
+
+            return dtoList.get(0);
+
+        } catch (Exception e) {throw new CustomException(INVALID_PARAMETER);}
+    }
 
 }

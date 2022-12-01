@@ -52,6 +52,24 @@ public class PhotoServiceImpl implements PhotoService {
 
     @Override
     @Transactional
+    public List<String> update(List<MultipartFile> multipartFileList, BoardType boardType, Long boardId) throws IOException {
+        delete(boardType,boardId);
+        List<String> result = s3ServiceImpl.upload(multipartFileList);
+
+        Photo photo = Photo.builder()
+                .boardId(boardId)
+                .path(result)
+                .boardType(boardType)
+                .build();
+
+        photoRepository.save(photo);
+        LOGGER.info("[save] 사진 Entity 저장 완료");
+
+        return result;
+    }
+
+    @Override
+    @Transactional
     public void delete(BoardType type, Long boardId) {
 
         Photo photo = photoRepository.findPhotoByBoardTypeAndBoardId(type, boardId);

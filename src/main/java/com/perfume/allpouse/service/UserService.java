@@ -8,5 +8,7 @@ public interface UserService {
 
     User loadUserById(long id);
 
+    public UserInfoDto getUserInfoDtoById(Long id);
+
 
 }

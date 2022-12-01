@@ -13,4 +13,6 @@ public interface PhotoService {
     void delete(BoardType type, Long boardId);
 
     List<String> getImagePath(BoardType type, Long boardId);
+
+    List<String> update(List<MultipartFile> multipartFileList, BoardType boardType, Long boardId) throws IOException;
 }
