@@ -14,4 +14,10 @@ public interface PhotoRepository extends JpaRepository<Photo, Long> {
             "where p.boardType = :type " +
             "and p.boardId = :boardId")
     Photo findPhotoByBoardTypeAndBoardId(@Param("type") BoardType type, @Param("boardId") Long boardId);
+
+    @Query("SELECT COUNT(p.id) > 0 " +
+            "FROM Photo p " +
+            "WHERE p.boardType =:type " +
+            "AND p.boardId = :boardId")
+    boolean exists(@Param("type") BoardType type, @Param("boardId")Long boardId);
 }

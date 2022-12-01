@@ -3,6 +3,7 @@ package com.perfume.allpouse.data.entity;
 import com.perfume.allpouse.model.enums.BoardType;
 import com.perfume.allpouse.utils.StringListConverter;
 import lombok.*;
+import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 
@@ -27,6 +28,7 @@ public class Photo {
     private BoardType boardType;
 
     @Convert(converter = StringListConverter.class)
+    @Nullable
     private List<String> path;
 
     @Column(name="board_id")

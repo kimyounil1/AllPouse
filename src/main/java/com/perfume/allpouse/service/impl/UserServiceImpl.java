@@ -41,18 +41,16 @@ public class UserServiceImpl implements UserService {
     public UserInfoDto getUserInfoDtoById(Long id) {
 
         try{
-            List<UserInfoDto> dtoList = em.createQuery(
-                            "select new com.perfume.allpouse.model.dto.UserInfoDto(r.id, r.userName, r.age, r.gender, p.path)"
+            UserInfoDto dtoList = em.createQuery(
+                            "select new com.perfume.allpouse.model.dto.UserInfoDto(r.id, r.userName, r.age, r.gender, p.path )"
                                     + " from User r"
                                     + " left join Photo p"
                                     + " on r.id = p.boardId"
                                     + " and p.boardType = 'USER'"
-                                    + " where  r.id = :id", UserInfoDto.class)
-                    .setParameter("id", id).getResultList();
+                                    + " where r.id = :id ", UserInfoDto.class)
+                    .setParameter("id", id).getSingleResult();
 
-            if (dtoList.size() != 1) {throw new CustomException(INVALID_PARAMETER);}
-
-            return dtoList.get(0);
+            return dtoList;
 
         } catch (Exception e) {throw new CustomException(INVALID_PARAMETER);}
     }
