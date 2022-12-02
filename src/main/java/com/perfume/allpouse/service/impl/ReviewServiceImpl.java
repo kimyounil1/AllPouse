@@ -19,6 +19,8 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -167,9 +169,10 @@ public class ReviewServiceImpl implements ReviewService {
 
 
 
-    // 유저가 작성한 리뷰와 사진 ReviewResponseDto로 변환해서 가져옴
+    // 유저가 작성한 리뷰와 사진 ReviewResponseDto로 변환해서 가져옴(pageable 변경하면서 테스트 필요)
+    //
     @Override
-    public List<ReviewResponseDto> getReviewDto(Long userId, Pageable pageable) {
+    public Page<ReviewResponseDto> getReviewDto(Long userId, Pageable pageable) {
 
         List<OrderSpecifier> ORDERS = getAllOrderSpecifiers(pageable);
 
@@ -178,7 +181,69 @@ public class ReviewServiceImpl implements ReviewService {
                 .from(reviewBoard)
                 .leftJoin(photo)
                 .on(reviewBoard.id.eq(photo.boardId).and(photo.boardType.eq(BoardType.REVIEW)))
-                .where(reviewBoard.id.eq(userId))
+                .where(reviewBoard.user.id.eq(userId))
+                .orderBy(ORDERS.toArray(OrderSpecifier[]::new))
+                .fetch();
+
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), reviewDtoList.size());
+        Page<ReviewResponseDto> pageList = new PageImpl<>(reviewDtoList.subList(start, end), pageable, reviewDtoList.size());
+
+        return pageList;
+    }
+
+
+    // 전체 리뷰와 사진을 ReviewResponseDto로 변환해서 가져옴
+    // 정렬 : 작성일자 기준 내림차순(고정)
+    @Override
+    public List<ReviewResponseDto> getRecentReviewDto() {
+
+        List<ReviewResponseDto> reviewDtoList = queryFactory
+                .select(new QReviewResponseDto(reviewBoard.id, reviewBoard.user.userName, reviewBoard.subject, reviewBoard.content, reviewBoard.perfume.subject, reviewBoard.perfume.brand.name, reviewBoard.hitCnt, reviewBoard.recommendCnt, photo.path, reviewBoard.createDateTime))
+                .from(reviewBoard)
+                .leftJoin(photo)
+                .on(reviewBoard.id.eq(photo.boardId).and(photo.boardType.eq(BoardType.REVIEW)))
+                .orderBy(reviewBoard.createDateTime.desc())
+                .fetch();
+
+        return reviewDtoList;
+    }
+
+
+    // 리뷰 id로 리뷰 검색해서 반환
+    @Override
+    public ReviewResponseDto getReviewDtoByReviewId(Long reviewId) {
+
+        try{
+            List<ReviewResponseDto> reviewDtoList = queryFactory
+                    .select(new QReviewResponseDto(reviewBoard.id, reviewBoard.user.userName, reviewBoard.subject, reviewBoard.content, reviewBoard.perfume.subject, reviewBoard.perfume.brand.name, reviewBoard.hitCnt, reviewBoard.recommendCnt, photo.path, reviewBoard.createDateTime))
+                    .from(reviewBoard)
+                    .leftJoin(photo)
+                    .on(reviewBoard.id.eq(photo.boardId).and(photo.boardType.eq(BoardType.REVIEW)))
+                    .where(reviewBoard.id.eq(reviewId))
+                    .fetch();
+
+            if (reviewDtoList.size() != 1) {throw new CustomException(INVALID_PARAMETER);}
+
+            return reviewDtoList.get(0);
+
+        } catch (Exception e) {throw new CustomException(INVALID_PARAMETER);}
+    }
+
+
+    // 향수에 달린 리뷰들 가져와서 반환
+    // 기본정렬 : 작성일자 기준 내림차순
+    @Override
+    public List<ReviewResponseDto> getReviewDtoByPerfumeId(Long perfumeId, Pageable pageable) {
+
+        List<OrderSpecifier> ORDERS = getAllOrderSpecifiers(pageable);
+
+        List<ReviewResponseDto> reviewDtoList = queryFactory
+                .select(new QReviewResponseDto(reviewBoard.id, reviewBoard.user.userName, reviewBoard.subject, reviewBoard.content, reviewBoard.perfume.subject, reviewBoard.perfume.brand.name, reviewBoard.hitCnt, reviewBoard.recommendCnt, photo.path, reviewBoard.createDateTime))
+                .from(reviewBoard)
+                .leftJoin(photo)
+                .on(reviewBoard.id.eq(photo.boardId).and(photo.boardType.eq(BoardType.REVIEW)))
+                .where(reviewBoard.perfume.id.eq(perfumeId))
                 .orderBy(ORDERS.toArray(OrderSpecifier[]::new))
                 .fetch();
 
@@ -186,99 +251,26 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
 
-    // 전체 리뷰와 사진을 ReviewResponseDto로 변환해서 가져옴
-    // 기본설정 -> 작성일자 기준 내림차순
-    @Override
-    public List<ReviewResponseDto> getRecentReviewDto() {
-
-        return em.createQuery(
-                "select new com.perfume.allpouse.model.dto.ReviewResponseDto(r.id, r.user.userName, r.subject, r.content, r.perfume.subject, r.perfume.brand.name, r.hitCnt, r.recommendCnt, p.path, r.createDateTime)"
-                        + " from ReviewBoard r"
-                        + " left join Photo p"
-                        + " on r.id = p.boardId", ReviewResponseDto.class)
-                .getResultList();
-    }
-
-
-    @Override
-    public ReviewResponseDto getReviewDtoByReviewId(Long reviewId) {
-
-        try{
-            List<ReviewResponseDto> dtoList = em.createQuery(
-                            "select new com.perfume.allpouse.model.dto.ReviewResponseDto(r.id, r.user.userName, r.subject, r.content, r.perfume.subject, r.perfume.brand.name, r.hitCnt, r.recommendCnt, p.path, r.createDateTime)"
-                                    + " from ReviewBoard r"
-                                    + " inner join Photo p"
-                                    + " on r.id = p.boardId"
-                                    + " where p.boardType = 'REVIEW'"
-                                    + " and r.id = :reviewId", ReviewResponseDto.class)
-                    .setParameter("reviewId", reviewId).getResultList();
-
-            if (dtoList.size() != 1) {throw new CustomException(INVALID_PARAMETER);}
-
-            return dtoList.get(0);
-
-        } catch (Exception e) {throw new CustomException(INVALID_PARAMETER);}
-    }
-
-    @Override
-    public List<ReviewResponseDto> getReviewDtoByPerfumeId(Long perfumeId) {
-
-        try{
-            List<ReviewResponseDto> dtoList = em.createQuery(
-                            "select new com.perfume.allpouse.model.dto.ReviewResponseDto(r.id, r.user.userName, r.subject, r.content, r.perfume.subject, r.perfume.brand.name, r.hitCnt, r.recommendCnt, p.path, r.createDateTime)"
-                                    + " from ReviewBoard r"
-                                    + " inner join Photo p"
-                                    + " on (r.id = p.boardId"
-                                    + " and p.boardType = 'REVIEW')"
-                                    + " where r.perfume.id = :perfumeId"
-                                    + " order by r.recommendCnt desc", ReviewResponseDto.class)
-                    .setParameter("perfumeId", perfumeId)
-                    .setMaxResults(5)
-                    .getResultList();
-
-            return dtoList;
-
-        } catch (Exception e) {throw new CustomException(INVALID_PARAMETER);}
-    }
-
+    // 향수에 달린 사용자분류(USER : 일반사용자, PERFUMER : 조향사)별 베스트 댓글 가져와서 반환
+    // 정렬 : 추천수 기준 내림차순(고정)
     @Override
     public List<ReviewResponseDto> getReviewDtoByPerfumeIdAndPermission(Long perfumeId, Permission permission) {
-
-        try{
-            List<ReviewResponseDto> dtoList = em.createQuery(
-                            "select new com.perfume.allpouse.model.dto.ReviewResponseDto(r.id, r.user.userName, r.subject, r.content, r.perfume.subject, r.perfume.brand.name, r.hitCnt, r.recommendCnt, p.path, r.createDateTime)"
-                                    + " from ReviewBoard r"
-                                    + " inner join Photo p"
-                                    + " on (r.id = p.boardId"
-                                    + " and p.boardType = 'REVIEW')"
-                                    + " where r.perfume.id = :perfumeId"
-                                    + " and r.user.permission = :permission"
-                                    + " order by r.recommendCnt desc", ReviewResponseDto.class)
-                    .setParameter("perfumeId", perfumeId)
-                    .setParameter("permission", permission)
-                    .setMaxResults(5)
-                    .getResultList();
-
-            return dtoList;
-
-        } catch (Exception e) {throw new CustomException(INVALID_PARAMETER);}
-    }
-
-
-    public List<ReviewResponseDto> findReviews() {
 
         List<ReviewResponseDto> reviewDtoList = queryFactory
                 .select(new QReviewResponseDto(reviewBoard.id, reviewBoard.user.userName, reviewBoard.subject, reviewBoard.content, reviewBoard.perfume.subject, reviewBoard.perfume.brand.name, reviewBoard.hitCnt, reviewBoard.recommendCnt, photo.path, reviewBoard.createDateTime))
                 .from(reviewBoard)
                 .leftJoin(photo)
-                .on(reviewBoard.id.eq(photo.boardId)
-                        .and(photo.boardType.eq(BoardType.valueOf("REVIEW"))))
+                .on(reviewBoard.id.eq(photo.boardId).and(photo.boardType.eq(BoardType.REVIEW)))
+                .where(reviewBoard.perfume.id.eq(perfumeId).and(reviewBoard.user.permission.eq(permission)))
+                .orderBy(reviewBoard.hitCnt.desc())
                 .fetch();
 
         return reviewDtoList;
     }
 
 
+
+    // Pageable에서 정렬기준 추출
     private List<OrderSpecifier> getAllOrderSpecifiers(Pageable pageable) {
 
         List<OrderSpecifier> ORDERS = new ArrayList<>();
@@ -288,7 +280,7 @@ public class ReviewServiceImpl implements ReviewService {
                 Order direction = order.getDirection().isAscending() ? Order.ASC : Order.DESC;
 
 
-                // order.getProperty() : name, createDateTime
+                // order.getProperty() : recommendCnt, createDateTime
                 switch(order.getProperty()) {
 
                     // 추천 순

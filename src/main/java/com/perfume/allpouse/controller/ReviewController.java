@@ -22,6 +22,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.SortDefault;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -169,20 +170,9 @@ public class ReviewController {
 
         Long userId = tokenProvider.getId(token);
 
-        List<ReviewResponseDto> reviewDtoList = reviewService.getReviewDto(userId, pageable);
+        Page<ReviewResponseDto> reviewDtoList = reviewService.getReviewDto(userId, pageable);
 
-        //String sortString = String.valueOf(pageable.getSort());
-        //String sortCri = sortString.substring(0, sortString.indexOf(":"));
-        //String sortDir = sortString.substring(sortString.indexOf(" ")+1, sortString.length());
-
-        //LOGGER.info(sortCri);
-        //LOGGER.info(sortDir);
-
-        int start = (int) pageable.getOffset();
-        int end = Math.min((start + pageable.getPageSize()), reviewDtoList.size());
-        Page<ReviewResponseDto> page = new PageImpl<>(reviewDtoList.subList(start, end), pageable, reviewDtoList.size());
-
-        return page;
+        return reviewDtoList;
     }
 
 
@@ -192,7 +182,7 @@ public class ReviewController {
     @Operation(summary = "최근에 작성된 리뷰", description = "최근에 작성된 리뷰를 페이지별로 보여주는 API.")
     public Page<ReviewResponseDto> recentReview(
             @ApiParam(value = "페이지네이션 옵션", required = true)
-            @PageableDefault(page = 0, size = 20, sort = "createDateTime", direction = Sort.Direction.DESC) Pageable pageable) {
+            @PageableDefault(page = 0, size = 20) Pageable pageable) {
 
         List<ReviewResponseDto> reviewDtoList = reviewService.getRecentReviewDto();
 
@@ -231,12 +221,13 @@ public class ReviewController {
 
 
     // 향수에 대한 review 분류별(조향사, 일반, 추천순)로 가져옴
-    // 기본정렬(세분류) : 추천 내림차순(5개)
+    // 기본정렬 : 추천 내림차순(5개)
     @ResponseBody
     @GetMapping("review/best/{perfumeId}")
     @Operation(summary = "향수에 대한 분류별 리뷰", description = "향수에 대한 분류별 리뷰(조향사, 일반, 추천순) 가져옴")
     public BestReviewDto getBestReviews(
-            @ApiParam(value = "향수 id", required = true) @PathVariable("perfumeId") Long perfumeId) {
+            @ApiParam(value = "향수 id", required = true) @PathVariable("perfumeId") Long perfumeId,
+            @PageableDefault(page = 0, size = 5, sort = "hitCnt", direction = Sort.Direction.DESC) Pageable pageable) {
 
         PerfumeBoard perfume = perfumeService.findOne(perfumeId);
         PerfumeResponseDto perfumeDto = PerfumeResponseDto.toDto(perfume);
@@ -245,7 +236,7 @@ public class ReviewController {
 
         List<ReviewResponseDto> userReviews = reviewService.getReviewDtoByPerfumeIdAndPermission(perfumeId, ROLE_USER);
 
-        List<ReviewResponseDto> bestReviewsOnPerfume = reviewService.getReviewDtoByPerfumeId(perfumeId);
+        List<ReviewResponseDto> bestReviewsOnPerfume = reviewService.getReviewDtoByPerfumeId(perfumeId, pageable);
 
         return new BestReviewDto(perfumeDto, perfumerReviews, userReviews, bestReviewsOnPerfume);
     }

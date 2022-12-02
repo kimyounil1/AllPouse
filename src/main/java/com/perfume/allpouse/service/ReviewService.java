@@ -4,6 +4,7 @@ import com.perfume.allpouse.data.entity.ReviewBoard;
 import com.perfume.allpouse.model.dto.ReviewResponseDto;
 import com.perfume.allpouse.model.dto.SaveReviewDto;
 import com.perfume.allpouse.model.enums.Permission;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
@@ -22,13 +23,13 @@ public interface ReviewService {
 
     ReviewBoard findById(Long id);
 
-    List<ReviewResponseDto> getReviewDto(Long userId, Pageable pageable);
+    Page<ReviewResponseDto> getReviewDto(Long userId, Pageable pageable);
 
     List<ReviewResponseDto> getRecentReviewDto();
 
     ReviewResponseDto getReviewDtoByReviewId(Long reviewId);
 
-    List<ReviewResponseDto> getReviewDtoByPerfumeId(Long perfumeId);
+    List<ReviewResponseDto> getReviewDtoByPerfumeId(Long perfumeId, Pageable pageable);
 
     List<ReviewResponseDto> getReviewDtoByPerfumeIdAndPermission(Long perfumeId, Permission permission);
 }

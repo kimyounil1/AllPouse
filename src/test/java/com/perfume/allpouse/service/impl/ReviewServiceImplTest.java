@@ -32,11 +32,7 @@ class ReviewServiceImplTest {
     @DisplayName("향수 id, 권한으로 리뷰 찾기")
     @Transactional
     public void findReviewsWithPerfumeIdAndPermission() throws Exception {
-        //given
-        List<ReviewResponseDto> result = reviewService.getReviewDtoByPerfumeId(9L);
 
-
-        System.out.println(result);
     }
 
 
@@ -45,7 +41,7 @@ class ReviewServiceImplTest {
     @Transactional
     public void getRecentReviewTest() throws Exception {
 
-        List<ReviewResponseDto> reviews = reviewService.findReviews();
+        List<ReviewResponseDto> reviews = reviewService.findReviews(5L);
         System.out.println(reviews);
         System.out.println(reviews.size());
     }
