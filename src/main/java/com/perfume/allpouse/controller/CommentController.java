@@ -110,7 +110,7 @@ public class CommentController {
     public Page<CommentResponseDto> myCommentList(
             HttpServletRequest request,
             @ApiParam(value = "페이지네이션 옵션")
-            @PageableDefault(page = 0, size = 20, sort = "createdDateTime", direction = Sort.Direction.DESC) Pageable pageable)
+            @PageableDefault(page = 0, size = 20, sort = "createDateTime", direction = Sort.Direction.DESC) Pageable pageable)
     {
         Long userId = getUserIdFromRequest(request);
 

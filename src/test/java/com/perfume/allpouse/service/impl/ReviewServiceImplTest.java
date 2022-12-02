@@ -20,13 +20,11 @@ class ReviewServiceImplTest {
     @Autowired
     ReviewServiceImpl reviewService;
 
+
     @Test
     @DisplayName("리뷰 응답 DTO 테스트")
     @Transactional
     public void reviewResponseDtoTest() throws Exception{
-
-        List<ReviewResponseDto> result = reviewService.getReviewDto(5L);
-        System.out.println(result);
 
     }
 
@@ -39,5 +37,16 @@ class ReviewServiceImplTest {
 
 
         System.out.println(result);
+    }
+
+
+    @Test
+    @DisplayName("LEFT JOIN ")
+    @Transactional
+    public void getRecentReviewTest() throws Exception {
+
+        List<ReviewResponseDto> reviews = reviewService.findReviews();
+        System.out.println(reviews);
+        System.out.println(reviews.size());
     }
 }

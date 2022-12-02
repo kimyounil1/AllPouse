@@ -1,29 +1,36 @@
 package com.perfume.allpouse.service.impl;
 
-import com.perfume.allpouse.data.entity.PerfumeBoard;
-import com.perfume.allpouse.data.entity.ReviewBoard;
-import com.perfume.allpouse.data.entity.User;
+import com.perfume.allpouse.data.entity.*;
 import com.perfume.allpouse.data.repository.PerfumeBoardRepository;
 import com.perfume.allpouse.data.repository.ReviewBoardRepository;
 import com.perfume.allpouse.data.repository.UserRepository;
 import com.perfume.allpouse.exception.CustomException;
-import com.perfume.allpouse.exception.ExceptionEnum;
+import com.perfume.allpouse.model.dto.QReviewResponseDto;
 import com.perfume.allpouse.model.dto.ReviewResponseDto;
 import com.perfume.allpouse.model.dto.SaveReviewDto;
+import com.perfume.allpouse.model.enums.BoardType;
 import com.perfume.allpouse.model.enums.Permission;
 import com.perfume.allpouse.service.PhotoService;
 import com.perfume.allpouse.service.ReviewService;
+import com.perfume.allpouse.utils.QueryDslUtil;
+import com.querydsl.core.types.Order;
+import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.perfume.allpouse.exception.ExceptionEnum.*;
+import static com.perfume.allpouse.exception.ExceptionEnum.INVALID_PARAMETER;
+import static org.apache.logging.log4j.ThreadContext.isEmpty;
 
 
 @Service
@@ -42,6 +49,11 @@ public class ReviewServiceImpl implements ReviewService {
     private final EntityManager em;
 
     private final Logger LOGGER = LoggerFactory.getLogger(ReviewServiceImpl.class);
+
+    private final JPAQueryFactory queryFactory;
+
+    QReviewBoard reviewBoard = new QReviewBoard("reviewBoard");
+    QPhoto photo = new QPhoto("photo");
 
 
     // 리뷰 저장
@@ -157,17 +169,20 @@ public class ReviewServiceImpl implements ReviewService {
 
     // 유저가 작성한 리뷰와 사진 ReviewResponseDto로 변환해서 가져옴
     @Override
-    public List<ReviewResponseDto> getReviewDto(Long userId) {
+    public List<ReviewResponseDto> getReviewDto(Long userId, Pageable pageable) {
 
-        return em.createQuery(
-                        "select new com.perfume.allpouse.model.dto.ReviewResponseDto(r.id, r.user.userName r.subject, r.content, r.perfume.subject, r.perfume.brand.name, r.hitCnt, r.recommendCnt, p.path, r.createDateTime)"
-                                + " from ReviewBoard r"
-                                + " inner join Photo p "
-                                + " on r.id = p.boardId"
-                                + " where p.boardType = 'REVIEW'"
-                                + " and r.user.id = :userId", ReviewResponseDto.class)
-                .setParameter("userId", userId)
-                .getResultList();
+        List<OrderSpecifier> ORDERS = getAllOrderSpecifiers(pageable);
+
+        List<ReviewResponseDto> reviewDtoList = queryFactory
+                .select(new QReviewResponseDto(reviewBoard.id, reviewBoard.user.userName, reviewBoard.subject, reviewBoard.content, reviewBoard.perfume.subject, reviewBoard.perfume.brand.name, reviewBoard.hitCnt, reviewBoard.recommendCnt, photo.path, reviewBoard.createDateTime))
+                .from(reviewBoard)
+                .leftJoin(photo)
+                .on(reviewBoard.id.eq(photo.boardId).and(photo.boardType.eq(BoardType.REVIEW)))
+                .where(reviewBoard.id.eq(userId))
+                .orderBy(ORDERS.toArray(OrderSpecifier[]::new))
+                .fetch();
+
+        return reviewDtoList;
     }
 
 
@@ -176,17 +191,12 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public List<ReviewResponseDto> getRecentReviewDto() {
 
-        try {
-            return em.createQuery(
-                            "select new com.perfume.allpouse.model.dto.ReviewResponseDto(r.id, r.user.userName, r.subject, r.content, r.perfume.subject, r.perfume.brand.name, r.hitCnt, r.recommendCnt, p.path, r.createDateTime)"
-                                    + " from ReviewBoard r"
-                                    + " inner join Photo p"
-                                    + " on r.id = p.boardId"
-                                    + " where p.boardType = 'REVIEW'"
-                                    + " order by r.createDateTime DESC", ReviewResponseDto.class)
-                    .getResultList();
-
-        } catch (Exception e) {throw new CustomException(INVALID_PARAMETER);}
+        return em.createQuery(
+                "select new com.perfume.allpouse.model.dto.ReviewResponseDto(r.id, r.user.userName, r.subject, r.content, r.perfume.subject, r.perfume.brand.name, r.hitCnt, r.recommendCnt, p.path, r.createDateTime)"
+                        + " from ReviewBoard r"
+                        + " left join Photo p"
+                        + " on r.id = p.boardId", ReviewResponseDto.class)
+                .getResultList();
     }
 
 
@@ -253,4 +263,53 @@ public class ReviewServiceImpl implements ReviewService {
 
         } catch (Exception e) {throw new CustomException(INVALID_PARAMETER);}
     }
+
+
+    public List<ReviewResponseDto> findReviews() {
+
+        List<ReviewResponseDto> reviewDtoList = queryFactory
+                .select(new QReviewResponseDto(reviewBoard.id, reviewBoard.user.userName, reviewBoard.subject, reviewBoard.content, reviewBoard.perfume.subject, reviewBoard.perfume.brand.name, reviewBoard.hitCnt, reviewBoard.recommendCnt, photo.path, reviewBoard.createDateTime))
+                .from(reviewBoard)
+                .leftJoin(photo)
+                .on(reviewBoard.id.eq(photo.boardId)
+                        .and(photo.boardType.eq(BoardType.valueOf("REVIEW"))))
+                .fetch();
+
+        return reviewDtoList;
+    }
+
+
+    private List<OrderSpecifier> getAllOrderSpecifiers(Pageable pageable) {
+
+        List<OrderSpecifier> ORDERS = new ArrayList<>();
+
+        if (!pageable.getSort().isEmpty()) {
+            for (Sort.Order order : pageable.getSort()) {
+                Order direction = order.getDirection().isAscending() ? Order.ASC : Order.DESC;
+
+
+                // order.getProperty() : name, createDateTime
+                switch(order.getProperty()) {
+
+                    // 추천 순
+                    case "recommendCnt":
+                        OrderSpecifier<?> orderName = QueryDslUtil.getSortedColumn(direction, QReviewBoard.reviewBoard.recommendCnt, "recommendCnt");
+                        ORDERS.add(orderName);
+                        break;
+
+                    // 작성일 순
+                    case "createDateTime":
+                        OrderSpecifier<?> orderDateTime = QueryDslUtil.getSortedColumn(direction, QReviewBoard.reviewBoard.createDateTime, "createDateTime");
+                        ORDERS.add(orderDateTime);
+                        break;
+
+                    default:
+                        break;
+                }
+            }
+        }
+
+        return ORDERS;
+    }
+
 }

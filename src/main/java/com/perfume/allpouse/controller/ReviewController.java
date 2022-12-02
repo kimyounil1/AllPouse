@@ -162,13 +162,14 @@ public class ReviewController {
     public Page<ReviewResponseDto> myReviewList(
             HttpServletRequest request,
             @ApiParam(value = "페이지네이션 옵션")
-            @PageableDefault(page = 0, size = 20, sort = "createDateTime", direction = Sort.Direction.DESC) Pageable pageable) {
+            @PageableDefault(page = 0, size = 20, sort = "createDateTime", direction = Sort.Direction.DESC) Pageable pageable
+            ) {
 
         String token = tokenProvider.resolveToken(request);
 
         Long userId = tokenProvider.getId(token);
 
-        List<ReviewResponseDto> reviewDtoList = reviewService.getReviewDto(userId);
+        List<ReviewResponseDto> reviewDtoList = reviewService.getReviewDto(userId, pageable);
 
         //String sortString = String.valueOf(pageable.getSort());
         //String sortCri = sortString.substring(0, sortString.indexOf(":"));

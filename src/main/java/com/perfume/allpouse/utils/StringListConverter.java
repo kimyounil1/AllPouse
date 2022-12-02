@@ -15,9 +15,9 @@ public class StringListConverter  implements AttributeConverter<List<String>, St
         return String.join(SPLIT_CHAR, stringList);
     }
 
+
     @Override
     public List<String> convertToEntityAttribute(String string) {
-        return Arrays.asList(string.split(SPLIT_CHAR));
+        return string == null? null : Arrays.asList(string.split(SPLIT_CHAR));
     }
 }
-

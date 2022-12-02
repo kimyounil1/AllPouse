@@ -1,6 +1,7 @@
 package com.perfume.allpouse.model.dto;
 
 import com.perfume.allpouse.data.entity.ReviewBoard;
+import com.querydsl.core.annotations.QueryProjection;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,7 +13,6 @@ import java.util.List;
 @Builder
 @Getter
 @ToString
-@AllArgsConstructor
 public class ReviewResponseDto {
 
     private Long id;
@@ -34,5 +34,20 @@ public class ReviewResponseDto {
     private List<String> images;
 
     private LocalDateTime createDateTime;
+
+
+    @QueryProjection
+    public ReviewResponseDto(Long id, String userName, String subject, String content, String perfumeName, String brandName, int hitCnt, int recommendCnt, List<String> images, LocalDateTime createDateTime) {
+        this.id = id;
+        this.userName = userName;
+        this.subject = subject;
+        this.content = content;
+        this.perfumeName = perfumeName;
+        this.brandName = brandName;
+        this.hitCnt = hitCnt;
+        this.recommendCnt = recommendCnt;
+        this.createDateTime = createDateTime;
+        this.images = images;
+    }
 }
 

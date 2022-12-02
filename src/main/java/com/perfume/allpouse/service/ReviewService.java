@@ -22,7 +22,7 @@ public interface ReviewService {
 
     ReviewBoard findById(Long id);
 
-    List<ReviewResponseDto> getReviewDto(Long userId);
+    List<ReviewResponseDto> getReviewDto(Long userId, Pageable pageable);
 
     List<ReviewResponseDto> getRecentReviewDto();
 

@@ -26,8 +26,6 @@ public class PhotoServiceImpl implements PhotoService {
 
     private final PhotoRepository photoRepository;
 
-    StringListConverter stringListConverter;
-
     public PhotoServiceImpl(S3ServiceImpl s3ServiceImpl, PhotoRepository photoRepository) {
         this.s3ServiceImpl = s3ServiceImpl;
         this.photoRepository = photoRepository;
