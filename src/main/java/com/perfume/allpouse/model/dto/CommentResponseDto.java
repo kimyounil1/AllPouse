@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Builder
 @ToString
@@ -44,5 +46,14 @@ public class CommentResponseDto {
                 .perfumeName(comment.getReview().getPerfume().getSubject())
                 .createDateTime(comment.getCreateDateTime())
                 .build();
+    }
+
+
+    // List<Comment> -> List<CommentResponseDto>
+    public static List<CommentResponseDto> toDtoList(final List<Comment> comments) {
+
+        return comments.stream()
+                .map(CommentResponseDto::toDto)
+                .collect(Collectors.toList());
     }
 }

@@ -2,6 +2,7 @@ package com.perfume.allpouse.service.impl;
 
 
 import com.perfume.allpouse.data.entity.Comment;
+import com.perfume.allpouse.data.entity.QComment;
 import com.perfume.allpouse.data.entity.ReviewBoard;
 import com.perfume.allpouse.data.entity.User;
 import com.perfume.allpouse.data.repository.CommentRepository;
@@ -11,6 +12,7 @@ import com.perfume.allpouse.exception.CustomException;
 import com.perfume.allpouse.model.dto.CommentResponseDto;
 import com.perfume.allpouse.model.dto.SaveCommentDto;
 import com.perfume.allpouse.service.CommentService;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -37,6 +40,10 @@ public class CommentServiceImpl implements CommentService {
     private final UserRepository userRepository;
 
     private final ReviewBoardRepository reviewRepository;
+
+    private final JPAQueryFactory queryFactory;
+
+    QComment comment = new QComment("comment");
 
 
     // 댓글 저장
@@ -95,11 +102,16 @@ public class CommentServiceImpl implements CommentService {
         }
     }
 
-    // 리뷰에 대한 전체 댓글 조회(파라미터: ReviewBoard_id)
+    // 리뷰에 대한 전체 댓글 조회(파라미터: 리뷰id, 데이터 개수)
     // 기본정렬 : 작성일자(cre_dt)
     @Override
-    public List<Comment> findByReviewId(Long id) {
-        List<Comment> comments = commentRepository.findCommentsByReviewId(id);
+    public List<Comment> findByReviewId(Long id, int size) {
+
+        List<Comment> comments = queryFactory.selectFrom(comment)
+                .where(comment.review.id.eq(id))
+                .orderBy(comment.createDateTime.desc())
+                .limit(size)
+                .fetch();
 
         if (comments.size() == 0) {
             throw new CustomException(INVALID_PARAMETER);

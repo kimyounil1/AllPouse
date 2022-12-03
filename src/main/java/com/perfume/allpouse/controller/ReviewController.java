@@ -3,6 +3,7 @@ package com.perfume.allpouse.controller;
 import com.perfume.allpouse.config.security.TokenProvider;
 import com.perfume.allpouse.data.entity.Comment;
 import com.perfume.allpouse.data.entity.PerfumeBoard;
+import com.perfume.allpouse.data.entity.QComment;
 import com.perfume.allpouse.data.entity.ReviewBoard;
 import com.perfume.allpouse.exception.CustomException;
 import com.perfume.allpouse.model.dto.*;
@@ -11,6 +12,7 @@ import com.perfume.allpouse.model.enums.Permission;
 import com.perfume.allpouse.model.reponse.CommonResponse;
 import com.perfume.allpouse.model.reponse.SingleResponse;
 import com.perfume.allpouse.service.*;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import io.swagger.annotations.ApiParam;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +35,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.perfume.allpouse.exception.ExceptionEnum.INVALID_PARAMETER;
+import static com.perfume.allpouse.model.dto.CommentResponseDto.toDtoList;
 import static com.perfume.allpouse.model.enums.Permission.*;
 
 @Slf4j
@@ -54,6 +57,7 @@ public class ReviewController {
     private final CommentService commentService;
 
     private final PerfumeService perfumeService;
+
 
 
     // 리뷰 저장 및 업데이트
@@ -204,19 +208,10 @@ public class ReviewController {
         ReviewResponseDto reviewDto = reviewService.getReviewDtoByReviewId(reviewId);
 
         // 댓글
-        <댓글 Service 계층 리팩토링>
+        List<Comment> comments = commentService.findByReviewId(reviewId, size);
+        List<CommentResponseDto> commentDtoList = CommentResponseDto.toDtoList(comments);
 
-        List<Comment> comments = commentService.findByReviewId(reviewId);
-        int sizOfComments = Math.min(size, comments.size());
-        List<Comment> slicedComments = comments.subList(0, sizOfComments);
-
-        List<CommentResponseDto> commentDtoList = slicedComments.stream()
-                .map(CommentResponseDto::toDto)
-                .collect(Collectors.toList());
-
-        ReviewCommentDto reviewCommentDto = new ReviewCommentDto(reviewDto, commentDtoList);
-
-        return reviewCommentDto;
+        return new ReviewCommentDto(reviewDto, commentDtoList);
     }
 
 

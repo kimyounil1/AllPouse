@@ -18,7 +18,7 @@ public interface CommentService {
 
     List<Comment> findByUserId(Long id);
 
-    List<Comment> findByReviewId(Long id);
+    List<Comment> findByReviewId(Long id, int size);
 
     Comment findOne(Long id);
 
