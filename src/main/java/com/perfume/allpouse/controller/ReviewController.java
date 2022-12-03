@@ -170,9 +170,9 @@ public class ReviewController {
 
         Long userId = tokenProvider.getId(token);
 
-        Page<ReviewResponseDto> reviewDtoList = reviewService.getReviewDto(userId, pageable);
+        Page<ReviewResponseDto> pageList = reviewService.getReviewDto(userId, pageable);
 
-        return reviewDtoList;
+        return pageList;
     }
 
 
@@ -184,13 +184,9 @@ public class ReviewController {
             @ApiParam(value = "페이지네이션 옵션", required = true)
             @PageableDefault(page = 0, size = 20) Pageable pageable) {
 
-        List<ReviewResponseDto> reviewDtoList = reviewService.getRecentReviewDto();
+        Page<ReviewResponseDto> pageList = reviewService.getRecentReviewDto(pageable);
 
-        int start = (int) pageable.getOffset();
-        int end = Math.min((start + pageable.getPageSize()), reviewDtoList.size());
-        Page<ReviewResponseDto> page = new PageImpl<>(reviewDtoList.subList(start, end), pageable, reviewDtoList.size());
-
-        return page;
+        return pageList;
     }
 
 
@@ -204,7 +200,11 @@ public class ReviewController {
 
         final int size = 5;
 
+        // 리뷰
         ReviewResponseDto reviewDto = reviewService.getReviewDtoByReviewId(reviewId);
+
+        // 댓글
+        <댓글 Service 계층 리팩토링>
 
         List<Comment> comments = commentService.findByReviewId(reviewId);
         int sizOfComments = Math.min(size, comments.size());

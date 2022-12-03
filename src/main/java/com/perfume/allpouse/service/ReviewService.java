@@ -25,7 +25,7 @@ public interface ReviewService {
 
     Page<ReviewResponseDto> getReviewDto(Long userId, Pageable pageable);
 
-    List<ReviewResponseDto> getRecentReviewDto();
+    Page<ReviewResponseDto> getRecentReviewDto(Pageable pageable);
 
     ReviewResponseDto getReviewDtoByReviewId(Long reviewId);
 

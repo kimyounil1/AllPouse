@@ -169,8 +169,8 @@ public class ReviewServiceImpl implements ReviewService {
 
 
 
-    // 유저가 작성한 리뷰와 사진 ReviewResponseDto로 변환해서 가져옴(pageable 변경하면서 테스트 필요)
-    //
+    // 유저가 작성한 리뷰와 사진 List<ReviewResponseDto>로 변환해서 가져옴
+    // 기본정렬 : 작성일자 기준 내림차순(pageable로 변경 가능)
     @Override
     public Page<ReviewResponseDto> getReviewDto(Long userId, Pageable pageable) {
 
@@ -196,7 +196,7 @@ public class ReviewServiceImpl implements ReviewService {
     // 전체 리뷰와 사진을 ReviewResponseDto로 변환해서 가져옴
     // 정렬 : 작성일자 기준 내림차순(고정)
     @Override
-    public List<ReviewResponseDto> getRecentReviewDto() {
+    public Page<ReviewResponseDto> getRecentReviewDto(Pageable pageable) {
 
         List<ReviewResponseDto> reviewDtoList = queryFactory
                 .select(new QReviewResponseDto(reviewBoard.id, reviewBoard.user.userName, reviewBoard.subject, reviewBoard.content, reviewBoard.perfume.subject, reviewBoard.perfume.brand.name, reviewBoard.hitCnt, reviewBoard.recommendCnt, photo.path, reviewBoard.createDateTime))
@@ -206,7 +206,11 @@ public class ReviewServiceImpl implements ReviewService {
                 .orderBy(reviewBoard.createDateTime.desc())
                 .fetch();
 
-        return reviewDtoList;
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), reviewDtoList.size());
+        Page<ReviewResponseDto> pageList = new PageImpl<>(reviewDtoList.subList(start, end), pageable, reviewDtoList.size());
+
+        return pageList;
     }
 
 
