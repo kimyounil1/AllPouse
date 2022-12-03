@@ -3,16 +3,14 @@ package com.perfume.allpouse.controller;
 import com.perfume.allpouse.config.security.TokenProvider;
 import com.perfume.allpouse.data.entity.Comment;
 import com.perfume.allpouse.data.entity.PerfumeBoard;
-import com.perfume.allpouse.data.entity.QComment;
 import com.perfume.allpouse.data.entity.ReviewBoard;
 import com.perfume.allpouse.exception.CustomException;
 import com.perfume.allpouse.model.dto.*;
 import com.perfume.allpouse.model.enums.BoardType;
-import com.perfume.allpouse.model.enums.Permission;
 import com.perfume.allpouse.model.reponse.CommonResponse;
+import com.perfume.allpouse.model.reponse.PageResponse;
 import com.perfume.allpouse.model.reponse.SingleResponse;
 import com.perfume.allpouse.service.*;
-import com.querydsl.jpa.impl.JPAQueryFactory;
 import io.swagger.annotations.ApiParam;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -20,11 +18,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.data.web.SortDefault;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -32,11 +28,10 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.perfume.allpouse.exception.ExceptionEnum.INVALID_PARAMETER;
-import static com.perfume.allpouse.model.dto.CommentResponseDto.toDtoList;
-import static com.perfume.allpouse.model.enums.Permission.*;
+import static com.perfume.allpouse.model.enums.Permission.ROLE_PERFUMER;
+import static com.perfume.allpouse.model.enums.Permission.ROLE_USER;
 
 @Slf4j
 @RestController
@@ -59,48 +54,36 @@ public class ReviewController {
     private final PerfumeService perfumeService;
 
 
-
     // 리뷰 저장 및 업데이트
     @ResponseBody
     @PostMapping(value = "review", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
-    public SingleResponse<Long> saveReview(
+    @Operation(summary = "리뷰 저장 및 수정", description = "리뷰를 저장하거나 수정하는 API")
+    public CommonResponse saveReview(
             HttpServletRequest request,
             @ApiParam(value = "리뷰 내용을 담는 DTO", required = false) @RequestPart SaveReviewDto saveReviewDto,
             @ApiParam(value = "리뷰에 첨부하는 사진들") @RequestPart(value = "photo", required = false) List<MultipartFile> photos) throws IOException {
 
-
-        String token = tokenProvider.resolveToken(request);
-
-        Long userId = tokenProvider.getId(token);
+        Long userId = getUserIdFromRequest(request);
 
         Long reviewId = saveReviewDto.getId();
 
+        photoService.delete(BoardType.REVIEW, reviewId);
 
         // 첨부 사진 있는 경우
         if (photos != null) {
 
             // 첨부파일 저장
-            photoService.delete(BoardType.REVIEW, reviewId);
-
             List<String> fileNameList = photoService.save(photos, BoardType.REVIEW, reviewId);
 
+            // 저장된 적 없는 리뷰 -> save
             if (reviewId == null) {
                 saveReviewDto.setUserId(userId);
                 Long savedId = reviewService.save(saveReviewDto);
-
-                // response
-                SingleResponse<Long> response = responseService.getSingleResponse(savedId);
-                responseService.setSuccessResponse(response);
-
-                return response;
-            } else {
-                Long savedId = reviewService.update(saveReviewDto);
-
-                SingleResponse<Long> response = responseService.getSingleResponse(savedId);
-                responseService.setSuccessResponse(response);
-
-                return response;
             }
+            // 저장된 적 있는 리뷰 -> update
+            else {Long savedId = reviewService.update(saveReviewDto);}
+
+            return responseService.getSuccessCommonResponse();
         }
 
         // 첨부 사진 없는 경우
@@ -110,23 +93,11 @@ public class ReviewController {
             if (reviewId == null) {
                 saveReviewDto.setUserId(userId);
                 Long savedId = reviewService.save(saveReviewDto);
-
-                // response
-                SingleResponse<Long> response = responseService.getSingleResponse(savedId);
-                responseService.setSuccessResponse(response);
-
-                return response;
             }
             // 저장된 적 있는 리뷰 -> update
-            else {
-                Long savedId = reviewService.update(saveReviewDto);
+            else {Long savedId = reviewService.update(saveReviewDto);}
 
-                // response
-                SingleResponse<Long> response = responseService.getSingleResponse(savedId);
-                responseService.setSuccessResponse(response);
-
-                return response;
-            }
+            return responseService.getSuccessCommonResponse();
         }
     }
 
@@ -134,72 +105,63 @@ public class ReviewController {
     // 리뷰 삭제
     @ResponseBody
     @DeleteMapping("review")
+    @Operation(summary = "리뷰 삭제", description = "reviewId 받아서 해당 리뷰 삭제하는 API")
     public CommonResponse deleteReview(
             HttpServletRequest request,
             @ApiParam(value = "삭제하려는 리뷰 id", required = true) @RequestParam Long reviewId) {
 
-        String token = tokenProvider.resolveToken(request);
-        Long userId = tokenProvider.getId(token);
+        Long userId = getUserIdFromRequest(request);
 
         ReviewBoard review = reviewService.findById(reviewId);
 
         Long reviewUserId = review.getUser().getId();
 
+        // reviewId로 찾은 리뷰 작성자와 토큰으로 확인한 유저가 동일할 때만 삭제 실행
         if (userId.equals(reviewUserId)) {
             reviewService.delete(reviewId);
-
-            // response
-            CommonResponse response = new CommonResponse();
-            responseService.setSuccessResponse(response);
-            return response;
-
-        } else {
-            throw new CustomException(INVALID_PARAMETER);
-        }
-
+            return responseService.getSuccessCommonResponse();
+        } else {throw new CustomException(INVALID_PARAMETER);}
     }
 
 
-    // 회원이 쓴 리뷰 페이지 별로 가져옴
-    // 쿼리파라미터로 페이지네이션 옵션 설정
+    // 회원이 작성한 리뷰
     @ResponseBody
     @GetMapping("review/me")
-    public Page<ReviewResponseDto> myReviewList(
+    @Operation(summary = "회원이 쓴 리뷰", description = "회원이 작성한 리뷰 가져오는 API. 쿼리파라미터로 페이지네이션 옵션 지정할 수 있음")
+    public PageResponse myReviewList(
             HttpServletRequest request,
             @ApiParam(value = "페이지네이션 옵션")
             @PageableDefault(page = 0, size = 20, sort = "createDateTime", direction = Sort.Direction.DESC) Pageable pageable
             ) {
 
-        String token = tokenProvider.resolveToken(request);
+        Long userId = getUserIdFromRequest(request);
 
-        Long userId = tokenProvider.getId(token);
+        Page<ReviewResponseDto> pages = reviewService.getReviewDto(userId, pageable);
 
-        Page<ReviewResponseDto> pageList = reviewService.getReviewDto(userId, pageable);
-
-        return pageList;
+        return responseService.getPageResponse(pages);
     }
 
 
-    // 최근에 작성된 리뷰를 가져옴
+    // 최근에 작성된 리뷰
     @ResponseBody
     @GetMapping("review/recent")
     @Operation(summary = "최근에 작성된 리뷰", description = "최근에 작성된 리뷰를 페이지별로 보여주는 API.")
-    public Page<ReviewResponseDto> recentReview(
+    public PageResponse recentReview(
             @ApiParam(value = "페이지네이션 옵션", required = true)
             @PageableDefault(page = 0, size = 20) Pageable pageable) {
 
-        Page<ReviewResponseDto> pageList = reviewService.getRecentReviewDto(pageable);
+        Page<ReviewResponseDto> pages = reviewService.getRecentReviewDto(pageable);
 
-        return pageList;
+        return responseService.getPageResponse(pages);
     }
 
 
     // 리뷰 상세 내용과 댓글 N개(N Default : 5)
-    // 댓글은 최신순으로 가져옴
+    // 정렬 : 최신순(고정)
     @ResponseBody
     @GetMapping("review/{reviewId}")
     @Operation(summary = "리뷰/댓글(N개)", description = "리뷰와 해당 리뷰에 달린 댓글(N개)을 가져오는 API")
-    public ReviewCommentDto getReviewPage(
+    public SingleResponse<ReviewCommentDto> getReviewPage(
             @ApiParam(value = "리뷰 id", required = true) @PathVariable("reviewId") Long reviewId) {
 
         final int size = 5;
@@ -211,7 +173,9 @@ public class ReviewController {
         List<Comment> comments = commentService.findByReviewId(reviewId, size);
         List<CommentResponseDto> commentDtoList = CommentResponseDto.toDtoList(comments);
 
-        return new ReviewCommentDto(reviewDto, commentDtoList);
+        ReviewCommentDto reviewCommentDto = new ReviewCommentDto(reviewDto, commentDtoList);
+
+        return responseService.getSingleResponse(reviewCommentDto);
     }
 
 
@@ -220,7 +184,7 @@ public class ReviewController {
     @ResponseBody
     @GetMapping("review/best/{perfumeId}")
     @Operation(summary = "향수에 대한 분류별 리뷰", description = "향수에 대한 분류별 리뷰(조향사, 일반, 추천순) 가져옴")
-    public BestReviewDto getBestReviews(
+    public SingleResponse<BestReviewDto> getBestReviews(
             @ApiParam(value = "향수 id", required = true) @PathVariable("perfumeId") Long perfumeId,
             @PageableDefault(page = 0, size = 5, sort = "hitCnt", direction = Sort.Direction.DESC) Pageable pageable) {
 
@@ -233,7 +197,17 @@ public class ReviewController {
 
         List<ReviewResponseDto> bestReviewsOnPerfume = reviewService.getReviewDtoByPerfumeId(perfumeId, pageable);
 
-        return new BestReviewDto(perfumeDto, perfumerReviews, userReviews, bestReviewsOnPerfume);
+        BestReviewDto bestReviewDto = new BestReviewDto(perfumeDto, perfumerReviews, userReviews, bestReviewsOnPerfume);
+
+
+        return responseService.getSingleResponse(bestReviewDto);
+    }
+
+
+    // HttpRequest에서 userId 추출
+    private Long getUserIdFromRequest(HttpServletRequest request) {
+        String token = tokenProvider.resolveToken(request);
+        return tokenProvider.getId(token);
     }
 }
 

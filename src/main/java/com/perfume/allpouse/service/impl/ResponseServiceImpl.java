@@ -2,8 +2,10 @@ package com.perfume.allpouse.service.impl;
 
 import com.perfume.allpouse.model.reponse.CommonResponse;
 import com.perfume.allpouse.model.reponse.ListResponse;
+import com.perfume.allpouse.model.reponse.PageResponse;
 import com.perfume.allpouse.model.reponse.SingleResponse;
 import com.perfume.allpouse.service.ResponseService;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +33,15 @@ public class ResponseServiceImpl implements ResponseService {
     }
 
     @Override
+    public PageResponse getPageResponse(Page page) {
+        PageResponse pageResponse = new PageResponse();
+        pageResponse.setPages(page);
+        setSuccessResponse(pageResponse);
+        return pageResponse;
+    }
+
+
+    @Override
     public void setSuccessResponse(CommonResponse response) {
         response.setCode(0);
         response.setSuccess(true);
@@ -45,6 +56,13 @@ public class ResponseServiceImpl implements ResponseService {
     }
 
     @Override
+    public CommonResponse getSuccessCommonResponse() {
+        CommonResponse response = new CommonResponse();
+        setSuccessResponse(response);
+        return response;
+    }
+
+    @Override
     public CommonResponse getErrorResponse(int code, String msg) {
         CommonResponse response = new CommonResponse();
         response.setSuccess(false);
@@ -52,4 +70,6 @@ public class ResponseServiceImpl implements ResponseService {
         response.setMsg(msg);
         return response;
     }
+
+
 }
