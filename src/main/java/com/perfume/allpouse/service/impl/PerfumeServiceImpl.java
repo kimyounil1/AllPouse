@@ -1,13 +1,22 @@
 package com.perfume.allpouse.service.impl;
 
 
+import com.perfume.allpouse.controller.PerfumeController;
 import com.perfume.allpouse.data.entity.Brand;
 import com.perfume.allpouse.data.entity.PerfumeBoard;
+import com.perfume.allpouse.data.entity.QPerfumeBoard;
+import com.perfume.allpouse.data.entity.QPhoto;
 import com.perfume.allpouse.data.repository.BrandRepository;
 import com.perfume.allpouse.data.repository.PerfumeBoardRepository;
+import com.perfume.allpouse.model.dto.PerfumeInfoDto;
+import com.perfume.allpouse.model.dto.QPerfumeInfoDto;
+import com.perfume.allpouse.model.enums.BoardType;
 import com.perfume.allpouse.service.PerfumeService;
 import com.perfume.allpouse.model.dto.SavePerfumeDto;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,8 +29,18 @@ import java.util.Optional;
 @Transactional(readOnly = true)
 public class PerfumeServiceImpl implements PerfumeService {
 
+    private final Logger LOGGER = LoggerFactory.getLogger(PerfumeServiceImpl.class);
+
     private final PerfumeBoardRepository perfumeRepository;
+
     private final BrandRepository brandRepository;
+
+    private final JPAQueryFactory queryFactory;
+
+    QPerfumeBoard perfumeBoard = new QPerfumeBoard("perfumeBoard");
+
+    QPhoto photo = new QPhoto("photo");
+
 
 
     // 향수 저장
@@ -66,6 +85,21 @@ public class PerfumeServiceImpl implements PerfumeService {
     // 전체 향수 조회
     @Override
     public List<PerfumeBoard> findAll() {return perfumeRepository.findAll();}
+
+
+    // 향수 Id로 PerfumeDto 받는 메소드
+    @Override
+    public PerfumeInfoDto getPerfumeInfo(Long id) {
+        PerfumeInfoDto perfumeInfoDto = queryFactory
+                .select(new QPerfumeInfoDto(perfumeBoard.id, perfumeBoard.subject, perfumeBoard.brand.name, perfumeBoard.price, perfumeBoard.content, perfumeBoard.hitCnt, photo.path))
+                .from(perfumeBoard)
+                .leftJoin(photo)
+                .on(perfumeBoard.id.eq(photo.boardId).and(photo.boardType.eq(BoardType.PERFUME)))
+                .where(perfumeBoard.id.eq(id))
+                .fetchOne();
+
+        return perfumeInfoDto;
+    }
 
 
     // 향수 단건 조회(with id)

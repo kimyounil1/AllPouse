@@ -31,5 +31,5 @@ public interface ReviewService {
 
     List<ReviewResponseDto> getReviewDtoByPerfumeId(Long perfumeId, Pageable pageable);
 
-    List<ReviewResponseDto> getReviewDtoByPerfumeIdAndPermission(Long perfumeId, Permission permission);
+    List<ReviewResponseDto> getReviewDtoByPerfumeIdAndPermission(Long perfumeId, Permission permission, int size);
 }

@@ -188,16 +188,17 @@ public class ReviewController {
             @ApiParam(value = "향수 id", required = true) @PathVariable("perfumeId") Long perfumeId,
             @PageableDefault(page = 0, size = 5, sort = "hitCnt", direction = Sort.Direction.DESC) Pageable pageable) {
 
-        PerfumeBoard perfume = perfumeService.findOne(perfumeId);
-        PerfumeResponseDto perfumeDto = PerfumeResponseDto.toDto(perfume);
+        final int size = 5;
 
-        List<ReviewResponseDto> perfumerReviews = reviewService.getReviewDtoByPerfumeIdAndPermission(perfumeId, ROLE_PERFUMER);
+        PerfumeInfoDto perfumeInfo = perfumeService.getPerfumeInfo(perfumeId);
 
-        List<ReviewResponseDto> userReviews = reviewService.getReviewDtoByPerfumeIdAndPermission(perfumeId, ROLE_USER);
+        List<ReviewResponseDto> perfumerReviews = reviewService.getReviewDtoByPerfumeIdAndPermission(perfumeId, ROLE_PERFUMER, size);
+
+        List<ReviewResponseDto> userReviews = reviewService.getReviewDtoByPerfumeIdAndPermission(perfumeId, ROLE_USER, size);
 
         List<ReviewResponseDto> bestReviewsOnPerfume = reviewService.getReviewDtoByPerfumeId(perfumeId, pageable);
 
-        BestReviewDto bestReviewDto = new BestReviewDto(perfumeDto, perfumerReviews, userReviews, bestReviewsOnPerfume);
+        BestReviewDto bestReviewDto = new BestReviewDto(perfumeInfo, perfumerReviews, userReviews, bestReviewsOnPerfume);
 
 
         return responseService.getSingleResponse(bestReviewDto);

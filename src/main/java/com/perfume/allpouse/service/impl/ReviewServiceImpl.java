@@ -258,7 +258,7 @@ public class ReviewServiceImpl implements ReviewService {
     // 향수에 달린 사용자분류(USER : 일반사용자, PERFUMER : 조향사)별 베스트 댓글 가져와서 반환
     // 정렬 : 추천수 기준 내림차순(고정)
     @Override
-    public List<ReviewResponseDto> getReviewDtoByPerfumeIdAndPermission(Long perfumeId, Permission permission) {
+    public List<ReviewResponseDto> getReviewDtoByPerfumeIdAndPermission(Long perfumeId, Permission permission, int size) {
 
         List<ReviewResponseDto> reviewDtoList = queryFactory
                 .select(new QReviewResponseDto(reviewBoard.id, reviewBoard.user.userName, reviewBoard.subject, reviewBoard.content, reviewBoard.perfume.subject, reviewBoard.perfume.brand.name, reviewBoard.hitCnt, reviewBoard.recommendCnt, photo.path, reviewBoard.createDateTime))
@@ -267,6 +267,7 @@ public class ReviewServiceImpl implements ReviewService {
                 .on(reviewBoard.id.eq(photo.boardId).and(photo.boardType.eq(BoardType.REVIEW)))
                 .where(reviewBoard.perfume.id.eq(perfumeId).and(reviewBoard.user.permission.eq(permission)))
                 .orderBy(reviewBoard.hitCnt.desc())
+                .limit(size)
                 .fetch();
 
         return reviewDtoList;

@@ -11,7 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 public class BestReviewDto {
 
-    private PerfumeResponseDto perfumeDto;
+    private PerfumeInfoDto perfumeDto;
 
     private List<ReviewResponseDto> perfumerReviews;
 
