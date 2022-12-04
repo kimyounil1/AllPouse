@@ -1,9 +1,15 @@
 package com.perfume.allpouse.service.impl;
 
 import com.perfume.allpouse.data.entity.Brand;
+import com.perfume.allpouse.data.entity.QBrand;
+import com.perfume.allpouse.data.entity.QPhoto;
 import com.perfume.allpouse.data.repository.BrandRepository;
+import com.perfume.allpouse.model.dto.BrandInfoDto;
+import com.perfume.allpouse.model.dto.QBrandInfoDto;
 import com.perfume.allpouse.model.dto.SaveBrandDto;
+import com.perfume.allpouse.model.enums.BoardType;
 import com.perfume.allpouse.service.BrandService;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+import static com.perfume.allpouse.model.enums.BoardType.*;
 
 
 @Service
@@ -19,6 +26,12 @@ import java.util.Optional;
 public class BrandServiceImpl implements BrandService {
 
     private final BrandRepository brandRepository;
+
+    private final JPAQueryFactory queryFactory;
+
+    QBrand brand = new QBrand("brand");
+
+    QPhoto photo = new QPhoto("photo");
 
 
     // 브랜드 저장
@@ -89,6 +102,21 @@ public class BrandServiceImpl implements BrandService {
         } else {
             return brands;
         }
+    }
+
+
+    // 브랜드 Id로 BrandInfoDto 받는 메소드
+    @Override
+    public BrandInfoDto getBrandInfo(Long id) {
+        BrandInfoDto brandInfoDto = queryFactory
+                .select(new QBrandInfoDto(brand.id, brand.name, brand.content, photo.path))
+                .from(brand)
+                .leftJoin(photo)
+                .on(brand.id.eq(photo.boardId).and(photo.boardType.eq(BRAND)))
+                .where(brand.id.eq(id))
+                .fetchOne();
+
+        return brandInfoDto;
     }
 
 

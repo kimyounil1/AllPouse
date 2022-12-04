@@ -23,6 +23,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+import static com.perfume.allpouse.model.enums.BoardType.*;
+
 
 @Service
 @RequiredArgsConstructor
@@ -87,14 +89,14 @@ public class PerfumeServiceImpl implements PerfumeService {
     public List<PerfumeBoard> findAll() {return perfumeRepository.findAll();}
 
 
-    // 향수 Id로 PerfumeDto 받는 메소드
+    // 향수 Id로 PerfumeInfoDto 받는 메소드
     @Override
     public PerfumeInfoDto getPerfumeInfo(Long id) {
         PerfumeInfoDto perfumeInfoDto = queryFactory
                 .select(new QPerfumeInfoDto(perfumeBoard.id, perfumeBoard.subject, perfumeBoard.brand.name, perfumeBoard.price, perfumeBoard.content, perfumeBoard.hitCnt, photo.path))
                 .from(perfumeBoard)
                 .leftJoin(photo)
-                .on(perfumeBoard.id.eq(photo.boardId).and(photo.boardType.eq(BoardType.PERFUME)))
+                .on(perfumeBoard.id.eq(photo.boardId).and(photo.boardType.eq(PERFUME)))
                 .where(perfumeBoard.id.eq(id))
                 .fetchOne();
 
@@ -104,15 +106,14 @@ public class PerfumeServiceImpl implements PerfumeService {
 
     // 향수 단건 조회(with id)
     @Override
-    public PerfumeBoard findOne(Long id) {
+    public PerfumeBoard findById(Long id) {
         Optional<PerfumeBoard> findPerfume = perfumeRepository.findById(id);
 
         if (findPerfume.isPresent()) {
             return findPerfume.get();
         } else {
             throw new IllegalStateException("향수를 찾을 수 없습니다.");
-        }
-    }
+        }    }
 
 
     // 향수 조회(파라미터 Brand_id로 조회)

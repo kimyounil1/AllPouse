@@ -28,8 +28,7 @@ import static com.perfume.allpouse.exception.ExceptionEnum.INVALID_PARAMETER;
 @Slf4j
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/v1/")
-
+@RequestMapping("/api/v1/comment")
 public class CommentController {
 
     private final Logger LOGGER = LoggerFactory.getLogger(CommentController.class);
@@ -75,7 +74,7 @@ public class CommentController {
     // 댓글 삭제
     @ResponseBody
     @DeleteMapping("comment")
-    @Operation(summary = "댓글 삭제", description = "리뷰에 대한 댓글을 삭제하는 API")
+    @Operation(summary = "댓글 삭제", description = "commentId로 리뷰에 대한 댓글을 삭제하는 API")
     public CommonResponse deleteComment(
             HttpServletRequest request,
             @ApiParam(value = "삭제하려는 댓글 id", required = true) @RequestParam Long commentId) {

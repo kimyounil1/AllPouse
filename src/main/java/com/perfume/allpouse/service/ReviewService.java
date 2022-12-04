@@ -3,6 +3,7 @@ package com.perfume.allpouse.service;
 import com.perfume.allpouse.data.entity.ReviewBoard;
 import com.perfume.allpouse.model.dto.ReviewResponseDto;
 import com.perfume.allpouse.model.dto.SaveReviewDto;
+import com.perfume.allpouse.model.enums.BoardType;
 import com.perfume.allpouse.model.enums.Permission;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,7 +30,11 @@ public interface ReviewService {
 
     ReviewResponseDto getReviewDtoByReviewId(Long reviewId);
 
-    List<ReviewResponseDto> getReviewDtoByPerfumeId(Long perfumeId, Pageable pageable);
+    List<ReviewResponseDto> getReviewsOnBrand(Long boardId, Pageable pageable);
 
-    List<ReviewResponseDto> getReviewDtoByPerfumeIdAndPermission(Long perfumeId, Permission permission, int size);
+    List<ReviewResponseDto> getReviewsOnBrand(Long boardId, Permission permission, int size);
+
+    List<ReviewResponseDto> getReviewsOnPerfume(Long boardId, Pageable pageable);
+
+    List<ReviewResponseDto> getReviewsOnPerfume(Long boardId, Permission permission, int size);
 }

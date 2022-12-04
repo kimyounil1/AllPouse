@@ -111,5 +111,4 @@ public class TokenProvider implements InitializingBean {
         Jws<Claims> claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
         return !claims.getBody().getExpiration().before(new Date());
     }
-
 }

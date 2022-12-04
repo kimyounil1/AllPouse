@@ -2,11 +2,9 @@ package com.perfume.allpouse.controller;
 
 import com.perfume.allpouse.config.security.TokenProvider;
 import com.perfume.allpouse.data.entity.Comment;
-import com.perfume.allpouse.data.entity.PerfumeBoard;
 import com.perfume.allpouse.data.entity.ReviewBoard;
 import com.perfume.allpouse.exception.CustomException;
 import com.perfume.allpouse.model.dto.*;
-import com.perfume.allpouse.model.enums.BoardType;
 import com.perfume.allpouse.model.reponse.CommonResponse;
 import com.perfume.allpouse.model.reponse.PageResponse;
 import com.perfume.allpouse.model.reponse.SingleResponse;
@@ -30,6 +28,7 @@ import java.io.IOException;
 import java.util.List;
 
 import static com.perfume.allpouse.exception.ExceptionEnum.INVALID_PARAMETER;
+import static com.perfume.allpouse.model.enums.BoardType.*;
 import static com.perfume.allpouse.model.enums.Permission.ROLE_PERFUMER;
 import static com.perfume.allpouse.model.enums.Permission.ROLE_USER;
 
@@ -67,13 +66,13 @@ public class ReviewController {
 
         Long reviewId = saveReviewDto.getId();
 
-        photoService.delete(BoardType.REVIEW, reviewId);
+        photoService.delete(REVIEW, reviewId);
 
         // 첨부 사진 있는 경우
         if (photos != null) {
 
             // 첨부파일 저장
-            List<String> fileNameList = photoService.save(photos, BoardType.REVIEW, reviewId);
+            List<String> fileNameList = photoService.save(photos, REVIEW, reviewId);
 
             // 저장된 적 없는 리뷰 -> save
             if (reviewId == null) {
@@ -119,6 +118,7 @@ public class ReviewController {
         // reviewId로 찾은 리뷰 작성자와 토큰으로 확인한 유저가 동일할 때만 삭제 실행
         if (userId.equals(reviewUserId)) {
             reviewService.delete(reviewId);
+            photoService.delete(REVIEW, reviewId);
             return responseService.getSuccessCommonResponse();
         } else {throw new CustomException(INVALID_PARAMETER);}
     }
@@ -192,11 +192,11 @@ public class ReviewController {
 
         PerfumeInfoDto perfumeInfo = perfumeService.getPerfumeInfo(perfumeId);
 
-        List<ReviewResponseDto> perfumerReviews = reviewService.getReviewDtoByPerfumeIdAndPermission(perfumeId, ROLE_PERFUMER, size);
+        List<ReviewResponseDto> perfumerReviews = reviewService.getReviewsOnPerfume(perfumeId, ROLE_PERFUMER, size);
 
-        List<ReviewResponseDto> userReviews = reviewService.getReviewDtoByPerfumeIdAndPermission(perfumeId, ROLE_USER, size);
+        List<ReviewResponseDto> userReviews = reviewService.getReviewsOnPerfume(perfumeId, ROLE_USER, size);
 
-        List<ReviewResponseDto> bestReviewsOnPerfume = reviewService.getReviewDtoByPerfumeId(perfumeId, pageable);
+        List<ReviewResponseDto> bestReviewsOnPerfume = reviewService.getReviewsOnPerfume(perfumeId, pageable);
 
         BestReviewDto bestReviewDto = new BestReviewDto(perfumeInfo, perfumerReviews, userReviews, bestReviewsOnPerfume);
 

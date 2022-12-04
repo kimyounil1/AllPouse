@@ -9,14 +9,13 @@ import java.util.List;
 @Setter
 @Builder
 @AllArgsConstructor
-public class BestReviewDto {
+public class BestReviewDto<T> {
 
-    private PerfumeInfoDto perfumeDto;
+    private T infoDto;
 
     private List<ReviewResponseDto> perfumerReviews;
 
     private List<ReviewResponseDto> userReviews;
 
     private List<ReviewResponseDto> highRecommendReviews;
-
 }

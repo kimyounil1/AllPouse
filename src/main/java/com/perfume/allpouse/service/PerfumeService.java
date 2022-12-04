@@ -18,7 +18,7 @@ public interface PerfumeService {
 
     PerfumeInfoDto getPerfumeInfo(Long id);
 
-    PerfumeBoard findOne(Long id);
+    PerfumeBoard findById(Long id);
 
     List<PerfumeBoard> findByBrandId(Long id);
 }
