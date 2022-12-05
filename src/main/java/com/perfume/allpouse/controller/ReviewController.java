@@ -57,7 +57,7 @@ public class ReviewController {
     @ResponseBody
     @PostMapping(value = "review", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
     @Operation(summary = "리뷰 저장 및 수정", description = "리뷰를 저장하거나 수정하는 API")
-    public CommonResponse saveReview(
+    public CommonResponse saveAndUpdateReview(
             HttpServletRequest request,
             @ApiParam(value = "리뷰 내용을 담는 DTO", required = false) @RequestPart SaveReviewDto saveReviewDto,
             @ApiParam(value = "리뷰에 첨부하는 사진들") @RequestPart(value = "photo", required = false) List<MultipartFile> photos) throws IOException {
@@ -71,7 +71,7 @@ public class ReviewController {
         // 첨부 사진 있는 경우
         if (photos != null) {
 
-            // 첨부파일 저장
+            // 첨부사진 저장
             List<String> fileNameList = photoService.save(photos, REVIEW, reviewId);
 
             // 저장된 적 없는 리뷰 -> save

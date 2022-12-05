@@ -4,6 +4,7 @@ import com.perfume.allpouse.config.security.TokenProvider;
 import com.perfume.allpouse.model.dto.BestReviewDto;
 import com.perfume.allpouse.model.dto.PerfumeInfoDto;
 import com.perfume.allpouse.model.dto.ReviewResponseDto;
+import com.perfume.allpouse.model.dto.SavePerfumeDto;
 import com.perfume.allpouse.model.reponse.CommonResponse;
 import com.perfume.allpouse.model.reponse.SingleResponse;
 import com.perfume.allpouse.service.PerfumeService;
@@ -19,9 +20,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.util.List;
 
 import static com.perfume.allpouse.model.enums.BoardType.*;
@@ -71,6 +75,48 @@ public class PerfumeController {
     }
 
     // 향수 등록 및 수정
+    @ResponseBody
+    @PostMapping(value = "perfume", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
+    @Operation(summary = "<사용X> 향수 저장 및 수정", description = "*** <데이터 추가용> 향수를 저장하거나 수정하는 API")
+    public CommonResponse saveAndUpdatePerfume(
+            @ApiParam(value = "향수 내용을 담는 DTO", required = true) @RequestPart SavePerfumeDto savePerfumeDto,
+            @ApiParam(value = "향수 사진", required = false) @RequestPart(value = "photo", required = false) List<MultipartFile> photos) throws IOException {
+
+        Long perfumeId = savePerfumeDto.getId();
+
+        photoService.delete(PERFUME, perfumeId);
+
+        // 첨부사진 있는 경우
+        if (photos != null) {
+
+            // 첨부사진 저장
+            List<String> fileNameList = photoService.save(photos, PERFUME, perfumeId);
+
+            // 저장된 적 없는 향수 -> save
+            if (perfumeId == null) {
+                Long savedId = perfumeService.save(savePerfumeDto);
+            }
+
+            // 저장된 적 있는 향수 -> update
+            else {Long savedId = perfumeService.update(savePerfumeDto);}
+
+            return responseService.getSuccessCommonResponse();
+        }
+
+        // 첨부사진 없는 경우
+        else {
+
+            // 저장된 적 없는 향수 -> save
+            if (perfumeId == null) {
+                Long savedId = perfumeService.save(savePerfumeDto);
+            }
+
+            // 저장된 적 있는 향수 -> update
+            else {Long savedId = perfumeService.update(savePerfumeDto);}
+
+            return responseService.getSuccessCommonResponse();
+        }
+    }
 
 
     // 향수 삭제

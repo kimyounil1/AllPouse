@@ -5,6 +5,7 @@ import com.perfume.allpouse.config.security.TokenProvider;
 import com.perfume.allpouse.model.dto.BestReviewDto;
 import com.perfume.allpouse.model.dto.BrandInfoDto;
 import com.perfume.allpouse.model.dto.ReviewResponseDto;
+import com.perfume.allpouse.model.dto.SaveBrandDto;
 import com.perfume.allpouse.model.reponse.CommonResponse;
 import com.perfume.allpouse.model.reponse.SingleResponse;
 import com.perfume.allpouse.service.BrandService;
@@ -21,11 +22,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 import static com.perfume.allpouse.model.enums.BoardType.BRAND;
-import static com.perfume.allpouse.model.enums.BoardType.REVIEW;
 import static com.perfume.allpouse.model.enums.Permission.ROLE_PERFUMER;
 import static com.perfume.allpouse.model.enums.Permission.ROLE_USER;
 
@@ -69,6 +71,50 @@ public class BrandController {
 
         return responseService.getSingleResponse(bestReviewDto);
 
+    }
+
+    // 브랜드 추가
+    @ResponseBody
+    @PostMapping("brand")
+    @Operation(summary = "<사용X> 브랜드 저장 및 수정", description = "***<데이터 추가용> 브랜드 저장하거나 수정하는 API")
+    public CommonResponse saveAndUpdateBrand(
+            @ApiParam(value = "브랜드 사진 담는 DTO", required= true) @RequestPart SaveBrandDto saveBrandDto,
+            @ApiParam(value = "브랜드 사진", required = false) @RequestPart(value = "photo", required = false) List<MultipartFile> photos) throws IOException {
+
+        Long brandId = saveBrandDto.getId();
+
+        photoService.delete(BRAND, brandId);
+
+        // 첨부사진 있는 경우
+        if (photos != null) {
+
+            // 첨부사진 저장
+            List<String> fileNameList = photoService.save(photos, BRAND, brandId);
+
+            // 저장된 적 없는 향수 -> save
+            if (brandId == null) {
+                brandService.save(saveBrandDto);
+            }
+
+            // 저장된 적 있는 향수 -> update
+            else {brandService.update(saveBrandDto);}
+
+            return responseService.getSuccessCommonResponse();
+        }
+
+        // 첨부사진 없는 경우
+        else {
+
+            // 저장된 적 없는 향수 -> save
+            if (brandId == null) {
+                brandService.save(saveBrandDto);
+            }
+
+            // 저장된 적 있는 향수 -> update
+            else {brandService.update(saveBrandDto);}
+
+            return responseService.getSuccessCommonResponse();
+        }
     }
 
 

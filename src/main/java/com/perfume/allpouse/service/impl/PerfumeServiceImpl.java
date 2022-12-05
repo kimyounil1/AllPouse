@@ -1,7 +1,6 @@
 package com.perfume.allpouse.service.impl;
 
 
-import com.perfume.allpouse.controller.PerfumeController;
 import com.perfume.allpouse.data.entity.Brand;
 import com.perfume.allpouse.data.entity.PerfumeBoard;
 import com.perfume.allpouse.data.entity.QPerfumeBoard;
@@ -10,9 +9,8 @@ import com.perfume.allpouse.data.repository.BrandRepository;
 import com.perfume.allpouse.data.repository.PerfumeBoardRepository;
 import com.perfume.allpouse.model.dto.PerfumeInfoDto;
 import com.perfume.allpouse.model.dto.QPerfumeInfoDto;
-import com.perfume.allpouse.model.enums.BoardType;
-import com.perfume.allpouse.service.PerfumeService;
 import com.perfume.allpouse.model.dto.SavePerfumeDto;
+import com.perfume.allpouse.service.PerfumeService;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -23,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
-import static com.perfume.allpouse.model.enums.BoardType.*;
+import static com.perfume.allpouse.model.enums.BoardType.PERFUME;
 
 
 @Service
