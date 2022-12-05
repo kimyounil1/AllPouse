@@ -81,38 +81,15 @@ public class BrandController {
             @ApiParam(value = "브랜드 사진 담는 DTO", required= true) @RequestPart SaveBrandDto saveBrandDto,
             @ApiParam(value = "브랜드 사진", required = false) @RequestPart(value = "photo", required = false) List<MultipartFile> photos) throws IOException {
 
-        Long brandId = saveBrandDto.getId();
-
-        photoService.delete(BRAND, brandId);
-
         // 첨부사진 있는 경우
         if (photos != null) {
-
-            // 첨부사진 저장
-            List<String> fileNameList = photoService.save(photos, BRAND, brandId);
-
-            // 저장된 적 없는 향수 -> save
-            if (brandId == null) {
-                brandService.save(saveBrandDto);
-            }
-
-            // 저장된 적 있는 향수 -> update
-            else {brandService.update(saveBrandDto);}
-
+            brandService.save(saveBrandDto, photos);
             return responseService.getSuccessCommonResponse();
         }
 
         // 첨부사진 없는 경우
         else {
-
-            // 저장된 적 없는 향수 -> save
-            if (brandId == null) {
-                brandService.save(saveBrandDto);
-            }
-
-            // 저장된 적 있는 향수 -> update
-            else {brandService.update(saveBrandDto);}
-
+            brandService.save(saveBrandDto);
             return responseService.getSuccessCommonResponse();
         }
     }
@@ -130,6 +107,4 @@ public class BrandController {
 
         return responseService.getSuccessCommonResponse();
     }
-
-
 }

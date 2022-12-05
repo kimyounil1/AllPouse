@@ -9,11 +9,14 @@ import com.perfume.allpouse.model.dto.QBrandInfoDto;
 import com.perfume.allpouse.model.dto.SaveBrandDto;
 import com.perfume.allpouse.model.enums.BoardType;
 import com.perfume.allpouse.service.BrandService;
+import com.perfume.allpouse.service.PhotoService;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,30 +32,55 @@ public class BrandServiceImpl implements BrandService {
 
     private final JPAQueryFactory queryFactory;
 
+    private final PhotoService photoService;
+
     QBrand brand = new QBrand("brand");
 
     QPhoto photo = new QPhoto("photo");
 
 
-    // 브랜드 저장
+    // 브랜드 저장 - 사진 있는 경우
     @Transactional
     @Override
-    public Long save(SaveBrandDto saveBrandDto) {
+    public void save(SaveBrandDto saveBrandDto, List<MultipartFile> photos) throws IOException {
 
-        Brand savedBrand = brandRepository.save(toEntity(saveBrandDto));
+        Long brandId = saveBrandDto.getId();
 
-        return savedBrand.getId();
+        photoService.delete(BRAND, brandId);
+
+        List<String> fileNameList = photoService.save(photos, BRAND, brandId);
+
+        if (brandId != null) {
+            update(saveBrandDto);
+        } else {
+            brandRepository.save(toEntity(saveBrandDto));
+        }
+    }
+
+
+    // 브랜드 저장 - 사진 없는 경우
+    @Transactional
+    @Override
+    public void save(SaveBrandDto saveBrandDto) {
+
+        Long brandId = saveBrandDto.getId();
+
+        photoService.delete(BRAND, brandId);
+
+        if (brandId != null) {
+            update(saveBrandDto);
+        } else {
+            brandRepository.save(toEntity(saveBrandDto));
+        }
     }
 
 
     // 브랜드 수정
     @Transactional
     @Override
-    public Long update(SaveBrandDto saveBrandDto) {
+    public void update(SaveBrandDto saveBrandDto) {
         Brand brand = brandRepository.findById(saveBrandDto.getId()).get();
         brand.changeBrand(saveBrandDto);
-
-        return brand.getId();
     }
 
 
