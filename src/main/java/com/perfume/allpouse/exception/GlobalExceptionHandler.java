@@ -1,6 +1,5 @@
 package com.perfume.allpouse.exception;
 
-import com.perfume.allpouse.model.reponse.CommonResponse;
 import com.perfume.allpouse.model.reponse.ErrorResponse;
 import com.perfume.allpouse.service.impl.ResponseServiceImpl;
 import org.springframework.http.ResponseEntity;

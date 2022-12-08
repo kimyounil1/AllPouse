@@ -53,11 +53,12 @@ public class PerfumeBoard extends BaseTimeEntity {
 
 
     //== 향수 내용 변경 ==//
+
+    //1. Dto -> Entity 내용 변경
     // 변경가능항목 : subject, content, price, image_path
     public void changePerfume(SavePerfumeDto perfumeDto) {
         this.subject = perfumeDto.getSubject();
         this.content = perfumeDto.getContent();
         this.price = perfumeDto.getPrice();
     }
-
 }

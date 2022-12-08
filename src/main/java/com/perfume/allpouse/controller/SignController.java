@@ -69,5 +69,4 @@ public class SignController {
     public void accessException() throws RuntimeException {
         throw new CustomException(AUTHORITY_FORBIDDEN);
     }
-
 }

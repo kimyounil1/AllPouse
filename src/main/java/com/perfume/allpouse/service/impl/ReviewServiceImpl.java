@@ -24,7 +24,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -55,15 +57,47 @@ public class ReviewServiceImpl implements ReviewService {
     QPhoto photo = new QPhoto("photo");
 
 
-    // 리뷰 저장
+    // 리뷰 저장 - 사진 있는 경우
+    @Override
+    @Transactional
+    public Long save(SaveReviewDto saveReviewDto, List<MultipartFile> photos) throws IOException {
+
+        Long reviewId = saveReviewDto.getId();
+
+        // 아직 저장된 적 없음 -> save
+        if (reviewId == null) {
+            ReviewBoard savedReview = reviewRepository.save(toEntity(saveReviewDto));
+            Long savedId = savedReview.getId();
+            photoService.save(photos, REVIEW, savedId);
+
+            return reviewId;
+        } else {
+            photoService.delete(REVIEW, reviewId);
+            photoService.save(photos, REVIEW, reviewId);
+            update(saveReviewDto);
+
+            return reviewId;
+        }
+    }
+
+
+
+    // 리뷰 저장 - 사진 없는 경우
     @Transactional
     @Override
     public Long save(SaveReviewDto saveReviewDto) {
 
-        ReviewBoard reviewBoard = toEntity(saveReviewDto);
-        ReviewBoard savedReview = reviewRepository.save(reviewBoard);
+        Long reviewId = saveReviewDto.getId();
 
-        return savedReview.getId();
+        // 아직 저장된 적 없음 -> save
+        if (reviewId == null) {
+            ReviewBoard review = reviewRepository.save(toEntity(saveReviewDto));
+            return review.getId();
+        } else {
+            photoService.delete(REVIEW, reviewId);
+            Long savedReviewId = update(saveReviewDto);
+            return savedReviewId;
+        }
     }
 
 
@@ -72,10 +106,16 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public Long update(SaveReviewDto saveReviewDto) {
 
-        ReviewBoard review = reviewRepository.findById(saveReviewDto.getId()).get();
-        review.changeReview(saveReviewDto);
+        Long reviewId = saveReviewDto.getId();
 
-        return review.getId();
+        Optional<ReviewBoard> review = reviewRepository.findById(reviewId);
+
+        if (review.isPresent()) {
+            ReviewBoard reviewBoard = review.get();
+            reviewBoard.changeReview(saveReviewDto);
+
+            return reviewId;
+        } else {throw new CustomException(INVALID_PARAMETER);}
     }
 
 
@@ -251,6 +291,7 @@ public class ReviewServiceImpl implements ReviewService {
         return reviewDtoList;
     }
 
+
     // 브랜드에 달린 사용자분류(USER : 일반사용자, PERFUMER : 조향사)별 베스트 댓글 가져와서 반환
     // 정렬 : 추천수 기준 내림차순(고정)
     @Override
@@ -308,6 +349,35 @@ public class ReviewServiceImpl implements ReviewService {
         return reviewDtoList;
     }
 
+
+    // 조회수 추가
+    @Override
+    @Transactional
+    public void addHitCnt(Long id) {
+
+        Optional<ReviewBoard> review = reviewRepository.findById(id);
+
+        if (review.isEmpty()) {
+            throw new CustomException(INVALID_PARAMETER);
+        } else {
+            reviewRepository.updateHitCnt(id);
+        }
+    }
+
+
+    // 추천수 추가
+    @Override
+    @Transactional
+    public void addRecommendCnt(Long id) {
+
+        Optional<ReviewBoard> review = reviewRepository.findById(id);
+
+        if (review.isEmpty()) {
+            throw new CustomException(INVALID_PARAMETER);
+        } else {
+            reviewRepository.addRecommendCnt(id);
+        }
+    }
 
 
     // Pageable에서 정렬기준 추출

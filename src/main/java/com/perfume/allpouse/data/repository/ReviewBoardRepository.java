@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -34,6 +35,22 @@ public interface ReviewBoardRepository extends JpaRepository<ReviewBoard, Long> 
             "order by r.recommendCnt desc")
     List<ReviewBoard> findReviewBoardByPerfumeIdAndUserPermission(@Param("perfumeId") Long perfumeId,
                                                                   @Param("permission")Permission permission);
+
+
+    // 조회수 +1
+    @Modifying
+    @Query("update ReviewBoard r set r.hitCnt = r.hitCnt + 1 where r.id = :reviewId")
+    void updateHitCnt(@Param("reviewId") Long id);
+
+    // 추천수 +1
+    @Modifying
+    @Query("update ReviewBoard r set r.recommendCnt = r.recommendCnt + 1 where r.id = :reviewId")
+    void addRecommendCnt(@Param("reviewId") Long id);
+
+    // 추천수 -1
+    @Modifying
+    @Query("update ReviewBoard r set r.recommendCnt = r.recommendCnt - 1 where r.id = :reviewId")
+    void minusRecommendCnt(@Param("reviewId") Long id);
 
 }
 

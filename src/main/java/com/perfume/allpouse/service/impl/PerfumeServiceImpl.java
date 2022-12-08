@@ -7,20 +7,26 @@ import com.perfume.allpouse.data.entity.QPerfumeBoard;
 import com.perfume.allpouse.data.entity.QPhoto;
 import com.perfume.allpouse.data.repository.BrandRepository;
 import com.perfume.allpouse.data.repository.PerfumeBoardRepository;
+import com.perfume.allpouse.exception.CustomException;
+import com.perfume.allpouse.exception.ExceptionEnum;
 import com.perfume.allpouse.model.dto.PerfumeInfoDto;
 import com.perfume.allpouse.model.dto.QPerfumeInfoDto;
 import com.perfume.allpouse.model.dto.SavePerfumeDto;
 import com.perfume.allpouse.service.PerfumeService;
+import com.perfume.allpouse.service.PhotoService;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
+import static com.perfume.allpouse.exception.ExceptionEnum.*;
 import static com.perfume.allpouse.model.enums.BoardType.PERFUME;
 
 
@@ -35,6 +41,8 @@ public class PerfumeServiceImpl implements PerfumeService {
 
     private final BrandRepository brandRepository;
 
+    private final PhotoService photoService;
+
     private final JPAQueryFactory queryFactory;
 
     QPerfumeBoard perfumeBoard = new QPerfumeBoard("perfumeBoard");
@@ -42,34 +50,69 @@ public class PerfumeServiceImpl implements PerfumeService {
     QPhoto photo = new QPhoto("photo");
 
 
-
-    // 향수 저장
-    @Transactional
+    // 향수 저장 - 사진 있는 경우
     @Override
+    @Transactional
+    public Long save(SavePerfumeDto savePerfumeDto, List<MultipartFile> photos) throws IOException {
+
+        Long perfumeId = savePerfumeDto.getId();
+
+        // 아직 저장된 적 없음 -> save
+        if (perfumeId == null) {
+            PerfumeBoard savedPerfume = perfumeRepository.save(toEntity(savePerfumeDto));
+            Long savedId = savedPerfume.getId();
+            photoService.save(photos, PERFUME, savedId);
+
+            return savedId;
+        } else {
+            photoService.delete(PERFUME, perfumeId);
+            photoService.save(photos, PERFUME, perfumeId);
+            update(savePerfumeDto);
+
+            return perfumeId;
+        }
+    }
+
+    // 향수 저장 - 사진 없는 경우
+    @Override
+    @Transactional
     public Long save(SavePerfumeDto savePerfumeDto) {
 
-        PerfumeBoard perfumeBoard = toEntity(savePerfumeDto);
-        PerfumeBoard savedPerfume = perfumeRepository.save(perfumeBoard);
+        Long perfumeId = savePerfumeDto.getId();
 
-        return savedPerfume.getId();
+        // 아직 저장된 적 없음 -> save
+        if (perfumeId == null) {
+            PerfumeBoard savedPerfume = perfumeRepository.save(toEntity(savePerfumeDto));
+            return savedPerfume.getId();
+        } else {
+            photoService.delete(PERFUME, perfumeId);
+            Long savedPerfumeId = update(savePerfumeDto);
+            return savedPerfumeId;
+        }
     }
 
 
     // 향수 수정
-    @Transactional
     @Override
+    @Transactional
     public Long update(SavePerfumeDto savePerfumeDto) {
 
-        PerfumeBoard perfume = perfumeRepository.findById(savePerfumeDto.getId()).get();
-        perfume.changePerfume(savePerfumeDto);
+        Long perfumeId = savePerfumeDto.getId();
 
-        return perfume.getId();
+        Optional<PerfumeBoard> perfume = perfumeRepository.findById(perfumeId);
+
+        if (perfume.isPresent()) {
+            PerfumeBoard perfumeBoard = perfume.get();
+            perfumeBoard.changePerfume(savePerfumeDto);
+
+            return perfumeId;
+        } else {throw new CustomException(INVALID_PARAMETER);}
     }
 
 
     // 향수 삭제
-    @Transactional
     @Override
+    @Transactional
     public void delete(Long id) {
 
         Optional<PerfumeBoard> perfume = perfumeRepository.findById(id);
@@ -129,10 +172,23 @@ public class PerfumeServiceImpl implements PerfumeService {
     }
 
 
+    // 조회수 추가
+    @Override
+    @Transactional
+    public void addHitCnt(Long id) {
+
+        Optional<PerfumeBoard> perfume = perfumeRepository.findById(id);
+
+        if (perfume.isEmpty()) {
+            throw new CustomException(INVALID_PARAMETER);
+        } else {
+            perfumeRepository.updateHitCnt(id);
+        }
+    }
+
+
     // Dto -> PerfumeBoard
     private PerfumeBoard toEntity(SavePerfumeDto perfumeDto) {
-
-        Brand brand = brandRepository.findById(perfumeDto.getBrandId()).get();
 
         PerfumeBoard perfume = PerfumeBoard.builder()
                 .id(perfumeDto.getId())
@@ -141,6 +197,7 @@ public class PerfumeServiceImpl implements PerfumeService {
                 .price(perfumeDto.getPrice())
                 .build();
 
+        Brand brand = brandRepository.findById(perfumeDto.getBrandId()).get();
         perfume.addBrand(brand);
 
         return perfume;

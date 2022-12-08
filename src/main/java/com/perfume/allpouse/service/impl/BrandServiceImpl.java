@@ -4,6 +4,8 @@ import com.perfume.allpouse.data.entity.Brand;
 import com.perfume.allpouse.data.entity.QBrand;
 import com.perfume.allpouse.data.entity.QPhoto;
 import com.perfume.allpouse.data.repository.BrandRepository;
+import com.perfume.allpouse.exception.CustomException;
+import com.perfume.allpouse.exception.ExceptionEnum;
 import com.perfume.allpouse.model.dto.BrandInfoDto;
 import com.perfume.allpouse.model.dto.QBrandInfoDto;
 import com.perfume.allpouse.model.dto.SaveBrandDto;
@@ -20,6 +22,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
+import static com.perfume.allpouse.exception.ExceptionEnum.*;
 import static com.perfume.allpouse.model.enums.BoardType.*;
 
 
@@ -42,18 +45,22 @@ public class BrandServiceImpl implements BrandService {
     // 브랜드 저장 - 사진 있는 경우
     @Transactional
     @Override
-    public void save(SaveBrandDto saveBrandDto, List<MultipartFile> photos) throws IOException {
+    public Long save(SaveBrandDto saveBrandDto, List<MultipartFile> photos) throws IOException {
 
         Long brandId = saveBrandDto.getId();
 
-        photoService.delete(BRAND, brandId);
+        if (brandId == null) {
+            Brand savedBrand = brandRepository.save(toEntity(saveBrandDto));
+            Long savedId = savedBrand.getId();
+            photoService.save(photos, BRAND, savedId);
 
-        List<String> fileNameList = photoService.save(photos, BRAND, brandId);
-
-        if (brandId != null) {
-            update(saveBrandDto);
+            return savedId;
         } else {
-            brandRepository.save(toEntity(saveBrandDto));
+            photoService.delete(BRAND, brandId);
+            photoService.save(photos, BRAND, brandId);
+            update(saveBrandDto);
+
+            return brandId;
         }
     }
 
@@ -61,16 +68,17 @@ public class BrandServiceImpl implements BrandService {
     // 브랜드 저장 - 사진 없는 경우
     @Transactional
     @Override
-    public void save(SaveBrandDto saveBrandDto) {
+    public Long save(SaveBrandDto saveBrandDto) {
 
         Long brandId = saveBrandDto.getId();
 
-        photoService.delete(BRAND, brandId);
-
-        if (brandId != null) {
-            update(saveBrandDto);
+        if (brandId == null) {
+            Brand savedBrand = brandRepository.save(toEntity(saveBrandDto));
+            return savedBrand.getId();
         } else {
-            brandRepository.save(toEntity(saveBrandDto));
+            photoService.delete(BRAND, brandId);
+            Long savedBrandId = update(saveBrandDto);
+            return savedBrandId;
         }
     }
 
@@ -78,9 +86,18 @@ public class BrandServiceImpl implements BrandService {
     // 브랜드 수정
     @Transactional
     @Override
-    public void update(SaveBrandDto saveBrandDto) {
-        Brand brand = brandRepository.findById(saveBrandDto.getId()).get();
-        brand.changeBrand(saveBrandDto);
+    public Long update(SaveBrandDto saveBrandDto) {
+
+        Long brandId = saveBrandDto.getId();
+
+        Optional<Brand> brandOptional = brandRepository.findById(brandId);
+
+        if (brandOptional.isPresent()) {
+            Brand brand = brandOptional.get();
+            brand.changeBrand(saveBrandDto);
+
+            return brandId;
+        } else {throw new CustomException(INVALID_PARAMETER);}
     }
 
 

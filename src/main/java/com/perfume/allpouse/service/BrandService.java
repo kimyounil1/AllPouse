@@ -10,11 +10,11 @@ import java.util.List;
 
 public interface BrandService {
 
-    void save(SaveBrandDto saveBrandDto, List<MultipartFile> photos) throws IOException;
+    Long save(SaveBrandDto saveBrandDto, List<MultipartFile> photos) throws IOException;
 
-    void save(SaveBrandDto saveBrandDto);
+    Long save(SaveBrandDto saveBrandDto);
 
-    void update(SaveBrandDto saveBrandDto);
+    Long update(SaveBrandDto saveBrandDto);
 
     void delete(Long id);
 

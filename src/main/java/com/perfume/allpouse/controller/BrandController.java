@@ -51,7 +51,6 @@ public class BrandController {
 
 
     // 브랜드 페이지
-    @ResponseBody
     @GetMapping("brand/{brandId}")
     @Operation(summary = "브랜드 및 리뷰 페이지", description = "브랜드 상세 페이지. 기본 정보 및 리뷰 제공. (페이지네이션 파라미터 전달하지 않아도 됨)")
     public SingleResponse<BestReviewDto> getBrandPage(@ApiParam(value = "브랜드 id", required = true) @PathVariable Long brandId,
@@ -70,11 +69,10 @@ public class BrandController {
         BestReviewDto bestReviewDto = new BestReviewDto(brandInfo, perfumerReviews, userReviews, bestReviewsOnPerfume);
 
         return responseService.getSingleResponse(bestReviewDto);
-
     }
 
+
     // 브랜드 추가
-    @ResponseBody
     @PostMapping("brand")
     @Operation(summary = "<사용X> 브랜드 저장 및 수정", description = "***<데이터 추가용> 브랜드 저장하거나 수정하는 API")
     public CommonResponse saveAndUpdateBrand(
@@ -84,19 +82,16 @@ public class BrandController {
         // 첨부사진 있는 경우
         if (photos != null) {
             brandService.save(saveBrandDto, photos);
-            return responseService.getSuccessCommonResponse();
         }
-
         // 첨부사진 없는 경우
         else {
             brandService.save(saveBrandDto);
-            return responseService.getSuccessCommonResponse();
         }
+        return responseService.getSuccessCommonResponse();
     }
 
 
     // 브랜드 삭제
-    @ResponseBody
     @DeleteMapping("brand")
     @Operation(summary = "브랜드 삭제", description = "brandId로 브랜드 삭제하는 API")
     public CommonResponse deleteBrand(@ApiParam(value = "삭제하려는 브랜드 id", required = true) @RequestParam Long brandId) {
