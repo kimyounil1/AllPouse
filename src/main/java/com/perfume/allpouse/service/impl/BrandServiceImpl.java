@@ -6,9 +6,7 @@ import com.perfume.allpouse.data.entity.QPhoto;
 import com.perfume.allpouse.data.repository.BrandRepository;
 import com.perfume.allpouse.exception.CustomException;
 import com.perfume.allpouse.exception.ExceptionEnum;
-import com.perfume.allpouse.model.dto.BrandInfoDto;
-import com.perfume.allpouse.model.dto.QBrandInfoDto;
-import com.perfume.allpouse.model.dto.SaveBrandDto;
+import com.perfume.allpouse.model.dto.*;
 import com.perfume.allpouse.model.enums.BoardType;
 import com.perfume.allpouse.service.BrandService;
 import com.perfume.allpouse.service.PhotoService;
@@ -120,6 +118,22 @@ public class BrandServiceImpl implements BrandService {
     @Override
     public List<Brand> findAll() {
         return brandRepository.findAll();
+    }
+
+
+    // 개수 지정해서 향수 조회
+    @Override
+    public List<BrandResponseDto> findAllWithSize(int size) {
+
+        List<BrandResponseDto> brandDtoList = queryFactory
+                .select(new QBrandResponseDto(brand.id, brand.name, photo.path))
+                .from(brand)
+                .leftJoin(photo)
+                .on(brand.id.eq(photo.boardId).and(photo.boardType.eq(BRAND)))
+                .limit(size)
+                .fetch();
+
+        return brandDtoList;
     }
 
 

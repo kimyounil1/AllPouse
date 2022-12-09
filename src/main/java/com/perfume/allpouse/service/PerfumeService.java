@@ -2,6 +2,7 @@ package com.perfume.allpouse.service;
 
 import com.perfume.allpouse.data.entity.PerfumeBoard;
 import com.perfume.allpouse.model.dto.PerfumeInfoDto;
+import com.perfume.allpouse.model.dto.PerfumeResponseDto;
 import com.perfume.allpouse.model.dto.SavePerfumeDto;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,6 +20,8 @@ public interface PerfumeService {
     void delete(Long id);
 
     List<PerfumeBoard> findAll();
+
+    List<PerfumeResponseDto> findAllWithSize(int size);
 
     PerfumeInfoDto getPerfumeInfo(Long id);
 

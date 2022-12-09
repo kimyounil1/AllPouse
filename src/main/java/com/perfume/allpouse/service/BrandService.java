@@ -2,6 +2,7 @@ package com.perfume.allpouse.service;
 
 import com.perfume.allpouse.data.entity.Brand;
 import com.perfume.allpouse.model.dto.BrandInfoDto;
+import com.perfume.allpouse.model.dto.BrandResponseDto;
 import com.perfume.allpouse.model.dto.SaveBrandDto;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,8 +19,9 @@ public interface BrandService {
 
     void delete(Long id);
 
-
     List<Brand> findAll();
+
+    List<BrandResponseDto> findAllWithSize(int size);
 
     Brand findOne(Long id);
 

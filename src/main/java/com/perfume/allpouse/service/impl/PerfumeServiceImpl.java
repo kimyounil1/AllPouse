@@ -9,9 +9,7 @@ import com.perfume.allpouse.data.repository.BrandRepository;
 import com.perfume.allpouse.data.repository.PerfumeBoardRepository;
 import com.perfume.allpouse.exception.CustomException;
 import com.perfume.allpouse.exception.ExceptionEnum;
-import com.perfume.allpouse.model.dto.PerfumeInfoDto;
-import com.perfume.allpouse.model.dto.QPerfumeInfoDto;
-import com.perfume.allpouse.model.dto.SavePerfumeDto;
+import com.perfume.allpouse.model.dto.*;
 import com.perfume.allpouse.service.PerfumeService;
 import com.perfume.allpouse.service.PhotoService;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -128,6 +126,22 @@ public class PerfumeServiceImpl implements PerfumeService {
     // 전체 향수 조회
     @Override
     public List<PerfumeBoard> findAll() {return perfumeRepository.findAll();}
+
+
+    // 개수 지정해서 향수 조회
+    @Override
+    public List<PerfumeResponseDto> findAllWithSize(int size) {
+
+        List<PerfumeResponseDto> perfumeDtoList = queryFactory
+                .select(new QPerfumeResponseDto(perfumeBoard.id, perfumeBoard.subject, perfumeBoard.brand.id, perfumeBoard.brand.name, photo.path))
+                .from(perfumeBoard)
+                .leftJoin(photo)
+                .on(perfumeBoard.id.eq(photo.boardId).and(photo.boardType.eq(PERFUME)))
+                .limit(size)
+                .fetch();
+
+        return perfumeDtoList;
+    }
 
 
     // 향수 Id로 PerfumeInfoDto 받는 메소드

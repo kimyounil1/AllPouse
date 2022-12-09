@@ -28,7 +28,7 @@ import static com.perfume.allpouse.exception.ExceptionEnum.INVALID_PARAMETER;
 @Slf4j
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/v1/comment")
+@RequestMapping("/api/v1/")
 public class CommentController {
 
     private final Logger LOGGER = LoggerFactory.getLogger(CommentController.class);

@@ -2,11 +2,9 @@ package com.perfume.allpouse.controller;
 
 
 import com.perfume.allpouse.config.security.TokenProvider;
-import com.perfume.allpouse.model.dto.BestReviewDto;
-import com.perfume.allpouse.model.dto.BrandInfoDto;
-import com.perfume.allpouse.model.dto.ReviewResponseDto;
-import com.perfume.allpouse.model.dto.SaveBrandDto;
+import com.perfume.allpouse.model.dto.*;
 import com.perfume.allpouse.model.reponse.CommonResponse;
+import com.perfume.allpouse.model.reponse.ListResponse;
 import com.perfume.allpouse.model.reponse.SingleResponse;
 import com.perfume.allpouse.service.BrandService;
 import com.perfume.allpouse.service.PhotoService;
@@ -101,5 +99,16 @@ public class BrandController {
         photoService.delete(BRAND, brandId);
 
         return responseService.getSuccessCommonResponse();
+    }
+
+    // 브랜드 10개
+    @GetMapping("brand")
+    @Operation(summary = "(임시)브랜드 10개", description = "브랜드 10개 간단 정보 가져오는 API")
+    public ListResponse<BrandResponseDto> getBrandList() {
+
+        final int size = 10;
+        List<BrandResponseDto> brandDtoList = brandService.findAllWithSize(size);
+
+        return responseService.getListResponse(brandDtoList);
     }
 }
