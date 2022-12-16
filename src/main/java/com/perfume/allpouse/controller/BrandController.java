@@ -8,10 +8,7 @@ import com.perfume.allpouse.model.dto.ReviewResponseDto;
 import com.perfume.allpouse.model.dto.SaveBrandDto;
 import com.perfume.allpouse.model.reponse.CommonResponse;
 import com.perfume.allpouse.model.reponse.SingleResponse;
-import com.perfume.allpouse.service.BrandService;
-import com.perfume.allpouse.service.PhotoService;
-import com.perfume.allpouse.service.ResponseService;
-import com.perfume.allpouse.service.ReviewService;
+import com.perfume.allpouse.service.*;
 import io.swagger.annotations.ApiParam;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +21,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.List;
 
@@ -45,6 +43,8 @@ public class BrandController {
 
     private final BrandService brandService;
 
+    private final BoardLogService boardLogService;
+
     private final PhotoService photoService;
 
     private final ReviewService reviewService;
@@ -53,10 +53,12 @@ public class BrandController {
     // 브랜드 페이지
     @GetMapping("brand/{brandId}")
     @Operation(summary = "브랜드 및 리뷰 페이지", description = "브랜드 상세 페이지. 기본 정보 및 리뷰 제공. (페이지네이션 파라미터 전달하지 않아도 됨)")
-    public SingleResponse<BestReviewDto> getBrandPage(@ApiParam(value = "브랜드 id", required = true) @PathVariable Long brandId,
+    public SingleResponse<BestReviewDto> getBrandPage(HttpServletRequest request, @ApiParam(value = "브랜드 id", required = true) @PathVariable Long brandId,
                                                       @PageableDefault(page = 0, size = 5, sort = "hitCnt", direction = Sort.Direction.DESC) Pageable pageable) {
 
         final int size = 5;
+
+        long id = tokenProvider.getId(tokenProvider.resolveToken(request));
 
         BrandInfoDto brandInfo = brandService.getBrandInfo(brandId);
 
@@ -67,6 +69,9 @@ public class BrandController {
         List<ReviewResponseDto> bestReviewsOnPerfume = reviewService.getReviewsOnBrand(brandId, pageable);
 
         BestReviewDto bestReviewDto = new BestReviewDto(brandInfo, perfumerReviews, userReviews, bestReviewsOnPerfume);
+
+        boardLogService.save(boardLogService.setSuccessLog(Thread.currentThread().getStackTrace()[1].getClassName(),Thread.currentThread().getStackTrace()[1].getMethodName(),
+                "get single brand detail",brandId,id));
 
         return responseService.getSingleResponse(bestReviewDto);
     }

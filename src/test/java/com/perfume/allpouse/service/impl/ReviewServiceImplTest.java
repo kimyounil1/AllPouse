@@ -35,14 +35,4 @@ class ReviewServiceImplTest {
 
     }
 
-
-    @Test
-    @DisplayName("LEFT JOIN ")
-    @Transactional
-    public void getRecentReviewTest() throws Exception {
-
-        List<ReviewResponseDto> reviews = reviewService.findReviews(5L);
-        System.out.println(reviews);
-        System.out.println(reviews.size());
-    }
 }
