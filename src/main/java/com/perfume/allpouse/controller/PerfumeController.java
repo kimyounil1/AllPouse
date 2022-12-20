@@ -5,10 +5,7 @@ import com.perfume.allpouse.model.dto.*;
 import com.perfume.allpouse.model.reponse.CommonResponse;
 import com.perfume.allpouse.model.reponse.ListResponse;
 import com.perfume.allpouse.model.reponse.SingleResponse;
-import com.perfume.allpouse.service.PerfumeService;
-import com.perfume.allpouse.service.PhotoService;
-import com.perfume.allpouse.service.ResponseService;
-import com.perfume.allpouse.service.ReviewService;
+import com.perfume.allpouse.service.*;
 import io.swagger.annotations.ApiParam;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -48,15 +45,20 @@ public class PerfumeController {
 
     private final ResponseService responseService;
 
+    private final BoardLogService boardLogService;
+
 
     // 향수 페이지
     @GetMapping("perfume/{perfumeId}")
     @Operation(summary = "향수정보 및 리뷰 페이지", description = "향수 상세 페이지. 기본 정보 및 리뷰 제공. (페이지네이션 파라미터 전달하지 않아도 됨)")
-    public SingleResponse<BestReviewDto> getPerfumePage(@ApiParam(value = "향수 id", required = true) @PathVariable Long perfumeId,
+    public SingleResponse<BestReviewDto> getPerfumePage(HttpServletRequest request, @ApiParam(value = "향수 id", required = true) @PathVariable Long perfumeId,
                                                         @PageableDefault(page = 0, size = 5, sort = "hitCnt", direction = Sort.Direction.DESC) Pageable pageable) {
         final int size = 5;
 
         perfumeService.addHitCnt(perfumeId);
+
+        long id = tokenProvider.getId(tokenProvider.resolveToken(request));
+
 
         PerfumeInfoDto perfumeInfo = perfumeService.getPerfumeInfo(perfumeId);
 
@@ -67,6 +69,9 @@ public class PerfumeController {
         List<ReviewResponseDto> bestReviewsOnPerfume = reviewService.getReviewsOnPerfume(perfumeId, pageable);
 
         BestReviewDto bestReviewDto = new BestReviewDto(perfumeInfo, perfumerReviews, userReviews, bestReviewsOnPerfume);
+
+        boardLogService.save(boardLogService.setSuccessLog(Thread.currentThread().getStackTrace()[1].getClassName(),Thread.currentThread().getStackTrace()[1].getMethodName(),
+                "get single perfume detail",perfumeId,id));
 
         return responseService.getSingleResponse(bestReviewDto);
 

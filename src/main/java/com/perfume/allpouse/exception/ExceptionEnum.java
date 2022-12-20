@@ -7,6 +7,9 @@ import lombok.Getter;
 @Getter
 public enum ExceptionEnum {
 
+    // 200 옳은 요청
+    SUCCESS_RESULT(200, true, "요청을 성공적으로 완료하였습니다."),
+
     // 400 잘못된 요청
     INVALID_PARAMETER(400,false , "파라미터 값을 확인해주세요."),
     INVALID_TOKEN(400,false,"유효하지 않은 토큰 입니다."),
