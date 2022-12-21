@@ -70,14 +70,13 @@ public class ReviewServiceImpl implements ReviewService {
             Long savedId = savedReview.getId();
             photoService.save(photos, REVIEW, savedId);
 
-            return reviewId;
         } else {
             photoService.delete(REVIEW, reviewId);
             photoService.save(photos, REVIEW, reviewId);
             update(saveReviewDto);
 
-            return reviewId;
         }
+        return reviewId;
     }
 
 

@@ -32,6 +32,4 @@ public class BoardLog {
     private Long boardId;
 
     private String detailLog;
-
-
 }

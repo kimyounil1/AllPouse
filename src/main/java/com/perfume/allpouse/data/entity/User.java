@@ -47,6 +47,10 @@ public class User extends BaseTimeEntity implements UserDetails {
     @Builder.Default
     private List<Comment> comments = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @Builder.Default
+    private List<Post> posts = new ArrayList<>();
+
     public User() {
 
     }

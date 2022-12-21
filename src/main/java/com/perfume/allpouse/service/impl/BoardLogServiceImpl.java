@@ -39,5 +39,4 @@ public class BoardLogServiceImpl implements BoardLogService {
                 .detailLog(detail).build();
         return null;
     }
-
 }

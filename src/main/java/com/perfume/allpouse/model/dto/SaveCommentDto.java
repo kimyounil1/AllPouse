@@ -3,9 +3,11 @@ package com.perfume.allpouse.model.dto;
 import com.perfume.allpouse.data.entity.Comment;
 import lombok.*;
 
+import static lombok.AccessLevel.*;
+
 @Data
 @AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = PROTECTED)
 @ToString
 public class SaveCommentDto {
 

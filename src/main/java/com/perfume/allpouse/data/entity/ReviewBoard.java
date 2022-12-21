@@ -47,7 +47,7 @@ public class ReviewBoard extends BaseTimeEntity{
 
     //== 연관관계 메소드 ==//
     // 1. User
-    public void setUser(User user){
+    public void setUser(User user) {
         this.user = user;
         user.getReviews().add(this);
     }
@@ -59,8 +59,8 @@ public class ReviewBoard extends BaseTimeEntity{
     }
 
 
-    //== 리뷰 내용 변경 =//
 
+    //== 리뷰 내용 변경 =//
     // 1. Dto -> Entity 내용 변경
     // 변경가능항목 : subject, content
     public void changeReview(SaveReviewDto reviewDto) {
