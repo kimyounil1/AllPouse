@@ -8,9 +8,13 @@ import com.perfume.allpouse.data.repository.BoradLogRepository;
 import com.perfume.allpouse.data.repository.UserRepository;
 import com.perfume.allpouse.model.dto.SaveReviewDto;
 import com.perfume.allpouse.service.BoardLogService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
-
+@Service
+@Transactional(readOnly = true)
 public class BoardLogServiceImpl implements BoardLogService {
 
     private final BoradLogRepository boradLogRepository;
