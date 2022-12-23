@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 @Service
-@Transactional(readOnly = true)
+@Transactional
 public class BoardLogServiceImpl implements BoardLogService {
 
     private final BoradLogRepository boradLogRepository;
@@ -41,7 +41,7 @@ public class BoardLogServiceImpl implements BoardLogService {
                 .boardId(boardId)
                 .user(user.get())
                 .detailLog(detail).build();
-        return null;
+        return boardLog;
     }
 
 }

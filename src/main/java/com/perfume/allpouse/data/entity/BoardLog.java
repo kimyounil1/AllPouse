@@ -13,7 +13,7 @@ import static javax.persistence.GenerationType.AUTO;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "brand_log")
+@Table(name = "board_log")
 public class BoardLog {
     @Id
     @GeneratedValue(strategy = AUTO)
