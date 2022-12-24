@@ -20,7 +20,7 @@ public interface ReviewService {
 
     Long update(SaveReviewDto saveReviewDto);
 
-    void delete(Long id);
+    void delete(Long ReviewId);
 
     List<ReviewBoard> findByUserId(Long id);
 
@@ -45,6 +45,4 @@ public interface ReviewService {
     void addHitCnt(Long id);
 
     void addRecommendCnt(Long id);
-
-
 }

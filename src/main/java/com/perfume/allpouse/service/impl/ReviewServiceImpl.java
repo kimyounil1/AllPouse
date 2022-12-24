@@ -64,21 +64,22 @@ public class ReviewServiceImpl implements ReviewService {
 
         Long reviewId = saveReviewDto.getId();
 
-        // 아직 저장된 적 없음 -> save
+        // 등록된 적 없는 리뷰 -> 글/사진 저장
         if (reviewId == null) {
             ReviewBoard savedReview = reviewRepository.save(toEntity(saveReviewDto));
             Long savedId = savedReview.getId();
             photoService.save(photos, REVIEW, savedId);
+            return savedId;
+        }
 
-        } else {
+        // 등록된 적 있는 리뷰 -> 사진 삭제 후 저장, 리뷰 내용 변경
+        else {
             photoService.delete(REVIEW, reviewId);
             photoService.save(photos, REVIEW, reviewId);
             update(saveReviewDto);
-
+            return reviewId;
         }
-        return reviewId;
     }
-
 
 
     // 리뷰 저장 - 사진 없는 경우

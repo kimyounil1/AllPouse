@@ -1,12 +1,17 @@
 package com.perfume.allpouse.data.entity;
 
 import com.perfume.allpouse.model.dto.SavePostDto;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 
+import static javax.persistence.ConstraintMode.*;
 import static javax.persistence.GenerationType.IDENTITY;
+import static lombok.AccessLevel.PROTECTED;
 
 /**
  * 게시판의 게시글 상위 클래스
@@ -14,9 +19,11 @@ import static javax.persistence.GenerationType.IDENTITY;
 
 @Entity
 @Getter
+@AllArgsConstructor
+@NoArgsConstructor(access = PROTECTED)
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "type")
-public abstract class Post extends BaseTimeEntity{
+public class Post extends BaseTimeEntity{
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
@@ -35,6 +42,13 @@ public abstract class Post extends BaseTimeEntity{
     @JoinColumn(name = "user_id")
     private User user;
 
+
+    public Post(String title, String content, User user) {
+        this.hitCnt = hitCnt;
+        this.title = title;
+        this.content = content;
+        this.user = user;
+    }
 
     //== 연관관계 메소드 ==//
     // 1. User

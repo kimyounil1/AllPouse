@@ -18,6 +18,7 @@ public class SavePostDto {
 
     private String content;
 
+    // 게시판 타입
     private String type;
 
     private Long userId;

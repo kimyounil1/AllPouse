@@ -1,17 +1,19 @@
 package com.perfume.allpouse.data.entity;
 
-import lombok.*;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
-import static lombok.AccessLevel.*;
-
 @Entity
-@Builder
-@NoArgsConstructor(access = PROTECTED)
-@Getter
+@NoArgsConstructor
 @DiscriminatorValue("free")
 public class FreeBoardPost extends Post{
+
+    @Builder
+    public FreeBoardPost(String title, String content, User user) {
+        super(title, content, user);
+    }
 
 }
