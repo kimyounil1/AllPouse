@@ -1,5 +1,6 @@
 package com.perfume.allpouse.service;
 
+import com.perfume.allpouse.data.entity.Post;
 import com.perfume.allpouse.model.dto.SavePostDto;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -15,6 +16,9 @@ public interface PostService {
     Long update(SavePostDto savePostDto);
 
     void delete(Long postId);
+
+    Post findById(Long postId);
+
 
 
 

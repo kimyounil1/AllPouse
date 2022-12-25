@@ -1,16 +1,18 @@
 package com.perfume.allpouse.data.entity;
 
 import com.perfume.allpouse.model.dto.SavePostDto;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static javax.persistence.ConstraintMode.*;
+import static javax.persistence.GenerationType.AUTO;
 import static javax.persistence.GenerationType.IDENTITY;
+import static javax.persistence.InheritanceType.*;
 import static lombok.AccessLevel.PROTECTED;
 
 /**
@@ -21,17 +23,20 @@ import static lombok.AccessLevel.PROTECTED;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor(access = PROTECTED)
-@Inheritance(strategy = InheritanceType.JOINED)
+@Inheritance(strategy = JOINED)
 @DiscriminatorColumn(name = "type")
 public class Post extends BaseTimeEntity{
 
     @Id
-    @GeneratedValue(strategy = IDENTITY)
+    @GeneratedValue(strategy = AUTO)
     @Column(name = "post_id")
     private Long id;
 
     @ColumnDefault("0")
     private int hitCnt;
+
+    @ColumnDefault("0")
+    private int recommendCnt;
 
     private String title;
 
@@ -41,6 +46,10 @@ public class Post extends BaseTimeEntity{
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    @OneToMany(mappedBy = "post")
+    @Builder.Default
+    private List<PostComment> postComments = new ArrayList<>();
 
 
     public Post(String title, String content, User user) {

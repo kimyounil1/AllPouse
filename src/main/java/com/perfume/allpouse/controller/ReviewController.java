@@ -58,10 +58,11 @@ public class ReviewController {
     @Operation(summary = "리뷰 저장 및 수정", description = "리뷰를 저장하거나 수정하는 API")
     public CommonResponse saveAndUpdateReview(
             HttpServletRequest request,
-            @ApiParam(value = "리뷰 내용을 담는 DTO", required = false) @RequestPart SaveReviewDto saveReviewDto,
+            @ApiParam(value = "리뷰 내용을 담는 DTO", required = true) @RequestPart SaveReviewDto saveReviewDto,
             @ApiParam(value = "리뷰에 첨부하는 사진들") @RequestPart(value = "photo", required = false) List<MultipartFile> photos) throws IOException {
 
         Long userId = getUserIdFromRequest(request);
+        saveReviewDto.setUserId(userId);
 
         // 첨부 사진 있는 경우
         if (photos != null) {
@@ -76,7 +77,7 @@ public class ReviewController {
 
 
     // 리뷰 삭제
-    @DeleteMapping("review")
+    @DeleteMapping(value = "review")
     @Operation(summary = "리뷰 삭제", description = "reviewId 받아서 해당 리뷰 삭제하는 API")
     public CommonResponse deleteReview(
             HttpServletRequest request,
@@ -98,7 +99,7 @@ public class ReviewController {
 
 
     // 회원이 작성한 리뷰
-    @GetMapping("review/me")
+    @GetMapping(value = "review/me")
     @Operation(summary = "회원이 쓴 리뷰", description = "회원이 작성한 리뷰 가져오는 API. 쿼리파라미터로 페이지네이션 옵션 지정할 수 있음")
     public PageResponse myReviewList(
             HttpServletRequest request,
@@ -115,7 +116,7 @@ public class ReviewController {
 
 
     // 최근에 작성된 리뷰
-    @GetMapping("review/recent")
+    @GetMapping(value = "review/recent")
     @Operation(summary = "최근에 작성된 리뷰", description = "최근에 작성된 리뷰를 페이지별로 보여주는 API.")
     public PageResponse recentReview(
             @ApiParam(value = "페이지네이션 옵션", required = true)
@@ -129,7 +130,7 @@ public class ReviewController {
 
     // 리뷰 상세 내용과 댓글 N개(N Default : 5)
     // 정렬 : 최신순(고정)
-    @GetMapping("review/{reviewId}")
+    @GetMapping(value = "review/{reviewId}")
     @Operation(summary = "리뷰/댓글(N개)", description = "리뷰와 해당 리뷰에 달린 댓글(N개)을 가져오는 API")
     public SingleResponse<ReviewCommentDto> getReviewPage(
             @ApiParam(value = "리뷰 id", required = true) @PathVariable("reviewId") Long reviewId) {
@@ -153,7 +154,7 @@ public class ReviewController {
 
     // 향수에 대한 review 분류별(조향사, 일반, 추천순)로 가져옴
     // 기본정렬 : 추천 내림차순(5개)
-    @GetMapping("review/best/{perfumeId}")
+    @GetMapping(value = "review/best/{perfumeId}")
     @Operation(summary = "향수에 대한 분류별 리뷰", description = "향수에 대한 분류별 리뷰(조향사, 일반, 추천순) 가져옴")
     public SingleResponse<BestReviewDto> getBestReviews(
             @ApiParam(value = "향수 id", required = true) @PathVariable("perfumeId") Long perfumeId,
@@ -174,10 +175,6 @@ public class ReviewController {
 
         return responseService.getSingleResponse(bestReviewDto);
     }
-
-
-    // 리뷰 추천
-    @GetMapping("review/recommend/{reviewId}")
 
 
     // HttpRequest에서 userId 추출

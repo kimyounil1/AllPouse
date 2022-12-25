@@ -92,6 +92,18 @@ public class PostServiceImpl implements PostService {
     }
 
 
+    // postId로 게시글 검색
+    @Override
+    public Post findById(Long postId) {
+        Optional<Post> post = postRepository.findById(postId);
+
+        if (post.isEmpty()) {
+            throw new CustomException(INVALID_PARAMETER);
+        } else {
+            return post.get();
+        }
+    }
+
 
     // 게시글 업데이트
     @Override

@@ -6,13 +6,13 @@ import lombok.*;
 import javax.persistence.*;
 
 import static javax.persistence.FetchType.*;
+import static lombok.AccessLevel.*;
 
 @Entity
 @Getter
-@Setter
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = PROTECTED)
 public class Comment extends BaseTimeEntity {
 
     @Id
@@ -34,7 +34,7 @@ public class Comment extends BaseTimeEntity {
     private ReviewBoard review;
 
 
-    //== 연관관계 메소드 ==//
+    //== 연관관계 편의 메소드 ==//
     // 1. User
     public void setUser(User user) {
         user.getComments().add(this);
@@ -51,7 +51,6 @@ public class Comment extends BaseTimeEntity {
     //== 댓글 내용 변경 ==//
     // 변경가능항목 : title, content
     public void changeComment(SaveCommentDto commentDto) {
-
         this.title = commentDto.getTitle();
         this.content = commentDto.getContent();
     }
