@@ -1,24 +1,27 @@
 package com.perfume.allpouse.model.dto;
 
-import com.perfume.allpouse.data.entity.Post;
+import com.perfume.allpouse.model.enums.BulletinType;
+import com.querydsl.core.annotations.QueryProjection;
 import lombok.Builder;
 import lombok.Data;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Data
-@Builder
 @ToString
 public class PostResponseDto {
 
     private Long id;
 
+    private String type;
+
     private String title;
 
     private String content;
+
+    private List<String> images;
 
     private int hitCnt;
 
@@ -31,29 +34,23 @@ public class PostResponseDto {
     private LocalDateTime createDateTime;
 
 
-    // Post -> PostResponseDto
-    public static PostResponseDto toDto(final Post post) {
-
-        return PostResponseDto.builder()
-                .id(post.getId())
-                .title(post.getTitle())
-                .content(post.getContent())
-                .hitCnt(post.getHitCnt())
-                .recommendCnt(post.getRecommendCnt())
-                .userId(post.getUser().getId())
-                .userName(post.getUser().getUserName())
-                .createDateTime(post.getCreateDateTime())
-                .build();
+    @QueryProjection
+    public PostResponseDto(Long id, BulletinType type, String title, String content, List<String> images, int hitCnt, int recommendCnt, Long userId, String userName, LocalDateTime createDateTime) {
+        this.id = id;
+        this.type = type.getValue();
+        this.title = title;
+        this.content = content;
+        this.images = images;
+        this.hitCnt = hitCnt;
+        this.recommendCnt = recommendCnt;
+        this.userId = userId;
+        this.userName = userName;
+        this.createDateTime = createDateTime;
     }
 
 
-    // List<Post> -> List<PostResponseDto>
-    public static List<PostResponseDto> toDtoList(final List<Post> posts) {
-
-        return posts.stream()
-                .map(PostResponseDto::toDto)
-                .collect(Collectors.toList());
+    // 게시판 타입 설정
+    public static List<PostResponseDto> setType(final List<PostResponseDto> postDtoList) {
+        return null;
     }
-
-
 }

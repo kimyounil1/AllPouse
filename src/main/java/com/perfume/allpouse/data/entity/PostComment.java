@@ -1,5 +1,6 @@
 package com.perfume.allpouse.data.entity;
 
+import com.perfume.allpouse.model.dto.SavePostCommentDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -55,13 +56,6 @@ public class PostComment extends BaseTimeEntity {
     //== 댓글 내용 변경==//
     // 변경가능항목 : content
     public void changeComment(SavePostCommentDto postCommentDto) {
-        this.content = postCommentDto.getContent;
+        this.content = postCommentDto.getContent();
     }
-
-
-
-
-
-
-
 }

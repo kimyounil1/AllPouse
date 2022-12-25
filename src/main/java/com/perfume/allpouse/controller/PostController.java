@@ -4,8 +4,12 @@ import com.perfume.allpouse.config.security.TokenProvider;
 import com.perfume.allpouse.data.entity.Post;
 import com.perfume.allpouse.data.repository.PostRepository;
 import com.perfume.allpouse.exception.CustomException;
+import com.perfume.allpouse.model.dto.PostResponseDto;
 import com.perfume.allpouse.model.dto.SavePostDto;
+import com.perfume.allpouse.model.enums.Permission;
 import com.perfume.allpouse.model.reponse.CommonResponse;
+import com.perfume.allpouse.model.reponse.ListResponse;
+import com.perfume.allpouse.model.reponse.PageResponse;
 import com.perfume.allpouse.service.PhotoService;
 import com.perfume.allpouse.service.PostService;
 import com.perfume.allpouse.service.ResponseService;
@@ -15,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -53,16 +58,20 @@ public class PostController {
             @ApiParam(value = "게시글 내용을 담는 DTO", required = true) @RequestPart SavePostDto savePostDto,
             @ApiParam(value = "게시글에 첨부하는 사진들") @RequestPart(value = "photo", required = false) List<MultipartFile> photos) throws IOException {
 
-        Long userId = getUserIdFromRequest(request);
+        String token = tokenProvider.resolveToken(request);
+        Long userId = tokenProvider.getId(token);
+        Permission role = Permission.valueOf(tokenProvider.getRole(token));
+
+
         savePostDto.setUserId(userId);
 
         // 첨부사진 있는 경우
         if (photos != null) {
-            postService.save(savePostDto, photos);
+            postService.save(savePostDto, photos, role);
         }
         // 첨부사진 없는 경우
         else {
-            postService.save(savePostDto);
+            postService.save(savePostDto, role);
         }
         return responseService.getSuccessCommonResponse();
     }
@@ -81,6 +90,7 @@ public class PostController {
 
         Long postUserId = post.getUser().getId();
 
+        // 토큰으로 확인한 userId와 게시글 userId가 같을 때만 삭제
         if (userId.equals(postUserId)) {
             postService.delete(postId);
             photoService.delete(POST, postId);
@@ -93,6 +103,21 @@ public class PostController {
     //@GetMapping(value = "post/{userId")
     //@Operation(summary = "회원이 쓴 게시물", description = "회원이 작성한 게시물 가져오는 API, 쿼리파라미터로 페이지네이션 옵션 지정할 수 있음")
 
+
+    // 인기 게시글(N : 5)
+    @GetMapping(value = "post/popular")
+    @Operation(summary = "인기 게시글", description = "인기게시글 5개 가져오는 API")
+    public ListResponse<PostResponseDto> popularPosts() {
+
+        final int size = 5;
+
+        return null;
+
+
+
+
+
+    }
 
 
     // HttpRequest에서 userId추출

@@ -1,16 +1,18 @@
 package com.perfume.allpouse.service.impl;
 
 import com.perfume.allpouse.config.security.TokenProvider;
-import com.perfume.allpouse.data.entity.FreeBoardPost;
-import com.perfume.allpouse.data.entity.PerfumerBoardPost;
-import com.perfume.allpouse.data.entity.Post;
-import com.perfume.allpouse.data.entity.User;
+import com.perfume.allpouse.data.entity.*;
 import com.perfume.allpouse.data.repository.PostRepository;
 import com.perfume.allpouse.data.repository.UserRepository;
 import com.perfume.allpouse.exception.CustomException;
+import com.perfume.allpouse.model.dto.PostResponseDto;
+import com.perfume.allpouse.model.dto.QPostResponseDto;
 import com.perfume.allpouse.model.dto.SavePostDto;
+import com.perfume.allpouse.model.enums.BulletinType;
+import com.perfume.allpouse.model.enums.Permission;
 import com.perfume.allpouse.service.PhotoService;
 import com.perfume.allpouse.service.PostService;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,12 +20,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.persistence.EntityManager;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
 import static com.perfume.allpouse.exception.ExceptionEnum.INVALID_PARAMETER;
 import static com.perfume.allpouse.model.enums.BoardType.POST;
+import static com.perfume.allpouse.model.enums.BulletinType.*;
+import static com.perfume.allpouse.model.enums.Permission.*;
 
 @Service
 @RequiredArgsConstructor
@@ -38,19 +43,23 @@ public class PostServiceImpl implements PostService {
 
     private final UserRepository userRepository;
 
+    private final JPAQueryFactory queryFactory;
+
+    private final EntityManager em;
+
+    QPost post = new QPost("post");
+    QPhoto photo = new QPhoto("photo");
+
 
     // 게시글 저장(사진X)
     @Override
-    public Long save(SavePostDto savePostDto) {
+    public Long save(SavePostDto savePostDto, Permission role) {
 
         Long postId = savePostDto.getId();
 
         // 등록된 적 없는 글 -> save
         if (postId == null) {
-
-            User user = userRepository.findById(savePostDto.getUserId()).get();
-            Long savedPostId = checkBulletinType(savePostDto, user);
-            return savedPostId;
+            return checkBulletinType(savePostDto, role);
         }
 
         // 등록된 적 있는 글 -> 사진 삭제, 게시글 내용 변경
@@ -62,15 +71,16 @@ public class PostServiceImpl implements PostService {
     }
 
 
+
     // 게시글 저장(사진O)
     @Override
-    public Long save(SavePostDto savePostDto, List<MultipartFile> photos) throws IOException {
+    public Long save(SavePostDto savePostDto, List<MultipartFile> photos, Permission role) throws IOException {
 
         Long postId = savePostDto.getId();
 
         // 등록된 적 없는 글 -> 글/사진 저장
         if (postId == null) {
-            Long savedId = save(savePostDto);
+            Long savedId = save(savePostDto, role);
             photoService.save(photos, POST, savedId);
             return savedId;
         }
@@ -82,6 +92,23 @@ public class PostServiceImpl implements PostService {
             update(savePostDto);
             return postId;
         }
+    }
+
+
+    // 게시글 업데이트
+    @Override
+    public Long update(SavePostDto savePostDto) {
+
+        Long postId = savePostDto.getId();
+
+        Optional<Post> post = postRepository.findById(postId);
+
+        if (post.isPresent()) {
+            Post findPost = post.get();
+            findPost.changePost(savePostDto);
+
+            return postId;
+        } else {throw new CustomException(INVALID_PARAMETER);}
     }
 
 
@@ -105,49 +132,51 @@ public class PostServiceImpl implements PostService {
     }
 
 
-    // 게시글 업데이트
+    // 인기 게시글 size개 가져옴
     @Override
-    public Long update(SavePostDto savePostDto) {
+    public List<PostResponseDto> getPopularPost(int size) {
 
-        Long postId = savePostDto.getId();
+        List<PostResponseDto> postList = queryFactory.select(new QPostResponseDto(post.id, post.type, post.title, post.content, photo.path, post.hitCnt, post.recommendCnt, post.user.id, post.user.userName, post.createDateTime))
+                .from(post)
+                .leftJoin(photo)
+                .on(post.id.eq(photo.boardId).and(photo.boardType.eq(POST)))
+                .orderBy(post.recommendCnt.desc())
+                .limit(size)
+                .fetch();
 
-        Optional<Post> post = postRepository.findById(postId);
-
-        if (post.isPresent()) {
-            Post findPost = post.get();
-            findPost.changePost(savePostDto);
-
-            return postId;
-        } else {throw new CustomException(INVALID_PARAMETER);}
-
+        return postList;
     }
 
 
-    // 게시판 타입 체크해서 분류 후 저장
-    private Long checkBulletinType(SavePostDto savePostDto, User user) {
+    // 게시판타입 체크
+    private Long checkBulletinType(SavePostDto savePostDto, Permission role) {
+        User user = userRepository.findById(savePostDto.getUserId()).get();
+        String type = savePostDto.getType();
 
-        switch (savePostDto.getType()) {
-            case "free":
-                FreeBoardPost freeBoardPost = FreeBoardPost.builder()
-                        .title(savePostDto.getTitle())
-                        .content(savePostDto.getContent())
-                        .user(user)
-                        .build();
+        // 자유게시판 게시글
+        if (type.equals("자유게시판")) {
+            Post post = Post.builder()
+                    .type(FREE)
+                    .title(savePostDto.getTitle())
+                    .content(savePostDto.getContent())
+                    .user(user)
+                    .build();
 
-                return postRepository.save(freeBoardPost).getId();
+            return postRepository.save(post).getId();
+        }
 
-            case "perfumer":
-                PerfumerBoardPost perfumerBoardPost = PerfumerBoardPost.builder()
-                        .title(savePostDto.getTitle())
-                        .content(savePostDto.getContent())
-                        .user(user)
-                        .build();
+        // 조향사게시판 게시글
+        else if (type.equals("조향사게시판") && role != ROLE_USER) {
+            Post post = Post.builder()
+                    .type(PERFUMER)
+                    .title(savePostDto.getTitle())
+                    .content(savePostDto.getContent())
+                    .user(user)
+                    .build();
 
-                return postRepository.save(perfumerBoardPost).getId();
-
-            // 게시판 설정 안하거나, 없는 게시판 설정
-            default:
-                throw new CustomException(INVALID_PARAMETER);
+            return postRepository.save(post).getId();
+        } else {
+            throw new CustomException(INVALID_PARAMETER);
         }
     }
 }

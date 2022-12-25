@@ -1,9 +1,5 @@
 package com.perfume.allpouse.model.enums;
 
-import lombok.RequiredArgsConstructor;
-
-import java.util.List;
-
 public enum Permission {
 
     ADMIN("ROLE_ADMIN"),

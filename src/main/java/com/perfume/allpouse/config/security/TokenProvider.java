@@ -49,7 +49,7 @@ public class TokenProvider implements InitializingBean {
         LOGGER.info("INIT : JWT SecretKey 초기화 완료");
     }
 
-    public long getId(String token) {
+    public Long getId(String token) {
         LOGGER.info("[getUserName] 토큰에서 회원 ID 추출 ");
         long id = Long.parseLong(Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getSubject());
         LOGGER.info("[getUserName] 토큰에서 회원 ID 추출 완료 iD : {}", id);

@@ -1,6 +1,7 @@
 package com.perfume.allpouse.model.dto;
 
 import com.perfume.allpouse.data.entity.Post;
+import com.perfume.allpouse.model.enums.BulletinType;
 import lombok.*;
 
 import static lombok.AccessLevel.*;
