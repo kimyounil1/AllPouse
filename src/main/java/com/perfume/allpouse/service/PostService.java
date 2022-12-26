@@ -19,7 +19,7 @@ public interface PostService {
 
     void delete(Long postId);
 
-    Post findById(Long postId);
+    Post findOne(Long postId);
 
     List<PostResponseDto> getPopularPost(int size);
 

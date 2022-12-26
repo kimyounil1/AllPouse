@@ -2,13 +2,16 @@ package com.perfume.allpouse.controller;
 
 import com.perfume.allpouse.config.security.TokenProvider;
 import com.perfume.allpouse.data.entity.Comment;
+import com.perfume.allpouse.data.entity.Post;
+import com.perfume.allpouse.data.entity.PostComment;
+import com.perfume.allpouse.data.entity.User;
 import com.perfume.allpouse.exception.CustomException;
 import com.perfume.allpouse.model.dto.CommentResponseDto;
 import com.perfume.allpouse.model.dto.SaveCommentDto;
+import com.perfume.allpouse.model.dto.SavePostCommentDto;
 import com.perfume.allpouse.model.reponse.CommonResponse;
 import com.perfume.allpouse.model.reponse.PageResponse;
-import com.perfume.allpouse.service.CommentService;
-import com.perfume.allpouse.service.ResponseService;
+import com.perfume.allpouse.service.*;
 import io.swagger.annotations.ApiParam;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 
+import static com.perfume.allpouse.exception.ExceptionEnum.AUTHORITY_FORBIDDEN;
 import static com.perfume.allpouse.exception.ExceptionEnum.INVALID_PARAMETER;
 
 @Slf4j
@@ -39,15 +43,28 @@ public class CommentController {
 
     private final ResponseService responseService;
 
+    private final PostCommentService postCommentService;
+
+    private final PostService postService;
+
+    private final UserService userService;
+
+
+    /**
+     * 향수리뷰 댓글 API 메소드
+     * 1. 댓글 저장 및 수정 - saveComment()
+     * 2. 댓글 삭제 - deleteComment()
+     * 3. 회원이 쓴 (향수리뷰) 댓글 가져옴 - myCommentList()
+     * 4. 리뷰에 달린 댓글 가져옴 - commentsOnReview()
+     */
 
     // 댓글 저장 및 수정
     // SaveCommentDto 필수 필드값 : (id), title, content, (reviewId) / 괄호는 수정 시
-    @ResponseBody
-    @PostMapping("comment")
-    @Operation(summary = "댓글 저장 및 수정", description = "리뷰에 대한 댓글을 저장하거나 수정하는 API")
-    public CommonResponse saveComment (
+    @PostMapping(value = "comment")
+    @Operation(summary = "향수 리뷰 댓글 저장 및 수정", description = "향수 리뷰에 대한 댓글을 저장하거나 수정하는 API")
+    public CommonResponse saveAndUpdateComment (
             HttpServletRequest request,
-            @ApiParam(value = "댓글 내용 담는 DTO", required = false) @RequestBody SaveCommentDto saveCommentDto) {
+            @ApiParam(value = "댓글 내용 담는 DTO", required = true) @RequestBody SaveCommentDto saveCommentDto) {
 
         Long userId = getUserIdFromRequest(request);
 
@@ -72,9 +89,8 @@ public class CommentController {
 
 
     // 댓글 삭제
-    @ResponseBody
-    @DeleteMapping("comment")
-    @Operation(summary = "댓글 삭제", description = "commentId로 리뷰에 대한 댓글을 삭제하는 API")
+    @DeleteMapping(value = "comment")
+    @Operation(summary = "향수 리뷰 댓글 삭제", description = "commentId로 리뷰에 대한 댓글을 삭제하는 API")
     public CommonResponse deleteComment(
             HttpServletRequest request,
             @ApiParam(value = "삭제하려는 댓글 id", required = true) @RequestParam Long commentId) {
@@ -96,9 +112,8 @@ public class CommentController {
     // 회원이 쓴 댓글 페이지 별로 가져옴
     // 쿼리 파라미터(pageable에 매핑됨)로 페이지네이션 옵션 설정
     // 기본 설정 : 20 comments per Page, 최신순 정렬
-    @ResponseBody
-    @GetMapping("comment/me")
-    @Operation(summary = "회원이 쓴 댓글", description = "회원이 작성한 댓글을 가져오는 API. 쿼리파라미터로 페이지네이션 옵션 지정할 수 있음.")
+    @GetMapping(value = "comment/me")
+    @Operation(summary = "회원이 쓴 향수 리뷰 댓글", description = "회원이 작성한 댓글을 가져오는 API. 쿼리파라미터로 페이지네이션 옵션 지정할 수 있음.")
     public PageResponse myCommentList(
             HttpServletRequest request,
             @ApiParam(value = "페이지네이션 옵션")
@@ -115,9 +130,8 @@ public class CommentController {
     // 최신 댓글 페이지 별로 가져옴
     // page/size만 쿼리파라미터로 받으면 됨(정렬은 기본설정 돼있음)
     // 다른 회원들한테 열어주면 안되고, ADMIN한테만 열어줘야함
-    @ResponseBody
-    @GetMapping("comment/recent")
-    @Operation(summary = "최신 댓글", description = "최근에 작성된 댓글을 가져오는 API. 쿼리파라미터로 페이지네이션 옵션 지정할 수 있음.")
+    @GetMapping(value = "comment/recent")
+    @Operation(summary = "최신 향수 리뷰 댓글", description = "최근에 작성된 댓글을 가져오는 API. 쿼리파라미터로 페이지네이션 옵션 지정할 수 있음.")
     public PageResponse recentCommentList(
             @ApiParam(value = "페이지네이션 옵션")
             @PageableDefault(page = 0, size = 20, sort = "createDateTime", direction = Sort.Direction.DESC) Pageable pageable)
@@ -130,9 +144,8 @@ public class CommentController {
 
     // 리뷰에 달린 댓글들 페이지별로 가져옴
     // 기본옵션 : 20 comments per Page, 최신순 정렬
-    @ResponseBody
-    @GetMapping("comment/{reviewId}")
-    @Operation(summary = "리뷰에 달린 댓글", description = "해당 리뷰에 달린 댓글을 가져오는 API. 쿼리파라미터로 페이지네이션 옵션 지정할 수 있음.")
+    @GetMapping(value = "comment/{reviewId}")
+    @Operation(summary = "향수 리뷰에 달린 댓글", description = "해당 리뷰에 달린 댓글을 가져오는 API. 쿼리파라미터로 페이지네이션 옵션 지정할 수 있음.")
     public PageResponse commentsOnReview(
             @PageableDefault(page = 0, size = 20, sort = "createDateTime", direction = Sort.Direction.DESC) Pageable pageable,
             @ApiParam(value = "리뷰 id", required = true) @PathVariable("reviewId") Long reviewId)
@@ -144,10 +157,75 @@ public class CommentController {
     }
 
 
+
+    /**
+     * 게시글 댓글 API 메소드
+     * 1. 게시글 댓글 작성 및 수정 - saveAndUpdatePostComment()
+     * 2. 게시글 댓글 삭제 - deletePostComment()
+     * 3. 내가 쓴 게시글 댓글 - myPostCommentList()
+     */
+
+    // 게시글 댓글 작성 및 수정
+    @PostMapping("post-comment")
+    @Operation(summary = "게시글 댓글 저장 및 수정", description = "게시글에 대한 댓글 저장, 수정하는 API")
+    public CommonResponse saveAndUpdatePostComment(
+            HttpServletRequest request,
+            @ApiParam(value = "댓글 내용 담는 DTO", required = true) @RequestBody SavePostCommentDto commentDto) {
+
+        String token = tokenProvider.resolveToken(request);
+
+        Long userId = tokenProvider.getId(token);
+        User user = userService.findOne(userId);
+        commentDto.setUserId(userId);
+        commentDto.setUserName(user.getUserName());
+
+        Long postId = commentDto.getPostId();
+        Post post = postService.findOne(postId);
+        String type = post.getType().getValue();
+
+        String role = tokenProvider.getRole(token);
+
+        if (type.equals("자유게시판")) {
+            postCommentService.save(commentDto);
+        } else if (type.equals("조향사게시판")) {
+            if (role.equals("ROLE_USER")) {
+                throw new CustomException(AUTHORITY_FORBIDDEN);
+            } else {
+                postCommentService.save(commentDto);
+            }
+        }
+
+        return responseService.getSuccessCommonResponse();
+    }
+
+    // 게시글 삭제
+    @DeleteMapping(value = "post-comment")
+    @Operation(summary = "게시글 댓글 삭제", description = "게시글 댓글 삭제하는 API")
+    public CommonResponse deletePostComment(
+            HttpServletRequest request,
+            @ApiParam(value = "삭제하려는 댓글 Id", required = true) @RequestParam Long commentId) {
+
+        Long userId = getUserIdFromRequest(request);
+
+        PostComment comment = postCommentService.findOne(commentId);
+
+        Long commentUserId = comment.getUser().getId();
+
+        if (userId.equals(commentUserId)) {
+            postCommentService.delete(comment.getId());
+            return responseService.getSuccessCommonResponse();
+        } else {
+            throw new CustomException(INVALID_PARAMETER);
+        }
+    }
+
+
+
     // HttpRequest에서 userId 추출
     private Long getUserIdFromRequest(HttpServletRequest request) {
         String token = tokenProvider.resolveToken(request);
 
         return tokenProvider.getId(token);
     }
+
 }

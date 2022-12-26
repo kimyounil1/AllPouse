@@ -86,7 +86,7 @@ public class PostController {
 
         Long userId = getUserIdFromRequest(request);
 
-        Post post = postService.findById(postId);
+        Post post = postService.findOne(postId);
 
         Long postUserId = post.getUser().getId();
 
@@ -106,17 +106,14 @@ public class PostController {
 
     // 인기 게시글(N : 5)
     @GetMapping(value = "post/popular")
-    @Operation(summary = "인기 게시글", description = "인기게시글 5개 가져오는 API")
+    @Operation(summary = "인기 게시글", description = "3개월 내 인기게시글 5개 가져오는 API")
     public ListResponse<PostResponseDto> popularPosts() {
 
         final int size = 5;
 
-        return null;
+        List<PostResponseDto> postList = postService.getPopularPost(size);
 
-
-
-
-
+        return responseService.getListResponse(postList);
     }
 
 

@@ -27,7 +27,7 @@ import java.util.UUID;
 @Slf4j
 public class S3ServiceImpl implements S3Service {
 
-    private final Logger LOGGER = LoggerFactory.getLogger(ReviewController.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(S3ServiceImpl.class);
 
     private final AmazonS3 amazonS3;
 

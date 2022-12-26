@@ -12,6 +12,7 @@ import com.perfume.allpouse.model.enums.BulletinType;
 import com.perfume.allpouse.model.enums.Permission;
 import com.perfume.allpouse.service.PhotoService;
 import com.perfume.allpouse.service.PostService;
+import com.querydsl.core.types.Expression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -22,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityManager;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -53,6 +55,7 @@ public class PostServiceImpl implements PostService {
 
     // 게시글 저장(사진X)
     @Override
+    @Transactional
     public Long save(SavePostDto savePostDto, Permission role) {
 
         Long postId = savePostDto.getId();
@@ -74,6 +77,7 @@ public class PostServiceImpl implements PostService {
 
     // 게시글 저장(사진O)
     @Override
+    @Transactional
     public Long save(SavePostDto savePostDto, List<MultipartFile> photos, Permission role) throws IOException {
 
         Long postId = savePostDto.getId();
@@ -97,16 +101,15 @@ public class PostServiceImpl implements PostService {
 
     // 게시글 업데이트
     @Override
+    @Transactional
     public Long update(SavePostDto savePostDto) {
 
         Long postId = savePostDto.getId();
-
         Optional<Post> post = postRepository.findById(postId);
 
         if (post.isPresent()) {
             Post findPost = post.get();
             findPost.changePost(savePostDto);
-
             return postId;
         } else {throw new CustomException(INVALID_PARAMETER);}
     }
@@ -114,6 +117,7 @@ public class PostServiceImpl implements PostService {
 
     // 게시글 삭제
     @Override
+    @Transactional
     public void delete(Long postId) {
         postRepository.deleteById(postId);
     }
@@ -121,7 +125,7 @@ public class PostServiceImpl implements PostService {
 
     // postId로 게시글 검색
     @Override
-    public Post findById(Long postId) {
+    public Post findOne(Long postId) {
         Optional<Post> post = postRepository.findById(postId);
 
         if (post.isEmpty()) {
@@ -133,13 +137,17 @@ public class PostServiceImpl implements PostService {
 
 
     // 인기 게시글 size개 가져옴
+    // 기준이 되는 기간 : 3개월
     @Override
     public List<PostResponseDto> getPopularPost(int size) {
+
+        LocalDateTime now = LocalDateTime.now();
 
         List<PostResponseDto> postList = queryFactory.select(new QPostResponseDto(post.id, post.type, post.title, post.content, photo.path, post.hitCnt, post.recommendCnt, post.user.id, post.user.userName, post.createDateTime))
                 .from(post)
                 .leftJoin(photo)
                 .on(post.id.eq(photo.boardId).and(photo.boardType.eq(POST)))
+                .where(post.createDateTime.between(now.minusMonths(3), now))
                 .orderBy(post.recommendCnt.desc())
                 .limit(size)
                 .fetch();

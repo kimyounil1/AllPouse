@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import java.util.List;
+import java.util.Optional;
 
 import static com.perfume.allpouse.exception.ExceptionEnum.INVALID_PARAMETER;
 
@@ -31,6 +32,8 @@ public class UserServiceImpl implements UserService {
         this.userRepository = userRepository;
         this.em = em;
     }
+
+
 
     public User loadUserById(long id) {
         LOGGER.info("[loadUserById] 함수 실행. id : {}",id);
@@ -53,6 +56,18 @@ public class UserServiceImpl implements UserService {
             return dtoList;
 
         } catch (Exception e) {throw new CustomException(INVALID_PARAMETER);}
+    }
+
+    // id로 단건 조회
+    @Override
+    public User findOne(Long id) {
+        Optional<User> user = userRepository.findById(id);
+
+        if (user.isPresent()) {
+            return user.get();
+        } else {
+            throw new CustomException(INVALID_PARAMETER);
+        }
     }
 
 }

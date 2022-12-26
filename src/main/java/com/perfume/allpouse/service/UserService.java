@@ -10,5 +10,6 @@ public interface UserService {
 
     public UserInfoDto getUserInfoDtoById(Long id);
 
+    User findOne(Long id);
 
 }

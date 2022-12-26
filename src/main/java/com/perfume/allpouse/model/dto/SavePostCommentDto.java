@@ -17,8 +17,9 @@ public class SavePostCommentDto {
 
     private String userName;
 
-    // 논의 필요
     private Long postId;
+
+    private Long referCommentId;
 
     private int recommendCnt;
 
