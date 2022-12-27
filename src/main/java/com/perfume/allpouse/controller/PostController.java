@@ -19,17 +19,22 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.List;
 
 import static com.perfume.allpouse.exception.ExceptionEnum.INVALID_PARAMETER;
 import static com.perfume.allpouse.model.enums.BoardType.POST;
+import static org.springframework.data.domain.Sort.Direction.*;
 
 @Slf4j
 @RestController
@@ -100,8 +105,22 @@ public class PostController {
 
 
     // 회원이 작성한 게시물 보기
-    //@GetMapping(value = "post/{userId")
-    //@Operation(summary = "회원이 쓴 게시물", description = "회원이 작성한 게시물 가져오는 API, 쿼리파라미터로 페이지네이션 옵션 지정할 수 있음")
+    // 쿼리 파라미터(pageable에 매핑됨)로 페이지네이션 옵션 설정
+    // 기본 설정 : 20 posts per Page, 최신순 정렬
+    @GetMapping(value = "post/me")
+    @Operation(summary = "회원이 쓴 게시물", description = "회원이 작성한 게시물 가져오는 API, 쿼리파라미터로 페이지네이션 옵션 지정할 수 있음")
+    public PageResponse myPostList(
+            HttpServletRequest request,
+            @ApiParam(value = "페이지네이션 옵션")
+            @PageableDefault(page = 0, size = 20, sort = "createDateTime", direction = DESC) Pageable pageable) {
+
+        Long userId = getUserIdFromRequest(request);
+
+        Page<PostResponseDto> pages = postService.getUserPostList(userId, pageable);
+
+        return responseService.getPageResponse(pages);
+    }
+
 
 
     // 인기 게시글(N : 5)

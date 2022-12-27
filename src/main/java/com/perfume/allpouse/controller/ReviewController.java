@@ -99,6 +99,8 @@ public class ReviewController {
 
 
     // 회원이 작성한 리뷰
+    // 쿼리 파라미터(pageable에 매핑됨)로 페이지네이션 옵션 설정
+    // 기본 설정 : 20 posts per Page, 최신순 정렬
     @GetMapping(value = "review/me")
     @Operation(summary = "회원이 쓴 리뷰", description = "회원이 작성한 리뷰 가져오는 API. 쿼리파라미터로 페이지네이션 옵션 지정할 수 있음")
     public PageResponse myReviewList(

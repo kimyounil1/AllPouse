@@ -12,11 +12,18 @@ import com.perfume.allpouse.model.enums.BulletinType;
 import com.perfume.allpouse.model.enums.Permission;
 import com.perfume.allpouse.service.PhotoService;
 import com.perfume.allpouse.service.PostService;
+import com.perfume.allpouse.utils.QueryDslUtil;
 import com.querydsl.core.types.Expression;
+import com.querydsl.core.types.Order;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,6 +31,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.persistence.EntityManager;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -156,6 +164,32 @@ public class PostServiceImpl implements PostService {
     }
 
 
+    // 회원이 작성한 게시글을 ResponseDto 형식으로 페이지네이션해서 가져옴
+    // 기본정렬 : 작성일자 기준 내림차순(pageable로 변경 가능)
+    @Override
+    public Page<PostResponseDto> getUserPostList(Long userId, Pageable pageable) {
+
+        List<OrderSpecifier> ORDERS = getAllOrderSpecifiers(pageable);
+
+        List<PostResponseDto> postDtoList = queryFactory
+                .select(new QPostResponseDto(post.id, post.type, post.title,
+                        post.content, photo.path, post.hitCnt, post.recommendCnt,
+                        post.user.id, post.user.userName, post.createDateTime))
+                .from(post)
+                .leftJoin(photo)
+                .on(post.id.eq(photo.boardId).and(photo.boardType.eq(POST)))
+                .where(post.user.id.eq(userId))
+                .orderBy(ORDERS.toArray(OrderSpecifier[]::new))
+                .fetch();
+
+        int start = (int)pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), postDtoList.size());
+        Page<PostResponseDto> pageList = new PageImpl<>(postDtoList.subList(start, end), pageable, postDtoList.size());
+
+        return pageList;
+    }
+
+
     // 게시판타입 체크
     private Long checkBulletinType(SavePostDto savePostDto, Permission role) {
         User user = userRepository.findById(savePostDto.getUserId()).get();
@@ -186,5 +220,38 @@ public class PostServiceImpl implements PostService {
         } else {
             throw new CustomException(INVALID_PARAMETER);
         }
+    }
+
+    // Pageable에서 정렬기준 추출
+    private List<OrderSpecifier> getAllOrderSpecifiers(Pageable pageable) {
+
+        List<OrderSpecifier> ORDERS = new ArrayList<>();
+
+        if (!pageable.getSort().isEmpty()) {
+            for (Sort.Order order : pageable.getSort()) {
+                Order direction = order.getDirection().isAscending() ? Order.ASC : Order.DESC;
+
+
+                // order.getProperty() : recommendCnt, createDateTime
+                switch(order.getProperty()) {
+
+                    // 추천 순
+                    case "recommendCnt":
+                        OrderSpecifier<?> orderName = QueryDslUtil.getSortedColumn(direction, QPost.post.recommendCnt, "recommendCnt");
+                        ORDERS.add(orderName);
+                        break;
+
+                    // 작성일 순
+                    case "createDateTime":
+                        OrderSpecifier<?> orderDateTime = QueryDslUtil.getSortedColumn(direction, QPost.post.createDateTime, "createDateTime");
+                        ORDERS.add(orderDateTime);
+                        break;
+
+                    default:
+                        break;
+                }
+            }
+        }
+        return ORDERS;
     }
 }

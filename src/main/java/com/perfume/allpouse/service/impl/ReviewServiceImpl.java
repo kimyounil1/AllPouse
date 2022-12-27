@@ -206,7 +206,7 @@ public class ReviewServiceImpl implements ReviewService {
 
 
 
-    // 유저가 작성한 리뷰와 사진 List<ReviewResponseDto>로 변환해서 가져옴
+    // 유저가 작성한 리뷰를 ResponseDto 형식으로 페이지네이션해서 가져옴
     // 기본정렬 : 작성일자 기준 내림차순(pageable로 변경 가능)
     @Override
     public Page<ReviewResponseDto> getReviewDto(Long userId, Pageable pageable) {
@@ -214,7 +214,10 @@ public class ReviewServiceImpl implements ReviewService {
         List<OrderSpecifier> ORDERS = getAllOrderSpecifiers(pageable);
 
         List<ReviewResponseDto> reviewDtoList = queryFactory
-                .select(new QReviewResponseDto(reviewBoard.id, reviewBoard.user.userName, reviewBoard.subject, reviewBoard.content, reviewBoard.perfume.subject, reviewBoard.perfume.brand.name, reviewBoard.hitCnt, reviewBoard.recommendCnt, photo.path, reviewBoard.createDateTime))
+                .select(new QReviewResponseDto(reviewBoard.id, reviewBoard.user.userName,
+                        reviewBoard.subject, reviewBoard.content, reviewBoard.perfume.subject,
+                        reviewBoard.perfume.brand.name, reviewBoard.hitCnt, reviewBoard.recommendCnt,
+                        photo.path, reviewBoard.createDateTime))
                 .from(reviewBoard)
                 .leftJoin(photo)
                 .on(reviewBoard.id.eq(photo.boardId).and(photo.boardType.eq(REVIEW)))

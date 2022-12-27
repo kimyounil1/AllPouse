@@ -4,6 +4,8 @@ import com.perfume.allpouse.data.entity.Post;
 import com.perfume.allpouse.model.dto.PostResponseDto;
 import com.perfume.allpouse.model.dto.SavePostDto;
 import com.perfume.allpouse.model.enums.Permission;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -22,6 +24,10 @@ public interface PostService {
     Post findOne(Long postId);
 
     List<PostResponseDto> getPopularPost(int size);
+
+    Page<PostResponseDto> getUserPostList(Long userId, Pageable pageable);
+
+
 
 
 

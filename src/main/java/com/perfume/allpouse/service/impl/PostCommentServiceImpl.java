@@ -149,8 +149,4 @@ public class PostCommentServiceImpl implements PostCommentService {
         postComment.setPost(post);
         postComment.setUser(user);
     }
-
-
-
-
 }
