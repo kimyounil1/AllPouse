@@ -2,21 +2,27 @@ package com.perfume.allpouse.service.impl;
 
 import com.perfume.allpouse.data.entity.Post;
 import com.perfume.allpouse.data.entity.PostComment;
+import com.perfume.allpouse.data.entity.QPostComment;
 import com.perfume.allpouse.data.entity.User;
 import com.perfume.allpouse.data.repository.PostCommentRepository;
 import com.perfume.allpouse.data.repository.PostRepository;
 import com.perfume.allpouse.data.repository.UserRepository;
 import com.perfume.allpouse.exception.CustomException;
+import com.perfume.allpouse.model.dto.CommentResponseDto;
+import com.perfume.allpouse.model.dto.PostCommentResponseDto;
 import com.perfume.allpouse.model.dto.SavePostCommentDto;
 import com.perfume.allpouse.service.PostCommentService;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+import java.util.function.Function;
 
 import static com.perfume.allpouse.exception.ExceptionEnum.INVALID_PARAMETER;
 
@@ -34,6 +40,9 @@ public class PostCommentServiceImpl implements PostCommentService {
     private final UserRepository userRepository;
 
     private final JPAQueryFactory queryFactory;
+
+    QPostComment postComment = new QPostComment("postComment");
+
 
     // 댓글 저장
     @Override
@@ -97,6 +106,24 @@ public class PostCommentServiceImpl implements PostCommentService {
         } else {
             throw new CustomException(INVALID_PARAMETER);
         }
+    }
+
+
+    // 유저가 작성한 게시글 댓글 페이지네이션 후 전달
+    @Override
+    public Page<PostCommentResponseDto> getUserPostCommentList(Long userId, Pageable pageable) {
+
+        Page<PostComment> comments = postCommentRepository.findPostCommentsByUserId(userId, pageable);
+
+        Page<PostCommentResponseDto> dtoPage = comments.map(new Function<PostComment, PostCommentResponseDto>() {
+
+            @Override
+            public PostCommentResponseDto apply(PostComment postComment) {
+                return PostCommentResponseDto.toDto(postComment);
+            }
+        });
+
+        return dtoPage;
     }
 
 

@@ -1,10 +1,7 @@
 package com.perfume.allpouse.model.dto;
 
 import com.perfume.allpouse.data.entity.Comment;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -12,7 +9,7 @@ import java.util.stream.Collectors;
 
 @Builder
 @ToString
-@Getter
+@Data
 @AllArgsConstructor
 public class CommentResponseDto {
 
@@ -34,7 +31,7 @@ public class CommentResponseDto {
 
 
     // Comment -> CommentResponseDto
-    public static CommentResponseDto toDto(final Comment comment) {
+    public static CommentResponseDto toDto(Comment comment) {
 
         return CommentResponseDto.builder()
                 .id(comment.getId())
@@ -50,7 +47,7 @@ public class CommentResponseDto {
 
 
     // List<Comment> -> List<CommentResponseDto>
-    public static List<CommentResponseDto> toDtoList(final List<Comment> comments) {
+    public static List<CommentResponseDto> toDtoList(List<Comment> comments) {
 
         return comments.stream()
                 .map(CommentResponseDto::toDto)

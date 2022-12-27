@@ -132,6 +132,7 @@ public class CommentServiceImpl implements CommentService {
         }
     }
 
+    // 유저가 작성한 향수리뷰 댓글 페이지네이션 후 전달
     @Override
     public Page<CommentResponseDto> getUserCommentList(Long id, Pageable pageable) {
 

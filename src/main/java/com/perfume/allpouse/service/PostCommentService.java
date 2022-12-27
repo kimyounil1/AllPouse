@@ -1,7 +1,10 @@
 package com.perfume.allpouse.service;
 
 import com.perfume.allpouse.data.entity.PostComment;
+import com.perfume.allpouse.model.dto.PostCommentResponseDto;
 import com.perfume.allpouse.model.dto.SavePostCommentDto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface PostCommentService {
 
@@ -9,7 +12,9 @@ public interface PostCommentService {
 
     Long update(SavePostCommentDto postCommentDto);
 
-    void delete(Long id);
+    void delete(Long commentId);
 
-    PostComment findOne(Long id);
+    PostComment findOne(Long commentId);
+
+    Page<PostCommentResponseDto> getUserPostCommentList(Long userId, Pageable pageable);
 }

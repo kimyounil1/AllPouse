@@ -7,6 +7,7 @@ import com.perfume.allpouse.data.entity.PostComment;
 import com.perfume.allpouse.data.entity.User;
 import com.perfume.allpouse.exception.CustomException;
 import com.perfume.allpouse.model.dto.CommentResponseDto;
+import com.perfume.allpouse.model.dto.PostCommentResponseDto;
 import com.perfume.allpouse.model.dto.SaveCommentDto;
 import com.perfume.allpouse.model.dto.SavePostCommentDto;
 import com.perfume.allpouse.model.reponse.CommonResponse;
@@ -28,6 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import static com.perfume.allpouse.exception.ExceptionEnum.AUTHORITY_FORBIDDEN;
 import static com.perfume.allpouse.exception.ExceptionEnum.INVALID_PARAMETER;
+import static org.springframework.data.domain.Sort.Direction.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -54,7 +56,7 @@ public class CommentController {
      * 향수리뷰 댓글 API 메소드
      * 1. 댓글 저장 및 수정 - saveComment()
      * 2. 댓글 삭제 - deleteComment()
-     * 3. 회원이 쓴 (향수리뷰) 댓글 가져옴 - myCommentList()
+     * 3. 회원이 작성한 (향수리뷰) 댓글 가져옴 - myCommentList()
      * 4. 리뷰에 달린 댓글 가져옴 - commentsOnReview()
      */
 
@@ -109,15 +111,15 @@ public class CommentController {
     }
 
 
-    // 회원이 쓴 댓글 페이지 별로 가져옴
+    // 회원이 작성한 댓글 페이지 별로 가져옴
     // 쿼리 파라미터(pageable에 매핑됨)로 페이지네이션 옵션 설정
     // 기본 설정 : 20 comments per Page, 최신순 정렬
     @GetMapping(value = "comment/me")
-    @Operation(summary = "회원이 쓴 향수 리뷰 댓글", description = "회원이 작성한 댓글을 가져오는 API. 쿼리파라미터로 페이지네이션 옵션 지정할 수 있음.")
+    @Operation(summary = "회원이 작성한 향수 리뷰 댓글", description = "회원이 작성한 향수 리뷰 댓글을 가져오는 API. 쿼리파라미터로 페이지네이션 옵션 지정할 수 있음.")
     public PageResponse myCommentList(
             HttpServletRequest request,
             @ApiParam(value = "페이지네이션 옵션")
-            @PageableDefault(page = 0, size = 20, sort = "createDateTime", direction = Sort.Direction.DESC) Pageable pageable)
+            @PageableDefault(page = 0, size = 20, sort = "createDateTime", direction = DESC) Pageable pageable)
     {
         Long userId = getUserIdFromRequest(request);
 
@@ -134,7 +136,7 @@ public class CommentController {
     @Operation(summary = "최신 향수 리뷰 댓글", description = "최근에 작성된 댓글을 가져오는 API. 쿼리파라미터로 페이지네이션 옵션 지정할 수 있음.")
     public PageResponse recentCommentList(
             @ApiParam(value = "페이지네이션 옵션")
-            @PageableDefault(page = 0, size = 20, sort = "createDateTime", direction = Sort.Direction.DESC) Pageable pageable)
+            @PageableDefault(page = 0, size = 20, sort = "createDateTime", direction = DESC) Pageable pageable)
     {
         Page<CommentResponseDto> pages = commentService.getAllCommentsList(pageable);
 
@@ -147,7 +149,7 @@ public class CommentController {
     @GetMapping(value = "comment/{reviewId}")
     @Operation(summary = "향수 리뷰에 달린 댓글", description = "해당 리뷰에 달린 댓글을 가져오는 API. 쿼리파라미터로 페이지네이션 옵션 지정할 수 있음.")
     public PageResponse commentsOnReview(
-            @PageableDefault(page = 0, size = 20, sort = "createDateTime", direction = Sort.Direction.DESC) Pageable pageable,
+            @PageableDefault(page = 0, size = 20, sort = "createDateTime", direction = DESC) Pageable pageable,
             @ApiParam(value = "리뷰 id", required = true) @PathVariable("reviewId") Long reviewId)
     {
         Page<CommentResponseDto> pages = commentService.getReviewCommentList(reviewId, pageable);
@@ -162,7 +164,7 @@ public class CommentController {
      * 게시글 댓글 API 메소드
      * 1. 게시글 댓글 작성 및 수정 - saveAndUpdatePostComment()
      * 2. 게시글 댓글 삭제 - deletePostComment()
-     * 3. 내가 쓴 게시글 댓글 - myPostCommentList()
+     * 3. 회원이 작성한 게시글 댓글 - myPostCommentList()
      */
 
     // 게시글 댓글 작성 및 수정
@@ -198,7 +200,7 @@ public class CommentController {
         return responseService.getSuccessCommonResponse();
     }
 
-    // 게시글 삭제
+    // 게시글 댓글 삭제
     @DeleteMapping(value = "post-comment")
     @Operation(summary = "게시글 댓글 삭제", description = "게시글 댓글 삭제하는 API")
     public CommonResponse deletePostComment(
@@ -220,12 +222,29 @@ public class CommentController {
     }
 
 
+    // 회원이 작성한 게시글 댓글 페이지 별로 가져옴
+    // 쿼리 파라미터(pageable에 매핑됨)로 페이지네이션 옵션 설정
+    // 기본 설정 : 20 comments per Page, 최신순 정렬
+    @GetMapping(value = "post-comment/me")
+    @Operation(summary = "회원이 작성한 게시글 댓글", description = "회원이 작성한 게시글 댓글을 가져오는 API. 쿼리파라미터로 페이지네이션 옵션 지정할 수 있음")
+    public PageResponse myPostCommentList(
+            HttpServletRequest request,
+            @ApiParam(value = "페이지네이션 옵션")
+            @PageableDefault(page = 0, size = 20, sort = "createDateTime", direction = DESC) Pageable pageable) {
+
+        Long userId = getUserIdFromRequest(request);
+
+        Page<PostCommentResponseDto> pages = postCommentService.getUserPostCommentList(userId, pageable);
+
+        return responseService.getPageResponse(pages);
+    }
+
 
     // HttpRequest에서 userId 추출
     private Long getUserIdFromRequest(HttpServletRequest request) {
+
         String token = tokenProvider.resolveToken(request);
 
         return tokenProvider.getId(token);
     }
-
 }
