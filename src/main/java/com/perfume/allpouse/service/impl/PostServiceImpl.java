@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.perfume.allpouse.exception.ExceptionEnum.INVALID_PARAMETER;
+import static com.perfume.allpouse.exception.ExceptionEnum.POST_ID_NOT_FOUND;
 import static com.perfume.allpouse.model.enums.BoardType.POST;
 import static com.perfume.allpouse.model.enums.BulletinType.*;
 import static com.perfume.allpouse.model.enums.Permission.*;
@@ -187,6 +188,32 @@ public class PostServiceImpl implements PostService {
         Page<PostResponseDto> pageList = new PageImpl<>(postDtoList.subList(start, end), pageable, postDtoList.size());
 
         return pageList;
+    }
+
+
+    // 게시글 추천 기능
+    // 처음 추천 : 0 / 이미 추천한 게시물 : 1
+    @Override
+    public int updateRecommendCnt(Long postId, Long userId) {
+
+        Optional<Post> postOpt = postRepository.findById(postId);
+
+        if (postOpt.isEmpty()) {
+            throw new CustomException(POST_ID_NOT_FOUND);
+        } else {
+            Post post = postOpt.get();
+            List<Long> userList = post.getRecommendUserList();
+
+            // 해당 게시물 추천한 사람 없거나, 유저가 게시글 추천하지 X -> 0
+            if (userList == null || !userList.contains(userId)) {
+                userList.add(userId);
+                return 0;
+            }
+            // 추천한 적 O -> 1
+            else {
+                return 1;
+            }
+        }
     }
 
 

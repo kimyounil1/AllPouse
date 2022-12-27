@@ -27,6 +27,8 @@ public interface PostService {
 
     Page<PostResponseDto> getUserPostList(Long userId, Pageable pageable);
 
+    int updateRecommendCnt(Long postId, Long userId);
+
 
 
 

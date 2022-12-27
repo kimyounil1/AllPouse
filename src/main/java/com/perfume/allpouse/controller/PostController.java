@@ -21,20 +21,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.List;
 
 import static com.perfume.allpouse.exception.ExceptionEnum.INVALID_PARAMETER;
 import static com.perfume.allpouse.model.enums.BoardType.POST;
-import static org.springframework.data.domain.Sort.Direction.*;
+import static org.springframework.data.domain.Sort.Direction.DESC;
 
 @Slf4j
 @RestController

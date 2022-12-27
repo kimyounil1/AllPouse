@@ -2,11 +2,14 @@ package com.perfume.allpouse.data.entity;
 
 import com.perfume.allpouse.model.dto.SavePostDto;
 import com.perfume.allpouse.model.enums.BulletinType;
+import com.perfume.allpouse.utils.LongListConverter;
+import com.perfume.allpouse.utils.StringListConverter;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
+import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -40,6 +43,9 @@ public class Post extends BaseTimeEntity{
 
     @ColumnDefault("0")
     private int recommendCnt;
+
+    @Convert(converter = LongListConverter.class)
+    private List<Long> recommendUserList = new ArrayList<>();
 
     private String title;
 

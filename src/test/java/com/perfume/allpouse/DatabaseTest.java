@@ -1,17 +1,21 @@
 package com.perfume.allpouse;
 
 import com.perfume.allpouse.data.entity.PerfumeBoard;
+import com.perfume.allpouse.data.entity.Post;
 import com.perfume.allpouse.model.dto.SaveBrandDto;
 import com.perfume.allpouse.model.dto.SavePerfumeDto;
-import com.perfume.allpouse.service.BrandService;
-import com.perfume.allpouse.service.PerfumeService;
-import com.perfume.allpouse.service.ReviewService;
-import com.perfume.allpouse.service.UserService;
+import com.perfume.allpouse.service.*;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest
 public class DatabaseTest {
@@ -28,28 +32,27 @@ public class DatabaseTest {
     @Autowired
     PerfumeService perfumeService;
 
-    @Transactional
-    @Rollback(false)
+    @Autowired
+    PostService postService;
+
     @Test
-    public void databaseTest() throws Exception{
+    @DisplayName("추천 테스트")
+    @Transactional
+    public void recommendTest() throws Exception {
+        //given
+        Post post = postService.findOne(60L);
+        List<Long> userList = post.getRecommendUserList();
+        int result_1 = postService.updateRecommendCnt(60L, 5L);
 
+        assertThat(result_1).isEqualTo(0);
+
+        //when
+        int result_2 = postService.updateRecommendCnt(60L, 5L);
+        assertThat(result_2).isEqualTo(1);
+
+
+        //then
 
     }
-
-
-
-    private void savePerfume(String subject, String content, int price, Long brandId) {
-        perfumeService.save(
-                new SavePerfumeDto(subject, content, price, brandId)
-        );
-    }
-
-
-    private void saveBrand(String name, String content) {
-        brandService.save(
-                new SaveBrandDto(name, content)
-        );
-    }
-
 
 }
