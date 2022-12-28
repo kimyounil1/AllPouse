@@ -8,8 +8,8 @@ import com.perfume.allpouse.data.repository.PostCommentRepository;
 import com.perfume.allpouse.data.repository.PostRepository;
 import com.perfume.allpouse.data.repository.UserRepository;
 import com.perfume.allpouse.exception.CustomException;
-import com.perfume.allpouse.model.dto.CommentResponseDto;
 import com.perfume.allpouse.model.dto.PostCommentResponseDto;
+import com.perfume.allpouse.model.dto.QPostCommentResponseDto;
 import com.perfume.allpouse.model.dto.SavePostCommentDto;
 import com.perfume.allpouse.service.PostCommentService;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -21,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -124,6 +125,21 @@ public class PostCommentServiceImpl implements PostCommentService {
         });
 
         return dtoPage;
+    }
+
+
+    // 게시글에 달린 댓글
+    // 정렬 : createDateTime / DESC
+    @Override
+    public List<PostCommentResponseDto> getPostCommentList(Long postId) {
+
+        return queryFactory
+                .select(new QPostCommentResponseDto(postComment.id, postComment.content, postComment.recommendCnt,
+                        postComment.post.id, postComment.user.id, postComment.user.userName, postComment.referCommentId, postComment.createDateTime))
+                .from(postComment)
+                .where(postComment.post.id.eq(postId))
+                .orderBy(postComment.createDateTime.desc())
+                .fetch();
     }
 
 

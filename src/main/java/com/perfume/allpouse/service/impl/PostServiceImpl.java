@@ -152,7 +152,8 @@ public class PostServiceImpl implements PostService {
 
         LocalDateTime now = LocalDateTime.now();
 
-        List<PostResponseDto> postList = queryFactory.select(new QPostResponseDto(post.id, post.type, post.title, post.content, photo.path, post.hitCnt, post.recommendCnt, post.user.id, post.user.userName, post.createDateTime))
+        List<PostResponseDto> postList = queryFactory.select(new QPostResponseDto(post.id, post.type, post.title, post.content,
+                        photo.path, post.hitCnt, post.recommendCnt, post.user.id, post.user.userName, post.createDateTime))
                 .from(post)
                 .leftJoin(photo)
                 .on(post.id.eq(photo.boardId).and(photo.boardType.eq(POST)))
@@ -162,6 +163,25 @@ public class PostServiceImpl implements PostService {
                 .fetch();
 
         return postList;
+    }
+
+
+    // 게시글의 상세 내용 조회
+    @Override
+    @Transactional
+    public PostResponseDto getPost(Long postId) {
+
+        // 조회수 + 1
+        postRepository.updateHitCnt(postId);
+
+        return queryFactory
+                .select(new QPostResponseDto(post.id, post.type, post.title, post.content, photo.path,
+                        post.hitCnt, post.recommendCnt, post.user.id, post.user.userName, post.createDateTime))
+                .from(post)
+                .leftJoin(photo)
+                .on(post.id.eq(photo.boardId).and(photo.boardType.eq(POST)))
+                .where(post.id.eq(postId))
+                .fetchOne();
     }
 
 
@@ -191,9 +211,21 @@ public class PostServiceImpl implements PostService {
     }
 
 
+    // 유저가 게시글 추천했는지 여부
+    @Override
+    public boolean isRecommended(Long postId, Long userId) {
+
+        Post post = postRepository.findById(postId).get();
+        List<Long> userList = post.getRecommendUserList();
+
+        return userList.contains(userId);
+    }
+
+
     // 게시글 추천 기능
     // 처음 추천 : 0 / 이미 추천한 게시물 : 1
     @Override
+    @Transactional
     public int updateRecommendCnt(Long postId, Long userId) {
 
         Optional<Post> postOpt = postRepository.findById(postId);
@@ -204,13 +236,16 @@ public class PostServiceImpl implements PostService {
             Post post = postOpt.get();
             List<Long> userList = post.getRecommendUserList();
 
-            // 해당 게시물 추천한 사람 없거나, 유저가 게시글 추천하지 X -> 0
+            // 해당 게시물 추천한 사람 없거나, 유저가 게시글 추천하지 X -> 0 (추천)
             if (userList == null || !userList.contains(userId)) {
                 userList.add(userId);
+                postRepository.addRecommendCnt(userId);
                 return 0;
             }
-            // 추천한 적 O -> 1
+            // 추천한 적 O -> 1 (추천취소)
             else {
+                userList.remove(userId);
+                postRepository.minusRecommendCnt(userId);
                 return 1;
             }
         }

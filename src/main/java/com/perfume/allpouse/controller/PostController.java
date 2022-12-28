@@ -2,8 +2,9 @@ package com.perfume.allpouse.controller;
 
 import com.perfume.allpouse.config.security.TokenProvider;
 import com.perfume.allpouse.data.entity.Post;
-import com.perfume.allpouse.data.repository.PostRepository;
 import com.perfume.allpouse.exception.CustomException;
+import com.perfume.allpouse.model.dto.PostCommentDto;
+import com.perfume.allpouse.model.dto.PostCommentResponseDto;
 import com.perfume.allpouse.model.dto.PostResponseDto;
 import com.perfume.allpouse.model.dto.SavePostDto;
 import com.perfume.allpouse.model.enums.Permission;
@@ -11,6 +12,7 @@ import com.perfume.allpouse.model.reponse.CommonResponse;
 import com.perfume.allpouse.model.reponse.ListResponse;
 import com.perfume.allpouse.model.reponse.PageResponse;
 import com.perfume.allpouse.service.PhotoService;
+import com.perfume.allpouse.service.PostCommentService;
 import com.perfume.allpouse.service.PostService;
 import com.perfume.allpouse.service.ResponseService;
 import io.swagger.annotations.ApiParam;
@@ -48,9 +50,9 @@ public class PostController {
 
     private final PhotoService photoService;
 
-    private final PostRepository postRepository;
-
     private final ResponseService responseService;
+
+    private final PostCommentService postCommentService;
 
 
     // 게시글 저장 및 업데이트
@@ -120,7 +122,6 @@ public class PostController {
     }
 
 
-
     // 인기 게시글(N : 5)
     @GetMapping(value = "post/popular")
     @Operation(summary = "인기 게시글", description = "3개월 내 인기게시글 5개 가져오는 API")
@@ -134,8 +135,54 @@ public class PostController {
     }
 
 
+    // 게시글 상세 페이지
+    // 게시글 1개 + 해당 게시글의 댓글 전체 전달
+    @GetMapping(value = "post/{postId}")
+    @Operation(summary = "게시글/댓글(전체)", description = "게시글과 해당 게시글에 달린 댓글(all)을 가져오는 API")
+    public CommonResponse getPostPage (
+            HttpServletRequest request,
+            @ApiParam(value = "게시글 id", required = true) @PathVariable("postId") Long postId) {
+
+        Long userId = getUserIdFromRequest(request);
+        boolean isRecommended;
+
+        // 게시글
+        PostResponseDto post = postService.getPost(postId);
+
+        // 댓글
+        List<PostCommentResponseDto> commentList = postCommentService.getPostCommentList(postId);
+
+        // 추천 여부
+        isRecommended = postService.isRecommended(postId, userId);
+
+        PostCommentDto postCommentDto = new PostCommentDto(post, commentList, isRecommended);
+
+        return responseService.getSingleResponse(postCommentDto);
+    }
+
+
+    // 게시글 추천 API
+    @PostMapping("post/recommend/{postId}")
+    @Operation(summary = "게시글 추천", description = "게시글 추천 API. " +
+            "API 호출한 시점 기준으로 만약 이전에 추천한 적 없다면 추천하기 실행되고, 추천한 적있다면 추천 취소 실행")
+    public CommonResponse recommendPost(
+            HttpServletRequest request,
+            @ApiParam(value = "게시글 id", required = true) @PathVariable Long postId) {
+
+        Long userId = getUserIdFromRequest(request);
+
+        int index = postService.updateRecommendCnt(postId, userId);
+
+        if (index == 0) {
+            return new CommonResponse(true, 0, "추천완료");
+        } else {
+            return new CommonResponse(true, 0, "추천취소완료");
+        }
+    }
+
     // HttpRequest에서 userId추출
     private Long getUserIdFromRequest(HttpServletRequest request) {
+
         String token = tokenProvider.resolveToken(request);
         return tokenProvider.getId(token);
     }

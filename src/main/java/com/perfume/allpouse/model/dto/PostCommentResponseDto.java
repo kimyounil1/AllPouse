@@ -6,6 +6,7 @@ import com.querydsl.core.annotations.QueryProjection;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,9 +28,11 @@ public class PostCommentResponseDto {
 
     private Long referCommentId;
 
+    private LocalDateTime createDateTime;
+
 
     @QueryProjection
-    public PostCommentResponseDto(Long id, String content, int recommendCnt, Long postId, Long userId, String userName, Long referCommentId) {
+    public PostCommentResponseDto(Long id, String content, int recommendCnt, Long postId, Long userId, String userName, Long referCommentId, LocalDateTime createDateTime) {
         this.id = id;
         this.content = content;
         this.recommendCnt = recommendCnt;
@@ -37,6 +40,7 @@ public class PostCommentResponseDto {
         this.userId = userId;
         this.userName = userName;
         this.referCommentId = referCommentId;
+        this.createDateTime = createDateTime;
     }
 
     // PostComment -> PostCommentResponseDto
@@ -52,6 +56,7 @@ public class PostCommentResponseDto {
                 .userId(user.getId())
                 .userName(user.getUserName())
                 .referCommentId(postComment.getReferCommentId())
+                .createDateTime((postComment.getCreateDateTime()))
                 .build();
     }
 

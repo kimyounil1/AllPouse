@@ -13,6 +13,7 @@ import java.util.List;
 
 public interface PostService {
 
+    // 저장, 업데이트, 삭제
     Long save(SavePostDto savePostDto, Permission role);
 
     Long save(SavePostDto savePostDto, List<MultipartFile> photos, Permission role) throws IOException;
@@ -21,18 +22,22 @@ public interface PostService {
 
     void delete(Long postId);
 
+
+
+    // 조회
     Post findOne(Long postId);
 
     List<PostResponseDto> getPopularPost(int size);
 
+    PostResponseDto getPost(Long postId);
+
     Page<PostResponseDto> getUserPostList(Long userId, Pageable pageable);
 
+    boolean isRecommended(Long postId, Long userId);
+
+
+
+    // 기타 로직
     int updateRecommendCnt(Long postId, Long userId);
-
-
-
-
-
-
 
 }

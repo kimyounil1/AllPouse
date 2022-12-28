@@ -43,6 +43,8 @@ public class DatabaseTest {
         Post post = postService.findOne(60L);
         List<Long> userList = post.getRecommendUserList();
         int result_1 = postService.updateRecommendCnt(60L, 5L);
+        postService.updateRecommendCnt(post.getId(), 3L);
+
 
         assertThat(result_1).isEqualTo(0);
 

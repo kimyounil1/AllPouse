@@ -1,15 +1,14 @@
 package com.perfume.allpouse.model.reponse;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.Getter;
+import lombok.*;
 
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class CommonResponse {
 
     private boolean success;
     private int code;
     private String msg;
-
 }

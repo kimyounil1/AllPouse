@@ -5,9 +5,7 @@ import org.springframework.data.domain.Page;
 
 import java.util.List;
 
-@ToString
-@Getter
-@Setter
+@Data
 @Builder
 @AllArgsConstructor
 public class ReviewCommentDto {
