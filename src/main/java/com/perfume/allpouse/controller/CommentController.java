@@ -164,6 +164,7 @@ public class CommentController {
      * 1. 게시글 댓글 작성 및 수정 - saveAndUpdatePostComment()
      * 2. 게시글 댓글 삭제 - deletePostComment()
      * 3. 회원이 작성한 게시글 댓글 - myPostCommentList()
+     * 4. 게시글 댓글 추천 - recommendPostComment()
      */
 
     // 게시글 댓글 작성 및 수정
@@ -198,6 +199,7 @@ public class CommentController {
 
         return responseService.getSuccessCommonResponse();
     }
+
 
     // 게시글 댓글 삭제
     @DeleteMapping(value = "post-comment")
@@ -237,6 +239,32 @@ public class CommentController {
 
         return responseService.getPageResponse(pages);
     }
+
+
+    // 게시글 댓글 추천 API
+    @PostMapping("post-comment/recommend/{commentId}")
+    @Operation(summary = "게시글 댓글 추천 API", description = "게시글 댓글 추천 API" +
+            "API 호출한 시점 기준으로 만약 이전에 추천한 적 없다면 추천하기 실행되고, 추천한 적있다면 추천 취소 실행")
+    public CommonResponse recommendPostComment(
+            HttpServletRequest request,
+            @ApiParam(value = "게시글 댓글 id", required = true) @PathVariable("commentId") Long commentId) {
+
+        Long userId = getUserIdFromRequest(request);
+
+        int index = postCommentService.updateRecommendCnt(commentId, userId);
+
+        // 추천
+        if (index == 0) {
+            return new CommonResponse(true, 0, "추천완료");
+        }
+        // 추천 취소
+        else {
+            return new CommonResponse(true, 0, "추천취소완료");
+        }
+    }
+
+
+
 
 
     // HttpRequest에서 userId 추출

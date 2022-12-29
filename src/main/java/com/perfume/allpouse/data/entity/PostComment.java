@@ -1,6 +1,7 @@
 package com.perfume.allpouse.data.entity;
 
 import com.perfume.allpouse.model.dto.SavePostCommentDto;
+import com.perfume.allpouse.utils.LongListConverter;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -8,6 +9,9 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static javax.persistence.FetchType.LAZY;
 import static javax.persistence.GenerationType.AUTO;
@@ -28,6 +32,9 @@ public class PostComment extends BaseTimeEntity {
 
     @ColumnDefault("0")
     private int recommendCnt;
+
+    @Convert(converter = LongListConverter.class)
+    private List<Long> recommendUserList = new ArrayList<>();
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "post_id")

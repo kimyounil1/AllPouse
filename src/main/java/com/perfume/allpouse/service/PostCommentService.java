@@ -10,15 +10,25 @@ import java.util.List;
 
 public interface PostCommentService {
 
+    // 저장, 업데이트, 삭제
     Long save(SavePostCommentDto postCommentDto);
 
     Long update(SavePostCommentDto postCommentDto);
 
     void delete(Long commentId);
 
+
+
+    // 조회
     PostComment findOne(Long commentId);
 
     Page<PostCommentResponseDto> getUserPostCommentList(Long userId, Pageable pageable);
 
     List<PostCommentResponseDto> getPostCommentList(Long postId);
+
+    boolean isRecommended(Long commentId, Long userId);
+
+
+    // 기타 로직
+    int updateRecommendCnt(Long commentId, Long userId);
 }

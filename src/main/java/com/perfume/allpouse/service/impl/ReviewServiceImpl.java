@@ -341,7 +341,6 @@ public class ReviewServiceImpl implements ReviewService {
 
     // 유저가 리뷰 추천했는지 여부
     @Override
-    @Transactional
     public boolean isRecommended(Long reviewId, Long userId) {
 
         ReviewBoard review = reviewRepository.findById(reviewId).get();
@@ -365,7 +364,7 @@ public class ReviewServiceImpl implements ReviewService {
             ReviewBoard review = reviewOpt.get();
             List<Long> userList = review.getRecommendUserList();
 
-            // 해당 게시물 추천한 사람 없거나, 유저가 게시글 추천하지 X -> 0 (추천)
+            // 해당 게시물 추천한 사람 없거나, 유저가 게시글 추천한 적 X -> 0 (추천)
             if (userList == null || !userList.contains(reviewId)) {
                 userList.add(reviewId);
                 reviewRepository.addRecommendCnt(reviewId);

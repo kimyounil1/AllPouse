@@ -183,7 +183,7 @@ public class ReviewController {
             "API 호출한 시점 기준으로 만약 이전에 추천한 적 없다면 추천하기 실행되고, 추천한 적있다면 추천 취소 실행")
     public CommonResponse recommendReview(
             HttpServletRequest request,
-            @ApiParam(value = "향수리뷰 Id", required = true) @PathVariable("reviewId")  Long reviewId) {
+            @ApiParam(value = "향수리뷰 id", required = true) @PathVariable("reviewId")  Long reviewId) {
 
         Long userId = getUserIdFromRequest(request);
 

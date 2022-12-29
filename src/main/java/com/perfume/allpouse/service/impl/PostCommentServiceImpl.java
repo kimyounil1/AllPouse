@@ -26,6 +26,7 @@ import java.util.Optional;
 import java.util.function.Function;
 
 import static com.perfume.allpouse.exception.ExceptionEnum.INVALID_PARAMETER;
+import static com.perfume.allpouse.exception.ExceptionEnum.POST_COMMENT_ID_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -140,6 +141,47 @@ public class PostCommentServiceImpl implements PostCommentService {
                 .where(postComment.post.id.eq(postId))
                 .orderBy(postComment.createDateTime.desc())
                 .fetch();
+    }
+
+
+    // 유저가 (게시글) 댓글 추천했는지 여부
+    @Override
+    public boolean isRecommended(Long commentId, Long userId) {
+
+        PostComment comment = postCommentRepository.findById(commentId).get();
+        List<Long> userList = comment.getRecommendUserList();
+
+        return userList.contains(userId);
+    }
+
+
+    // (게시글) 댓글 추천 기능
+    // 처음 추천 : 0 / 이미 추천한 댓글 : 1
+    @Override
+    @Transactional
+    public int updateRecommendCnt(Long commentId, Long userId) {
+
+        Optional<PostComment> commentOpt = postCommentRepository.findById(commentId);
+
+        if (commentOpt.isEmpty()) {
+            throw new CustomException(POST_COMMENT_ID_NOT_FOUND);
+        } else {
+            PostComment comment = commentOpt.get();
+            List<Long> userList = comment.getRecommendUserList();
+
+            // 해당 댓글 추천한 사람 없거나, 유저가 게시글 추천한 적 X -> 0 (추천)
+            if (userList == null || !userList.contains(userId)) {
+                userList.add(userId);
+                postCommentRepository.addRecommendCnt(commentId);
+                return 0;
+            }
+            // 추천한 적 O -> 1 (추천취소)
+            else {
+                userList.remove(userId);
+                postCommentRepository.minusRecommendCnt(commentId);
+                return 1;
+            }
+        }
     }
 
 

@@ -29,7 +29,7 @@ public class ReviewBoard extends BaseTimeEntity{
     private int recommendCnt;
 
     @Convert(converter = LongListConverter.class)
-    private List<Long> recommendUserList;
+    private List<Long> recommendUserList = new ArrayList<>();
 
     private String subject;
 

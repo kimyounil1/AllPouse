@@ -12,15 +12,15 @@ public interface PostCommentRepository extends JpaRepository<PostComment, Long> 
 
     Page<PostComment> findPostCommentsByUserId(Long userId, Pageable pageable);
 
-    // 추천 + 1
+    // 추천수 + 1
     @Modifying
-    @Query("update PostComment pc set pc.recommendCnt = pc.recommendCnt + 1 where pc.user.id = :userId")
-    void addRecommendCnt(@Param("userId") Long id);
+    @Query("update PostComment pc set pc.recommendCnt = pc.recommendCnt + 1 where pc.id = :commentId")
+    void addRecommendCnt(@Param("commentId") Long commentId);
 
-    // 추천 - 1
+    // 추천수 - 1
     @Modifying
-    @Query("update PostComment pc set pc.recommendCnt = pc.recommendCnt - 1 where pc.user.id = :userId")
-    void minusRecommendCnt(@Param("userId") Long id);
+    @Query("update PostComment pc set pc.recommendCnt = pc.recommendCnt - 1 where pc.id = :commentId")
+    void minusRecommendCnt(@Param("commentId") Long commentId);
 
 
 
