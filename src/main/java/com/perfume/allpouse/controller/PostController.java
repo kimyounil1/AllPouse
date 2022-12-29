@@ -173,9 +173,12 @@ public class PostController {
 
         int index = postService.updateRecommendCnt(postId, userId);
 
+        // 추천
         if (index == 0) {
             return new CommonResponse(true, 0, "추천완료");
-        } else {
+        }
+        // 추천 취소
+        else {
             return new CommonResponse(true, 0, "추천취소완료");
         }
     }

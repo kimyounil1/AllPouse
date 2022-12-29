@@ -14,6 +14,7 @@ import java.util.List;
 
 public interface ReviewService {
 
+    // 저장, 업데이트, 삭제
     Long save(SaveReviewDto saveReviewDto);
 
     Long save(SaveReviewDto saveReviewDto, List<MultipartFile> photos) throws IOException;
@@ -22,6 +23,9 @@ public interface ReviewService {
 
     void delete(Long ReviewId);
 
+
+
+    // 조회
     List<ReviewBoard> findByUserId(Long id);
 
     List<ReviewBoard> findByPerfumeId(Long id);
@@ -42,7 +46,10 @@ public interface ReviewService {
 
     List<ReviewResponseDto> getReviewsOnPerfume(Long boardId, Permission permission, int size);
 
-    void addHitCnt(Long id);
 
-    void addRecommendCnt(Long id);
+
+    // 기타 로직
+    boolean isRecommended(Long reviewId, Long userId);
+
+    int updateRecommendCnt(Long reviewId, Long userId);
 }

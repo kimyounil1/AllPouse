@@ -139,8 +139,6 @@ public class ReviewController {
 
         final int size = 5;
 
-        reviewService.addHitCnt(reviewId);
-
         // 리뷰
         ReviewResponseDto reviewDto = reviewService.getReviewDtoByReviewId(reviewId);
 
@@ -177,6 +175,31 @@ public class ReviewController {
 
         return responseService.getSingleResponse(bestReviewDto);
     }
+
+
+    // 향수리뷰 추천 API
+    @PostMapping("review/recommend/{reviewId}")
+    @Operation(summary = "향수 리뷰 추천 API", description = "향수 리뷰 추천 API. " +
+            "API 호출한 시점 기준으로 만약 이전에 추천한 적 없다면 추천하기 실행되고, 추천한 적있다면 추천 취소 실행")
+    public CommonResponse recommendReview(
+            HttpServletRequest request,
+            @ApiParam(value = "향수리뷰 Id", required = true) @PathVariable("reviewId")  Long reviewId) {
+
+        Long userId = getUserIdFromRequest(request);
+
+        int index = reviewService.updateRecommendCnt(reviewId, userId);
+
+        // 추천
+        if (index == 0) {
+            return new CommonResponse(true, 0, "추천완료");
+        }
+        // 추천취소
+        else {
+            return new CommonResponse(true, 0, "추천취소완료");
+        }
+    }
+
+
 
 
     // HttpRequest에서 userId 추출

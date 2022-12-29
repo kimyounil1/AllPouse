@@ -2,6 +2,7 @@ package com.perfume.allpouse.service.impl;
 
 import com.perfume.allpouse.data.entity.*;
 import com.perfume.allpouse.data.repository.PerfumeBoardRepository;
+import com.perfume.allpouse.data.repository.PostRepository;
 import com.perfume.allpouse.data.repository.ReviewBoardRepository;
 import com.perfume.allpouse.data.repository.UserRepository;
 import com.perfume.allpouse.exception.CustomException;
@@ -31,7 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.perfume.allpouse.exception.ExceptionEnum.INVALID_PARAMETER;
+import static com.perfume.allpouse.exception.ExceptionEnum.*;
 import static com.perfume.allpouse.model.enums.BoardType.PERFUME;
 import static com.perfume.allpouse.model.enums.BoardType.REVIEW;
 
@@ -48,6 +49,8 @@ public class ReviewServiceImpl implements ReviewService {
     private final UserRepository userRepository;
 
     private final PhotoService photoService;
+
+    private final PostRepository postRepository;
 
     private final Logger LOGGER = LoggerFactory.getLogger(ReviewServiceImpl.class);
 
@@ -181,31 +184,6 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
 
-    // Dto -> ReviewBoard
-    private ReviewBoard toEntity(SaveReviewDto reviewDto) {
-
-        //Optional 예외처리 필요
-        User user = userRepository.findById(reviewDto.getUserId()).get();
-        PerfumeBoard perfume = perfumeRepository.findById(reviewDto.getPerfumeId()).get();
-
-        ReviewBoard review = ReviewBoard.builder()
-                .id(reviewDto.getId())
-                .subject(reviewDto.getSubject())
-                .content(reviewDto.getContent())
-                .build();
-
-        addUserAndPerfume(review, user, perfume);
-
-        return review;
-    }
-
-    private void addUserAndPerfume(ReviewBoard reviewBoard, User user, PerfumeBoard perfumeBoard) {
-        reviewBoard.setUser(user);
-        reviewBoard.setPerfume(perfumeBoard);
-    }
-
-
-
     // 유저가 작성한 리뷰를 ResponseDto 형식으로 페이지네이션해서 가져옴
     // 기본정렬 : 작성일자 기준 내림차순(pageable로 변경 가능)
     @Override
@@ -255,12 +233,14 @@ public class ReviewServiceImpl implements ReviewService {
 
 
     // 리뷰 id로 리뷰 검색해서 반환
+    // 리뷰 상세 페이지 전달할 때 사용 -> 조회수 + 1 로직 포함
     @Override
     public ReviewResponseDto getReviewDtoByReviewId(Long reviewId) {
 
         try{
             List<ReviewResponseDto> reviewDtoList = queryFactory
-                    .select(new QReviewResponseDto(reviewBoard.id, reviewBoard.user.userName, reviewBoard.subject, reviewBoard.content, reviewBoard.perfume.subject, reviewBoard.perfume.brand.name, reviewBoard.hitCnt, reviewBoard.recommendCnt, photo.path, reviewBoard.createDateTime))
+                    .select(new QReviewResponseDto(reviewBoard.id, reviewBoard.user.userName, reviewBoard.subject, reviewBoard.content, reviewBoard.perfume.subject,
+                            reviewBoard.perfume.brand.name, reviewBoard.hitCnt, reviewBoard.recommendCnt, photo.path, reviewBoard.createDateTime))
                     .from(reviewBoard)
                     .leftJoin(photo)
                     .on(reviewBoard.id.eq(photo.boardId).and(photo.boardType.eq(REVIEW)))
@@ -269,6 +249,8 @@ public class ReviewServiceImpl implements ReviewService {
 
             if (reviewDtoList.size() != 1) {throw new CustomException(INVALID_PARAMETER);}
 
+            // 조회수 + 1
+            reviewRepository.updateHitCnt(reviewId);
             return reviewDtoList.get(0);
 
         } catch (Exception e) {throw new CustomException(INVALID_PARAMETER);}
@@ -283,7 +265,8 @@ public class ReviewServiceImpl implements ReviewService {
         List<OrderSpecifier> ORDERS = getAllOrderSpecifiers(pageable);
 
         List<ReviewResponseDto> reviewDtoList = queryFactory
-                .select(new QReviewResponseDto(reviewBoard.id, reviewBoard.user.userName, reviewBoard.subject, reviewBoard.content, reviewBoard.perfume.subject, reviewBoard.perfume.brand.name, reviewBoard.hitCnt, reviewBoard.recommendCnt, photo.path, reviewBoard.createDateTime))
+                .select(new QReviewResponseDto(reviewBoard.id, reviewBoard.user.userName, reviewBoard.subject, reviewBoard.content, reviewBoard.perfume.subject,
+                        reviewBoard.perfume.brand.name, reviewBoard.hitCnt, reviewBoard.recommendCnt, photo.path, reviewBoard.createDateTime))
                 .from(reviewBoard)
                 .leftJoin(photo)
                 .on(reviewBoard.id.eq(photo.boardId).and(photo.boardType.eq(PERFUME)))
@@ -301,7 +284,8 @@ public class ReviewServiceImpl implements ReviewService {
     public List<ReviewResponseDto> getReviewsOnBrand(Long boardId, Permission permission, int size) {
 
         List<ReviewResponseDto> reviewDtoList = queryFactory
-                .select(new QReviewResponseDto(reviewBoard.id, reviewBoard.user.userName, reviewBoard.subject, reviewBoard.content, reviewBoard.perfume.subject, reviewBoard.perfume.brand.name, reviewBoard.hitCnt, reviewBoard.recommendCnt, photo.path, reviewBoard.createDateTime))
+                .select(new QReviewResponseDto(reviewBoard.id, reviewBoard.user.userName, reviewBoard.subject, reviewBoard.content,
+                        reviewBoard.perfume.subject, reviewBoard.perfume.brand.name, reviewBoard.hitCnt, reviewBoard.recommendCnt, photo.path, reviewBoard.createDateTime))
                 .from(reviewBoard)
                 .leftJoin(photo)
                 .on(reviewBoard.id.eq(photo.boardId).and(photo.boardType.eq(PERFUME)))
@@ -322,7 +306,8 @@ public class ReviewServiceImpl implements ReviewService {
         List<OrderSpecifier> ORDERS = getAllOrderSpecifiers(pageable);
 
         List<ReviewResponseDto> reviewDtoList = queryFactory
-                .select(new QReviewResponseDto(reviewBoard.id, reviewBoard.user.userName, reviewBoard.subject, reviewBoard.content, reviewBoard.perfume.subject, reviewBoard.perfume.brand.name, reviewBoard.hitCnt, reviewBoard.recommendCnt, photo.path, reviewBoard.createDateTime))
+                .select(new QReviewResponseDto(reviewBoard.id, reviewBoard.user.userName, reviewBoard.subject, reviewBoard.content,
+                        reviewBoard.perfume.subject, reviewBoard.perfume.brand.name, reviewBoard.hitCnt, reviewBoard.recommendCnt, photo.path, reviewBoard.createDateTime))
                 .from(reviewBoard)
                 .leftJoin(photo)
                 .on(reviewBoard.id.eq(photo.boardId).and(photo.boardType.eq(PERFUME)))
@@ -340,7 +325,8 @@ public class ReviewServiceImpl implements ReviewService {
     public List<ReviewResponseDto>getReviewsOnPerfume(Long boardId, Permission permission, int size) {
 
         List<ReviewResponseDto> reviewDtoList = queryFactory
-                .select(new QReviewResponseDto(reviewBoard.id, reviewBoard.user.userName, reviewBoard.subject, reviewBoard.content, reviewBoard.perfume.subject, reviewBoard.perfume.brand.name, reviewBoard.hitCnt, reviewBoard.recommendCnt, photo.path, reviewBoard.createDateTime))
+                .select(new QReviewResponseDto(reviewBoard.id, reviewBoard.user.userName, reviewBoard.subject, reviewBoard.content,
+                        reviewBoard.perfume.subject, reviewBoard.perfume.brand.name, reviewBoard.hitCnt, reviewBoard.recommendCnt, photo.path, reviewBoard.createDateTime))
                 .from(reviewBoard)
                 .leftJoin(photo)
                 .on(reviewBoard.id.eq(photo.boardId).and(photo.boardType.eq(PERFUME)))
@@ -353,34 +339,73 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
 
-    // 조회수 추가
+    // 유저가 리뷰 추천했는지 여부
     @Override
     @Transactional
-    public void addHitCnt(Long id) {
+    public boolean isRecommended(Long reviewId, Long userId) {
 
-        Optional<ReviewBoard> review = reviewRepository.findById(id);
+        ReviewBoard review = reviewRepository.findById(reviewId).get();
+        List<Long> userList = review.getRecommendUserList();
 
-        if (review.isEmpty()) {
-            throw new CustomException(INVALID_PARAMETER);
+        return userList.contains(userId);
+    }
+
+
+    // 리뷰 추천 기능
+    // 처음 추천 : 0 / 이미 추천한 게시물 : 1
+    @Override
+    @Transactional
+    public int updateRecommendCnt(Long reviewId, Long userId) {
+
+        Optional<ReviewBoard> reviewOpt = reviewRepository.findById(reviewId);
+
+        if (reviewOpt.isEmpty()) {
+            throw new CustomException(REVIEW_ID_NOT_FOUND);
         } else {
-            reviewRepository.updateHitCnt(id);
+            ReviewBoard review = reviewOpt.get();
+            List<Long> userList = review.getRecommendUserList();
+
+            // 해당 게시물 추천한 사람 없거나, 유저가 게시글 추천하지 X -> 0 (추천)
+            if (userList == null || !userList.contains(reviewId)) {
+                userList.add(reviewId);
+                reviewRepository.addRecommendCnt(reviewId);
+                return 0;
+            }
+            // 추천한 적 O -> 1 (추천취소)
+            else {
+                userList.remove(reviewId);
+                reviewRepository.minusRecommendCnt(reviewId);
+                return 1;
+            }
         }
     }
 
 
-    // 추천수 추가
-    @Override
-    @Transactional
-    public void addRecommendCnt(Long id) {
+    // Dto -> ReviewBoard
+    private ReviewBoard toEntity(SaveReviewDto reviewDto) {
 
-        Optional<ReviewBoard> review = reviewRepository.findById(id);
+        //Optional 예외처리 필요
+        User user = userRepository.findById(reviewDto.getUserId()).get();
+        PerfumeBoard perfume = perfumeRepository.findById(reviewDto.getPerfumeId()).get();
 
-        if (review.isEmpty()) {
-            throw new CustomException(INVALID_PARAMETER);
-        } else {
-            reviewRepository.addRecommendCnt(id);
-        }
+        ReviewBoard review = ReviewBoard.builder()
+                .id(reviewDto.getId())
+                .subject(reviewDto.getSubject())
+                .content(reviewDto.getContent())
+                .build();
+
+        addUserAndPerfume(review, user, perfume);
+
+        return review;
     }
+
+    private void addUserAndPerfume(ReviewBoard reviewBoard, User user, PerfumeBoard perfumeBoard) {
+        reviewBoard.setUser(user);
+        reviewBoard.setPerfume(perfumeBoard);
+    }
+
+
+
 
 
     // Pageable에서 정렬기준 추출

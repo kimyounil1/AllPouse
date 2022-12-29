@@ -40,17 +40,17 @@ public interface ReviewBoardRepository extends JpaRepository<ReviewBoard, Long> 
     // 조회수 +1
     @Modifying
     @Query("update ReviewBoard r set r.hitCnt = r.hitCnt + 1 where r.id = :reviewId")
-    void updateHitCnt(@Param("reviewId") Long id);
+    void updateHitCnt(@Param("reviewId") Long reviewId);
 
     // 추천수 +1
     @Modifying
     @Query("update ReviewBoard r set r.recommendCnt = r.recommendCnt + 1 where r.id = :reviewId")
-    void addRecommendCnt(@Param("reviewId") Long id);
+    void addRecommendCnt(@Param("reviewId") Long reviewId);
 
     // 추천수 -1
     @Modifying
     @Query("update ReviewBoard r set r.recommendCnt = r.recommendCnt - 1 where r.id = :reviewId")
-    void minusRecommendCnt(@Param("reviewId") Long id);
+    void minusRecommendCnt(@Param("reviewId") Long reviewId);
 
 }
 

@@ -1,6 +1,7 @@
 package com.perfume.allpouse.data.entity;
 
 import com.perfume.allpouse.model.dto.SaveReviewDto;
+import com.perfume.allpouse.utils.LongListConverter;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
@@ -26,6 +27,9 @@ public class ReviewBoard extends BaseTimeEntity{
 
     @ColumnDefault("0")
     private int recommendCnt;
+
+    @Convert(converter = LongListConverter.class)
+    private List<Long> recommendUserList;
 
     private String subject;
 

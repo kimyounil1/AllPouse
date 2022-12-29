@@ -1,19 +1,19 @@
 package com.perfume.allpouse.service.impl;
 
-import com.perfume.allpouse.config.security.TokenProvider;
-import com.perfume.allpouse.data.entity.*;
+import com.perfume.allpouse.data.entity.Post;
+import com.perfume.allpouse.data.entity.QPhoto;
+import com.perfume.allpouse.data.entity.QPost;
+import com.perfume.allpouse.data.entity.User;
 import com.perfume.allpouse.data.repository.PostRepository;
 import com.perfume.allpouse.data.repository.UserRepository;
 import com.perfume.allpouse.exception.CustomException;
 import com.perfume.allpouse.model.dto.PostResponseDto;
 import com.perfume.allpouse.model.dto.QPostResponseDto;
 import com.perfume.allpouse.model.dto.SavePostDto;
-import com.perfume.allpouse.model.enums.BulletinType;
 import com.perfume.allpouse.model.enums.Permission;
 import com.perfume.allpouse.service.PhotoService;
 import com.perfume.allpouse.service.PostService;
 import com.perfume.allpouse.utils.QueryDslUtil;
-import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -38,8 +38,9 @@ import java.util.Optional;
 import static com.perfume.allpouse.exception.ExceptionEnum.INVALID_PARAMETER;
 import static com.perfume.allpouse.exception.ExceptionEnum.POST_ID_NOT_FOUND;
 import static com.perfume.allpouse.model.enums.BoardType.POST;
-import static com.perfume.allpouse.model.enums.BulletinType.*;
-import static com.perfume.allpouse.model.enums.Permission.*;
+import static com.perfume.allpouse.model.enums.BulletinType.FREE;
+import static com.perfume.allpouse.model.enums.BulletinType.PERFUMER;
+import static com.perfume.allpouse.model.enums.Permission.ROLE_USER;
 
 @Service
 @RequiredArgsConstructor
@@ -239,13 +240,13 @@ public class PostServiceImpl implements PostService {
             // 해당 게시물 추천한 사람 없거나, 유저가 게시글 추천하지 X -> 0 (추천)
             if (userList == null || !userList.contains(userId)) {
                 userList.add(userId);
-                postRepository.addRecommendCnt(userId);
+                postRepository.addRecommendCnt(postId);
                 return 0;
             }
             // 추천한 적 O -> 1 (추천취소)
             else {
                 userList.remove(userId);
-                postRepository.minusRecommendCnt(userId);
+                postRepository.minusRecommendCnt(postId);
                 return 1;
             }
         }

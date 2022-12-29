@@ -10,16 +10,16 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     // 조회수 +1
     @Modifying
-    @Query("update Post p set p.hitCnt = p.hitCnt + 1 where p.user.id = :userId")
-    void updateHitCnt(@Param("userId") Long id);
+    @Query("update Post p set p.hitCnt = p.hitCnt + 1 where p.id = :postId")
+    void updateHitCnt(@Param("postId") Long postId);
 
     // 추천수 +1
     @Modifying
-    @Query("update Post p set p.recommendCnt = p.recommendCnt + 1 where p.user.id =:userId")
-    void addRecommendCnt(@Param("userId") Long id);
+    @Query("update Post p set p.recommendCnt = p.recommendCnt + 1 where p.id =:postId")
+    void addRecommendCnt(@Param("postId") Long postId);
 
     // 추천수 -1
     @Modifying
-    @Query("update Post p set p.recommendCnt = p.recommendCnt - 1 where p.user.id =:userId")
-    void minusRecommendCnt(@Param("userId") Long id);
+    @Query("update Post p set p.recommendCnt = p.recommendCnt - 1 where p.id =:postId")
+    void minusRecommendCnt(@Param("postId") Long postId);
 }
