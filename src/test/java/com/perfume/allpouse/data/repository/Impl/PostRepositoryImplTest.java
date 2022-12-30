@@ -1,7 +1,6 @@
 package com.perfume.allpouse.data.repository.Impl;
 
 import com.perfume.allpouse.data.repository.PostRepository;
-import com.perfume.allpouse.model.dto.SearchPostDto;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

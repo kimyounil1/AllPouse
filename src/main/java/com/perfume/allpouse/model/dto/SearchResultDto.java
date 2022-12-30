@@ -17,11 +17,11 @@ public class SearchResultDto {
 
     private int perfumeCnt;
 
-    private List<SearchReviewDto> reviews;
+    private List<ReviewResponseDto> reviews;
 
     private int reviewCnt;
 
-    private List<SearchPostDto> posts;
+    private List<PostResponseDto> posts;
 
     private int postCnt;
 }

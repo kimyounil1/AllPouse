@@ -7,6 +7,8 @@ import com.perfume.allpouse.data.repository.ReviewBoardRepository;
 import com.perfume.allpouse.model.dto.*;
 import com.perfume.allpouse.service.SearchService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,10 +36,26 @@ public class SearchServiceImpl implements SearchService {
 
         List<SearchPerfumeDto> perfumes = perfumeBoardRepository.search(keyword);
 
-        List<SearchReviewDto> reviews = reviewBoardRepository.search(keyword);
+        List<ReviewResponseDto> reviews = reviewBoardRepository.search(keyword);
 
-        List<SearchPostDto> posts = postRepository.search(keyword);
+        List<PostResponseDto> posts = postRepository.search(keyword);
 
         return new SearchResultDto(brands, brands.size(), perfumes, perfumes.size(), reviews, reviews.size(), posts, posts.size());
+    }
+
+
+    // 게시글 기본검색(with 키워드) + 페이지네이션
+    @Override
+    public Page<PostResponseDto> searchPostWithKeyword(String keyword, Pageable pageable) {
+
+        return postRepository.searchWithPaging(keyword, pageable);
+    }
+
+
+    // 리뷰 기본검색(with 키워드) + 페이지네이션
+    @Override
+    public Page<ReviewResponseDto> searchReviewWithKeyword(String keyword, Pageable pageable) {
+
+        return reviewBoardRepository.searchWithPaging(keyword, pageable);
     }
 }

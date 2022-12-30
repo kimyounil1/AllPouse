@@ -84,7 +84,6 @@ public class PostServiceImpl implements PostService {
     }
 
 
-
     // 게시글 저장(사진O)
     @Override
     @Transactional

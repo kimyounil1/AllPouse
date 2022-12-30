@@ -44,4 +44,5 @@ public class PerfumeBoardRepositoryImpl extends QuerydslRepositorySupport implem
 
         return perfumes;
     }
+
 }
