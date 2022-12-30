@@ -24,6 +24,7 @@ public enum ExceptionEnum {
     POST_ID_NOT_FOUND(404, false, "존재하지 않는 게시글 ID 입니다."),
     REVIEW_ID_NOT_FOUND(404, false, "존재하지 않는 리뷰 ID 입니다."),
     POST_COMMENT_ID_NOT_FOUND(404, false, "존재하지 않는 게시글 댓글 ID 입니다."),
+
     TOKEN_NOT_FOUND(404,false , "토큰이 존재 하지 않습니다."),
 
     // 409 중복된 리소스 요청

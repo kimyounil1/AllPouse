@@ -1,12 +1,13 @@
 package com.perfume.allpouse.data.repository;
 
 import com.perfume.allpouse.data.entity.Post;
+import com.perfume.allpouse.data.repository.custom.PostRepositoryCustom;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface PostRepository extends JpaRepository<Post, Long> {
+public interface PostRepository extends JpaRepository<Post, Long>, PostRepositoryCustom {
 
     // 조회수 +1
     @Modifying

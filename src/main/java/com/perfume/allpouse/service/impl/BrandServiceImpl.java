@@ -3,7 +3,7 @@ package com.perfume.allpouse.service.impl;
 import com.perfume.allpouse.data.entity.Brand;
 import com.perfume.allpouse.data.entity.QBrand;
 import com.perfume.allpouse.data.entity.QPhoto;
-import com.perfume.allpouse.data.repository.SearchBrandRepository;
+import com.perfume.allpouse.data.repository.BrandRepository;
 import com.perfume.allpouse.exception.CustomException;
 import com.perfume.allpouse.model.dto.*;
 import com.perfume.allpouse.service.BrandService;
@@ -27,7 +27,7 @@ import static com.perfume.allpouse.model.enums.BoardType.*;
 @RequiredArgsConstructor
 public class BrandServiceImpl implements BrandService {
 
-    private final SearchBrandRepository brandRepository;
+    private final BrandRepository brandRepository;
 
     private final JPAQueryFactory queryFactory;
 

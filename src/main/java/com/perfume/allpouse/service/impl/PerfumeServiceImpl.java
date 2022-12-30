@@ -5,7 +5,7 @@ import com.perfume.allpouse.data.entity.Brand;
 import com.perfume.allpouse.data.entity.PerfumeBoard;
 import com.perfume.allpouse.data.entity.QPerfumeBoard;
 import com.perfume.allpouse.data.entity.QPhoto;
-import com.perfume.allpouse.data.repository.SearchBrandRepository;
+import com.perfume.allpouse.data.repository.BrandRepository;
 import com.perfume.allpouse.data.repository.PerfumeBoardRepository;
 import com.perfume.allpouse.exception.CustomException;
 import com.perfume.allpouse.model.dto.*;
@@ -36,7 +36,7 @@ public class PerfumeServiceImpl implements PerfumeService {
 
     private final PerfumeBoardRepository perfumeRepository;
 
-    private final SearchBrandRepository brandRepository;
+    private final BrandRepository brandRepository;
 
     private final PhotoService photoService;
 

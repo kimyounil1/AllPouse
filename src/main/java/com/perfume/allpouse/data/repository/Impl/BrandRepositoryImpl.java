@@ -3,7 +3,7 @@ package com.perfume.allpouse.data.repository.Impl;
 import com.perfume.allpouse.data.entity.Brand;
 import com.perfume.allpouse.data.entity.QBrand;
 import com.perfume.allpouse.data.entity.QPhoto;
-import com.perfume.allpouse.data.repository.search.SearchBrandRepository;
+import com.perfume.allpouse.data.repository.custom.BrandRepositoryCustom;
 import com.perfume.allpouse.model.dto.QSearchBrandDto;
 import com.perfume.allpouse.model.dto.SearchBrandDto;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
@@ -12,15 +12,14 @@ import java.util.List;
 
 import static com.perfume.allpouse.model.enums.BoardType.BRAND;
 
-public class SearchBrandRepositoryImpl extends QuerydslRepositorySupport implements SearchBrandRepository {
+public class BrandRepositoryImpl extends QuerydslRepositorySupport implements BrandRepositoryCustom {
 
-    public SearchBrandRepositoryImpl() {
+    public BrandRepositoryImpl() {
         super(Brand.class);
     }
 
     QBrand brand = QBrand.brand;
     QPhoto photo = QPhoto.photo;
-
 
 
     // 기본검색
@@ -35,6 +34,7 @@ public class SearchBrandRepositoryImpl extends QuerydslRepositorySupport impleme
                         brand.id,
                         brand.name,
                         photo.path))
+                .orderBy(brand.name.asc())
                 .fetch();
 
         return brands;

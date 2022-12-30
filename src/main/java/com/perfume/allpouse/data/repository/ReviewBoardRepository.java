@@ -1,6 +1,7 @@
 package com.perfume.allpouse.data.repository;
 
 import com.perfume.allpouse.data.entity.ReviewBoard;
+import com.perfume.allpouse.data.repository.custom.ReviewBoardRepositoryCustom;
 import com.perfume.allpouse.model.dto.ReviewResponseDto;
 import com.perfume.allpouse.model.enums.Permission;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +17,7 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
 import java.util.List;
 
-public interface ReviewBoardRepository extends JpaRepository<ReviewBoard, Long> {
+public interface ReviewBoardRepository extends JpaRepository<ReviewBoard, Long>, ReviewBoardRepositoryCustom {
 
 
     @Query("select r from ReviewBoard r " +
