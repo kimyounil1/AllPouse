@@ -19,7 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 @RequestMapping("/api/v1/token/")
 public class TokenController {
 
-    private final Logger LOGGER = LoggerFactory.getLogger(SignController.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(TokenController.class);
     private final TokenServiceImpl tokenServiceImpl;
 
     private final ResponseServiceImpl responseServiceImpl;

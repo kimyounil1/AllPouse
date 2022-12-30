@@ -26,7 +26,7 @@ import java.util.List;
 @RequestMapping("/api/v1/")
 public class UserController {
 
-    private final Logger LOGGER = LoggerFactory.getLogger(ReviewController.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
 
     private final TokenProvider tokenProvider;
     private final ResponseServiceImpl responseServiceImpl;

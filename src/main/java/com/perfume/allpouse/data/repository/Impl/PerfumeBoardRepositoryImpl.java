@@ -24,13 +24,14 @@ public class PerfumeBoardRepositoryImpl extends QuerydslRepositorySupport implem
 
 
     // 기본검색
+    // 조건 : 향수의 이름 혹은 향수가 속한 브랜드 이름에 키워드가 포함되는 경우
     @Override
     public List<SearchPerfumeDto> search(String keyword) {
 
         List<SearchPerfumeDto> perfumes = from(perfume)
                 .leftJoin(photo)
                 .on(perfume.id.eq(photo.boardId).and(photo.boardType.eq(PERFUME)))
-                .where(perfume.subject.containsIgnoreCase(keyword))
+                .where(perfume.subject.containsIgnoreCase(keyword).or(perfume.brand.name.containsIgnoreCase(keyword)))
                 .select(new QSearchPerfumeDto(
                         perfume.id,
                         perfume.subject,
