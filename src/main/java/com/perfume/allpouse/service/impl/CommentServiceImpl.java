@@ -21,7 +21,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -102,6 +101,7 @@ public class CommentServiceImpl implements CommentService {
         }
     }
 
+
     // 리뷰에 대한 전체 댓글 조회(파라미터: 리뷰id, 데이터 개수)
     // 기본정렬 : 작성일자(cre_dt)
     @Override
@@ -120,6 +120,7 @@ public class CommentServiceImpl implements CommentService {
         }
     }
 
+
     // 댓글 단건 조회(파라미터 : comment_id)
     @Override
     public Comment findOne(Long id) {
@@ -131,6 +132,7 @@ public class CommentServiceImpl implements CommentService {
             return comment.get();
         }
     }
+
 
     // 유저가 작성한 향수리뷰 댓글 페이지네이션 후 전달
     @Override
@@ -149,6 +151,7 @@ public class CommentServiceImpl implements CommentService {
         return dtoPage;
     }
 
+
     @Override
     public Page<CommentResponseDto> getAllCommentsList(Pageable pageable) {
 
@@ -164,6 +167,7 @@ public class CommentServiceImpl implements CommentService {
 
         return dtoPage;
     }
+
 
     @Override
     public Page<CommentResponseDto> getReviewCommentList(Long id, Pageable pageable) {

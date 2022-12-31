@@ -12,6 +12,7 @@ import com.perfume.allpouse.model.dto.SaveReviewDto;
 import com.perfume.allpouse.model.enums.Permission;
 import com.perfume.allpouse.service.PhotoService;
 import com.perfume.allpouse.service.ReviewService;
+import com.perfume.allpouse.utils.PageUtils;
 import com.perfume.allpouse.utils.QueryDslUtil;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
@@ -20,19 +21,20 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.persistence.EntityManager;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.perfume.allpouse.exception.ExceptionEnum.*;
+import static com.perfume.allpouse.exception.ExceptionEnum.INVALID_PARAMETER;
+import static com.perfume.allpouse.exception.ExceptionEnum.REVIEW_ID_NOT_FOUND;
 import static com.perfume.allpouse.model.enums.BoardType.PERFUME;
 import static com.perfume.allpouse.model.enums.BoardType.REVIEW;
 
@@ -51,6 +53,8 @@ public class ReviewServiceImpl implements ReviewService {
     private final PhotoService photoService;
 
     private final PostRepository postRepository;
+
+    private final EntityManager em;
 
     private final Logger LOGGER = LoggerFactory.getLogger(ReviewServiceImpl.class);
 
@@ -203,9 +207,7 @@ public class ReviewServiceImpl implements ReviewService {
                 .orderBy(ORDERS.toArray(OrderSpecifier[]::new))
                 .fetch();
 
-        int start = (int) pageable.getOffset();
-        int end = Math.min((start + pageable.getPageSize()), reviewDtoList.size());
-        Page<ReviewResponseDto> pageList = new PageImpl<>(reviewDtoList.subList(start, end), pageable, reviewDtoList.size());
+        Page<ReviewResponseDto> pageList = PageUtils.makePageList(reviewDtoList, pageable);
 
         return pageList;
     }
@@ -216,6 +218,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public Page<ReviewResponseDto> getRecentReviewDto(Pageable pageable) {
 
+
         List<ReviewResponseDto> reviewDtoList = queryFactory
                 .select(new QReviewResponseDto(reviewBoard.id, reviewBoard.user.userName, reviewBoard.subject, reviewBoard.content, reviewBoard.perfume.subject, reviewBoard.perfume.brand.name, reviewBoard.hitCnt, reviewBoard.recommendCnt, photo.path, reviewBoard.createDateTime))
                 .from(reviewBoard)
@@ -224,9 +227,7 @@ public class ReviewServiceImpl implements ReviewService {
                 .orderBy(reviewBoard.createDateTime.desc())
                 .fetch();
 
-        int start = (int) pageable.getOffset();
-        int end = Math.min((start + pageable.getPageSize()), reviewDtoList.size());
-        Page<ReviewResponseDto> pageList = new PageImpl<>(reviewDtoList.subList(start, end), pageable, reviewDtoList.size());
+        Page<ReviewResponseDto> pageList = PageUtils.makePageList(reviewDtoList, pageable);
 
         return pageList;
     }

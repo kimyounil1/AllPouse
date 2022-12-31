@@ -13,6 +13,7 @@ import com.perfume.allpouse.model.dto.SavePostDto;
 import com.perfume.allpouse.model.enums.Permission;
 import com.perfume.allpouse.service.PhotoService;
 import com.perfume.allpouse.service.PostService;
+import com.perfume.allpouse.utils.PageUtils;
 import com.perfume.allpouse.utils.QueryDslUtil;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
@@ -203,9 +204,7 @@ public class PostServiceImpl implements PostService {
                 .orderBy(ORDERS.toArray(OrderSpecifier[]::new))
                 .fetch();
 
-        int start = (int)pageable.getOffset();
-        int end = Math.min((start + pageable.getPageSize()), postDtoList.size());
-        Page<PostResponseDto> pageList = new PageImpl<>(postDtoList.subList(start, end), pageable, postDtoList.size());
+        Page<PostResponseDto> pageList = PageUtils.makePageList(postDtoList, pageable);
 
         return pageList;
     }

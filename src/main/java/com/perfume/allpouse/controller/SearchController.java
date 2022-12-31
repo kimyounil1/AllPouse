@@ -22,6 +22,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -61,8 +63,6 @@ public class SearchController {
     }
 
 
-
-
     // 게시글 전체 검색(with 키워드)
     @GetMapping("search/post/{keyword}")
     @Operation(summary = "키워드로 검색한 게시글 전체보기", description = "키워드로 검색한 전체 게시글 제공하는 API. 쿼리파라미터로 페이지네이션 옵션 지정할 수 있음")
@@ -74,6 +74,4 @@ public class SearchController {
 
         return responseService.getPageResponse(pages);
     }
-
-
 }
