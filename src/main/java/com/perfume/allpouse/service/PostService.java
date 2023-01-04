@@ -1,6 +1,7 @@
 package com.perfume.allpouse.service;
 
 import com.perfume.allpouse.data.entity.Post;
+import com.perfume.allpouse.model.dto.BannerResponseDto;
 import com.perfume.allpouse.model.dto.PostResponseDto;
 import com.perfume.allpouse.model.dto.SavePostDto;
 import com.perfume.allpouse.model.enums.Permission;
@@ -34,6 +35,8 @@ public interface PostService {
     Page<PostResponseDto> getUserPostList(Long userId, Pageable pageable);
 
     boolean isRecommended(Long postId, Long userId);
+
+    List<BannerResponseDto> getBannerPost();
 
 
 

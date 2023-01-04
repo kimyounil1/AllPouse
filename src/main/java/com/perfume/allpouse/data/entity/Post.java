@@ -47,6 +47,7 @@ public class Post extends BaseTimeEntity{
     private int recommendCnt;
 
     @Convert(converter = LongListConverter.class)
+    @Builder.Default
     private List<Long> recommendUserList = new ArrayList<>();
 
     private String title;

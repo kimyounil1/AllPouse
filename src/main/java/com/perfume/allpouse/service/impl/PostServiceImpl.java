@@ -7,6 +7,7 @@ import com.perfume.allpouse.data.entity.User;
 import com.perfume.allpouse.data.repository.PostRepository;
 import com.perfume.allpouse.data.repository.UserRepository;
 import com.perfume.allpouse.exception.CustomException;
+import com.perfume.allpouse.model.dto.BannerResponseDto;
 import com.perfume.allpouse.model.dto.PostResponseDto;
 import com.perfume.allpouse.model.dto.QPostResponseDto;
 import com.perfume.allpouse.model.dto.SavePostDto;
@@ -39,8 +40,8 @@ import java.util.Optional;
 import static com.perfume.allpouse.exception.ExceptionEnum.INVALID_PARAMETER;
 import static com.perfume.allpouse.exception.ExceptionEnum.POST_ID_NOT_FOUND;
 import static com.perfume.allpouse.model.enums.BoardType.POST;
-import static com.perfume.allpouse.model.enums.BulletinType.FREE;
-import static com.perfume.allpouse.model.enums.BulletinType.PERFUMER;
+import static com.perfume.allpouse.model.enums.BulletinType.*;
+import static com.perfume.allpouse.model.enums.Permission.ROLE_ADMIN;
 import static com.perfume.allpouse.model.enums.Permission.ROLE_USER;
 
 @Service
@@ -221,6 +222,14 @@ public class PostServiceImpl implements PostService {
     }
 
 
+    // 배너 게시글 가져옴
+    @Override
+    public List<BannerResponseDto> getBannerPost() {
+
+        return postRepository.getBannerPost();
+    }
+
+
     // 게시글 추천 기능
     // 처음 추천 : 0 / 이미 추천한 게시물 : 1
     @Override
@@ -272,6 +281,18 @@ public class PostServiceImpl implements PostService {
         else if (type.equals("조향사게시판") && role != ROLE_USER) {
             Post post = Post.builder()
                     .type(PERFUMER)
+                    .title(savePostDto.getTitle())
+                    .content(savePostDto.getContent())
+                    .user(user)
+                    .build();
+
+            return postRepository.save(post).getId();
+        }
+
+        // 배너게시판 게시글
+        else if (type.equals("배너게시판") && role == ROLE_ADMIN) {
+            Post post = Post.builder()
+                    .type(BANNER)
                     .title(savePostDto.getTitle())
                     .content(savePostDto.getContent())
                     .user(user)

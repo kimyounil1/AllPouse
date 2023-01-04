@@ -1,6 +1,7 @@
 package com.perfume.allpouse.data.entity;
 
 import com.perfume.allpouse.model.dto.SavePerfumeDto;
+import com.perfume.allpouse.utils.StringListConverter;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
@@ -31,8 +32,6 @@ public class PerfumeBoard extends BaseTimeEntity {
     private String content;
 
     private int price;
-
-    // 향수를 User가 등록하게 할 것인지 -> 논의 필요
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "brand_id")

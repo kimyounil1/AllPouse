@@ -4,12 +4,18 @@ import com.perfume.allpouse.data.entity.Post;
 import com.perfume.allpouse.data.entity.QPhoto;
 import com.perfume.allpouse.data.entity.QPost;
 import com.perfume.allpouse.data.repository.custom.PostRepositoryCustom;
+import com.perfume.allpouse.model.dto.BannerResponseDto;
 import com.perfume.allpouse.model.dto.PostResponseDto;
+import com.perfume.allpouse.model.dto.QBannerResponseDto;
 import com.perfume.allpouse.model.dto.QPostResponseDto;
+import com.perfume.allpouse.model.enums.BulletinType;
 import com.perfume.allpouse.utils.PageUtils;
 import com.perfume.allpouse.utils.QueryDslUtil;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -18,8 +24,10 @@ import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static com.perfume.allpouse.model.enums.BoardType.POST;
+import static com.perfume.allpouse.model.enums.BulletinType.*;
 
 public class PostRepositoryImpl extends QuerydslRepositorySupport implements PostRepositoryCustom {
 
@@ -86,6 +94,21 @@ public class PostRepositoryImpl extends QuerydslRepositorySupport implements Pos
     }
 
 
+    // 배너게시글 가져오기
+    @Override
+    public List<BannerResponseDto> getBannerPost() {
+
+        List<BannerResponseDto> bannerPosts = from(post)
+                .leftJoin(photo)
+                .on(post.id.eq(photo.boardId).and(photo.boardType.eq(POST)))
+                .select(new QBannerResponseDto(post.id, photo.path, post.createDateTime))
+                .where(post.type.eq(BANNER))
+                .orderBy(post.createDateTime.desc())
+                .fetch();
+
+        return bannerPosts;
+    }
+
 
     // Pageable에서 정렬기준 추출
     private List<OrderSpecifier> getAllOrderSpecifiers(Pageable pageable) {
@@ -119,5 +142,4 @@ public class PostRepositoryImpl extends QuerydslRepositorySupport implements Pos
         }
         return ORDERS;
     }
-
 }

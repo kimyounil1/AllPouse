@@ -3,10 +3,7 @@ package com.perfume.allpouse.controller;
 import com.perfume.allpouse.config.security.TokenProvider;
 import com.perfume.allpouse.data.entity.Post;
 import com.perfume.allpouse.exception.CustomException;
-import com.perfume.allpouse.model.dto.PostCommentDto;
-import com.perfume.allpouse.model.dto.PostCommentResponseDto;
-import com.perfume.allpouse.model.dto.PostResponseDto;
-import com.perfume.allpouse.model.dto.SavePostDto;
+import com.perfume.allpouse.model.dto.*;
 import com.perfume.allpouse.model.enums.Permission;
 import com.perfume.allpouse.model.reponse.CommonResponse;
 import com.perfume.allpouse.model.reponse.ListResponse;
@@ -66,7 +63,6 @@ public class PostController {
         String token = tokenProvider.resolveToken(request);
         Long userId = tokenProvider.getId(token);
         Permission role = Permission.valueOf(tokenProvider.getRole(token));
-
 
         savePostDto.setUserId(userId);
 
@@ -162,7 +158,7 @@ public class PostController {
 
 
     // 게시글 추천 API
-    @PostMapping("post/recommend/{postId}")
+    @PostMapping(value = "post/recommend/{postId}")
     @Operation(summary = "게시글 추천", description = "게시글 추천 API. " +
             "API 호출한 시점 기준으로 만약 이전에 추천한 적 없다면 추천하기 실행되고, 추천한 적있다면 추천 취소 실행")
     public CommonResponse recommendPost(
@@ -183,17 +179,22 @@ public class PostController {
         }
     }
 
+
+    // 배너 게시글 가져옴
+    @GetMapping(value = "banner")
+    @Operation(summary = "배너 게시글", description = "배너 게시글 가져오는 API. 데이터 : 최신순으로 정렬되어 있음")
+    public ListResponse<BannerResponseDto> getBannerPost() {
+
+        List<BannerResponseDto> banners = postService.getBannerPost();
+        return responseService.getListResponse(banners);
+    }
+
+    
+
     // HttpRequest에서 userId추출
     private Long getUserIdFromRequest(HttpServletRequest request) {
 
         String token = tokenProvider.resolveToken(request);
         return tokenProvider.getId(token);
     }
-
-
-
-
-
-
-
 }

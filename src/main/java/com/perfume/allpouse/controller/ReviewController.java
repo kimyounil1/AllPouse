@@ -200,8 +200,6 @@ public class ReviewController {
     }
 
 
-
-
     // HttpRequest에서 userId 추출
     private Long getUserIdFromRequest(HttpServletRequest request) {
         String token = tokenProvider.resolveToken(request);

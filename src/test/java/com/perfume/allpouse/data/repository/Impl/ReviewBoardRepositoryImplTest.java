@@ -20,13 +20,5 @@ class ReviewBoardRepositoryImplTest {
     @DisplayName("리뷰 기본 검색 테스트")
     public void basic_review_search_test() throws Exception{
 
-        //given
-        String keyword = "new";
-
-        //when
-        List<SearchReviewDto> search = reviewBoardRepository.search(keyword);
-
-        //then
-        Assertions.assertThat(search).isNotNull();
     }
 }

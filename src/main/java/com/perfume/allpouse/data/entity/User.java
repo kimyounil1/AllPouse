@@ -2,6 +2,7 @@ package com.perfume.allpouse.data.entity;
 
 import com.perfume.allpouse.model.dto.UserInfoDto;
 import com.perfume.allpouse.model.enums.Permission;
+import com.perfume.allpouse.utils.StringListConverter;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -20,6 +21,7 @@ import static javax.persistence.CascadeType.*;
 @Builder
 @ToString
 @AllArgsConstructor
+@NoArgsConstructor
 public class User extends BaseTimeEntity implements UserDetails {
 
     @Id @GeneratedValue(strategy = GenerationType.AUTO)
@@ -57,9 +59,7 @@ public class User extends BaseTimeEntity implements UserDetails {
     @Builder.Default
     private List<PostComment> postComments = new ArrayList<>();
 
-    public User() {
 
-    }
 
 
     @Override
