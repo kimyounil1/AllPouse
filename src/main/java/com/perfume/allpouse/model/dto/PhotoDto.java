@@ -9,8 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @Builder
-@Getter
-@ToString
+@Data
 public class PhotoDto {
 
     private String type;

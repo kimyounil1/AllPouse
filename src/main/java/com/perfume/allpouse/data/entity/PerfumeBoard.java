@@ -10,12 +10,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static javax.persistence.GenerationType.AUTO;
+import static lombok.AccessLevel.*;
 
 @Entity
 @Getter @Setter
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = PROTECTED)
 public class PerfumeBoard extends BaseTimeEntity {
 
     @Id

@@ -1,13 +1,14 @@
 package com.perfume.allpouse.model.dto;
 
 import com.perfume.allpouse.data.entity.Post;
-import com.perfume.allpouse.model.enums.BulletinType;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import static lombok.AccessLevel.*;
+import static lombok.AccessLevel.PROTECTED;
 
-@Getter
-@Setter
+@Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = PROTECTED)

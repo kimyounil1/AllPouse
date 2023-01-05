@@ -2,17 +2,13 @@ package com.perfume.allpouse.model.dto;
 
 import com.perfume.allpouse.data.entity.ReviewBoard;
 import com.querydsl.core.annotations.QueryProjection;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Builder
-@Getter
-@ToString
+@Data
 public class ReviewResponseDto {
 
     private Long id;

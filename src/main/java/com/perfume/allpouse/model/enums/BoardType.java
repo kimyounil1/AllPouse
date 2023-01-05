@@ -3,5 +3,11 @@ package com.perfume.allpouse.model.enums;
 
 public enum BoardType {
 
-    BRAND, PERFUME, REVIEW, USER, POST
+    BRAND,
+    PERFUME,
+    REVIEW,
+    USER,
+    POST,
+    PERFUMER_APPLICATION
+
 }

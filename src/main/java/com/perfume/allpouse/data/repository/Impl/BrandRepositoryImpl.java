@@ -6,6 +6,7 @@ import com.perfume.allpouse.data.entity.QPhoto;
 import com.perfume.allpouse.data.repository.custom.BrandRepositoryCustom;
 import com.perfume.allpouse.model.dto.QSearchBrandDto;
 import com.perfume.allpouse.model.dto.SearchBrandDto;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 
 import java.util.List;
