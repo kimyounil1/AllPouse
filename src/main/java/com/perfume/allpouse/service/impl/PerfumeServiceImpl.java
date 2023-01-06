@@ -15,6 +15,8 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -182,6 +184,14 @@ public class PerfumeServiceImpl implements PerfumeService {
         } else {
             return perfumes;
         }
+    }
+
+
+    // 조회수 순으로 향수 가져옴
+    @Override
+    public Page<PerfumeResponseDto> getPerfumeByHitCnt(Pageable pageable) {
+
+        return perfumeRepository.getPerfumeByHitCnt(pageable);
     }
 
 

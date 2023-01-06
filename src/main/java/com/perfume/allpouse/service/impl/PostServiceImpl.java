@@ -20,6 +20,7 @@ import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -44,6 +45,7 @@ import static com.perfume.allpouse.model.enums.BulletinType.*;
 import static com.perfume.allpouse.model.enums.Permission.ROLE_ADMIN;
 import static com.perfume.allpouse.model.enums.Permission.ROLE_USER;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -61,6 +63,9 @@ public class PostServiceImpl implements PostService {
 
     private final EntityManager em;
 
+    /**
+     * 동적 쿼리 -> 전부 RepositoryCustom / RepositoryImpl로 옮기기
+     */
     QPost post = new QPost("post");
     QPhoto photo = new QPhoto("photo");
 

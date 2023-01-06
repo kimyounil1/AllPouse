@@ -6,6 +6,7 @@ import com.perfume.allpouse.data.repository.PhotoRepository;
 import com.perfume.allpouse.model.enums.BoardType;
 import com.perfume.allpouse.service.PhotoService;
 import com.perfume.allpouse.utils.StringListConverter;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class PhotoServiceImpl implements PhotoService {
 
@@ -26,11 +28,24 @@ public class PhotoServiceImpl implements PhotoService {
 
     private final PhotoRepository photoRepository;
 
-    public PhotoServiceImpl(S3ServiceImpl s3ServiceImpl, PhotoRepository photoRepository) {
-        this.s3ServiceImpl = s3ServiceImpl;
-        this.photoRepository = photoRepository;
+
+    // 사진 하나일 때 저장
+    @Override
+    public String save(MultipartFile file, BoardType boardType, Long boardId) throws IOException {
+        String result = s3ServiceImpl.upload(file);
+
+        Photo photo = Photo.builder()
+                .boardId(boardId)
+                .boardType(boardType)
+                .build();
+
+        photoRepository.save(photo);
+        LOGGER.info("[save] 사진 Entity 저장 완료");
+
+        return result;
     }
 
+    // 사진 여러개일 때 저장
     @Override
     @Transactional
     public List<String> save(List<MultipartFile> multipartFileList, BoardType boardType, Long boardId) throws IOException {

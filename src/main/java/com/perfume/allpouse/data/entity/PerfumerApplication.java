@@ -25,7 +25,7 @@ public class PerfumerApplication extends BaseTimeEntity {
     private Long id;
 
     @OneToOne(fetch = LAZY)
-    @Column(name = "user_id")
+    @JoinColumn(name = "user_id")
     private User user;
 
     // 신청하면서 운영진에게 남기고 싶은 말

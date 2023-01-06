@@ -6,6 +6,7 @@ import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.perfume.allpouse.controller.ReviewController;
 import com.perfume.allpouse.service.S3Service;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,23 +23,33 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-@Component
-@Service
 @Slf4j
+@Service
+@RequiredArgsConstructor
 public class S3ServiceImpl implements S3Service {
 
     private final Logger LOGGER = LoggerFactory.getLogger(S3ServiceImpl.class);
 
     private final AmazonS3 amazonS3;
 
-
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
-    public S3ServiceImpl(AmazonS3 amazonS3) {
-        this.amazonS3 = amazonS3;
-    }
 
+    // upload : 단일 파일 형태
+    public String upload(MultipartFile multipartFile) throws IOException {
+
+        try{
+            File uploadFile = convert(multipartFile)
+                    .orElseThrow(() -> new IllegalArgumentException("MultipartFile -> 파일 전환 실패"));
+            return upload(uploadFile);
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+    // upload : 파일 List 형태일 때
     public List<String> upload(List<MultipartFile> multipartFileList) throws IOException {
         List<String> dataList = new ArrayList<>();
         multipartFileList.forEach(multipartFile -> {

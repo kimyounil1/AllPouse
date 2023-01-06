@@ -4,8 +4,13 @@ import com.perfume.allpouse.data.entity.PerfumeBoard;
 import com.perfume.allpouse.data.entity.QPerfumeBoard;
 import com.perfume.allpouse.data.entity.QPhoto;
 import com.perfume.allpouse.data.repository.custom.PerfumeBoardRepositoryCustom;
+import com.perfume.allpouse.model.dto.PerfumeResponseDto;
+import com.perfume.allpouse.model.dto.QPerfumeResponseDto;
 import com.perfume.allpouse.model.dto.QSearchPerfumeDto;
 import com.perfume.allpouse.model.dto.SearchPerfumeDto;
+import com.perfume.allpouse.utils.PageUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 
 import java.util.List;
@@ -43,6 +48,29 @@ public class PerfumeBoardRepositoryImpl extends QuerydslRepositorySupport implem
                 .fetch();
 
         return perfumes;
+    }
+
+
+    // 전체 향수 중 조회수 순으로 향수 가져와서 페이지네이션(page, size 설정 가능)
+    @Override
+    public Page<PerfumeResponseDto> getPerfumeByHitCnt(Pageable pageable) {
+
+        List<PerfumeResponseDto> perfumes = from(perfume)
+                .leftJoin(photo)
+                .on(perfume.id.eq(photo.boardId).and(photo.boardType.eq(PERFUME)))
+                .select(new QPerfumeResponseDto(
+                        perfume.id,
+                        perfume.subject,
+                        perfume.brand.id,
+                        perfume.brand.name,
+                        photo.path
+                ))
+                .orderBy(perfume.hitCnt.desc())
+                .fetch();
+
+        Page<PerfumeResponseDto> perfumePages = PageUtils.makePageList(perfumes, pageable);
+
+        return perfumePages;
     }
 
 }

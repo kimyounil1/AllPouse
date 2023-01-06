@@ -7,6 +7,8 @@ import java.util.List;
 
 public interface S3Service {
 
+    String upload(MultipartFile multipartFile) throws IOException;
+
     List<String> upload(List<MultipartFile> multipartFileList) throws IOException;
 
 

@@ -4,6 +4,7 @@ import com.perfume.allpouse.config.security.TokenProvider;
 import com.perfume.allpouse.model.dto.*;
 import com.perfume.allpouse.model.reponse.CommonResponse;
 import com.perfume.allpouse.model.reponse.ListResponse;
+import com.perfume.allpouse.model.reponse.PageResponse;
 import com.perfume.allpouse.model.reponse.SingleResponse;
 import com.perfume.allpouse.service.*;
 import io.swagger.annotations.ApiParam;
@@ -12,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -51,8 +53,10 @@ public class PerfumeController {
     // 향수 페이지
     @GetMapping("perfume/{perfumeId}")
     @Operation(summary = "향수정보 및 리뷰 페이지", description = "향수 상세 페이지. 기본 정보 및 리뷰 제공. (페이지네이션 파라미터 전달하지 않아도 됨)")
-    public SingleResponse<BestReviewDto> getPerfumePage(HttpServletRequest request, @ApiParam(value = "향수 id", required = true) @PathVariable Long perfumeId,
-                                                        @PageableDefault(page = 0, size = 5, sort = "hitCnt", direction = Sort.Direction.DESC) Pageable pageable) {
+    public SingleResponse<BestReviewDto> getPerfumePage(
+            HttpServletRequest request,
+            @ApiParam(value = "향수 id", required = true) @PathVariable Long perfumeId,
+            @PageableDefault(page = 0, size = 5, sort = "hitCnt", direction = Sort.Direction.DESC) Pageable pageable) {
         final int size = 5;
 
         perfumeService.addHitCnt(perfumeId);
@@ -118,6 +122,22 @@ public class PerfumeController {
         List<PerfumeResponseDto> perfumeDtoList = perfumeService.findAllWithSize(size);
 
         return responseService.getListResponse(perfumeDtoList);
+    }
+
+
+    // <요즘뜨는 향수> API
+    // 조회수 순으로 향수 조회
+    // 페이지네이션으로 page, size 설정가능
+    @GetMapping(value = "rising-perfume")
+    @Operation(summary = "요즘뜨는 향수", description = "요즘 뜨는 향수 가져오는 API. 페이지네이션으로 page, size 설정 가능." +
+            "기본설정 : {page : 0, size : 16}")
+    public PageResponse getRisingPerfume(
+            @ApiParam(value = "페이지네이션 옵션", required = true)
+            @PageableDefault(page = 0, size = 16) Pageable pageable) {
+
+        Page<PerfumeResponseDto> pages = perfumeService.getPerfumeByHitCnt(pageable);
+
+        return responseService.getPageResponse(pages);
     }
 
 
