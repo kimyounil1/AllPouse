@@ -381,7 +381,7 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
 
-    // Dto -> ReviewBoard
+    // DTO -> ReviewBoard
     private ReviewBoard toEntity(SaveReviewDto reviewDto) {
 
         //Optional 예외처리 필요
@@ -398,6 +398,7 @@ public class ReviewServiceImpl implements ReviewService {
 
         return review;
     }
+
 
     private void addUserAndPerfume(ReviewBoard reviewBoard, User user, PerfumeBoard perfumeBoard) {
         reviewBoard.setUser(user);

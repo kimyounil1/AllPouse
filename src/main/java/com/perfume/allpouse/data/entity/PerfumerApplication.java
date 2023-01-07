@@ -31,4 +31,12 @@ public class PerfumerApplication extends BaseTimeEntity {
     // 신청하면서 운영진에게 남기고 싶은 말
     private String text;
 
+    // 승인여부(false : 신청상태 / true : 승인상태)
+    private boolean isApproved;
+
+
+    //== 비니지스 로직 관련 메소드 ==//
+    public void changeApproval(boolean status){
+        this.isApproved = status;
+    }
 }

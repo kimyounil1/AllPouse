@@ -61,7 +61,7 @@ public class ReviewController {
             @ApiParam(value = "리뷰 내용을 담는 DTO", required = true) @RequestPart SaveReviewDto saveReviewDto,
             @ApiParam(value = "리뷰에 첨부하는 사진들") @RequestPart(value = "photo", required = false) List<MultipartFile> photos) throws IOException {
 
-        Long userId = getUserIdFromRequest(request);
+        Long userId = tokenProvider.getUserIdFromRequest(request);
         saveReviewDto.setUserId(userId);
 
         // 첨부 사진 있는 경우
@@ -83,7 +83,7 @@ public class ReviewController {
             HttpServletRequest request,
             @ApiParam(value = "삭제하려는 리뷰 id", required = true) @RequestParam Long reviewId) {
 
-        Long userId = getUserIdFromRequest(request);
+        Long userId = tokenProvider.getUserIdFromRequest(request);
 
         ReviewBoard review = reviewService.findById(reviewId);
 
@@ -109,7 +109,7 @@ public class ReviewController {
             @PageableDefault(page = 0, size = 20, sort = "createDateTime", direction = Sort.Direction.DESC) Pageable pageable
             ) {
 
-        Long userId = getUserIdFromRequest(request);
+        Long userId = tokenProvider.getUserIdFromRequest(request);
 
         Page<ReviewResponseDto> pages = reviewService.getReviewDto(userId, pageable);
 
@@ -185,7 +185,7 @@ public class ReviewController {
             HttpServletRequest request,
             @ApiParam(value = "향수리뷰 id", required = true) @PathVariable("reviewId")  Long reviewId) {
 
-        Long userId = getUserIdFromRequest(request);
+        Long userId = tokenProvider.getUserIdFromRequest(request);
 
         int index = reviewService.updateRecommendCnt(reviewId, userId);
 
@@ -199,12 +199,6 @@ public class ReviewController {
         }
     }
 
-
-    // HttpRequest에서 userId 추출
-    private Long getUserIdFromRequest(HttpServletRequest request) {
-        String token = tokenProvider.resolveToken(request);
-        return tokenProvider.getId(token);
-    }
 }
 
 

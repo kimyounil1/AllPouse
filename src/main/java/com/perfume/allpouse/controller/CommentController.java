@@ -67,7 +67,7 @@ public class CommentController {
             HttpServletRequest request,
             @ApiParam(value = "댓글 내용 담는 DTO", required = true) @RequestBody SaveCommentDto saveCommentDto) {
 
-        Long userId = getUserIdFromRequest(request);
+        Long userId = tokenProvider.getUserIdFromRequest(request);
 
         saveCommentDto.setUserId(userId);
         Long reviewId = saveCommentDto.getId();
@@ -96,7 +96,7 @@ public class CommentController {
             HttpServletRequest request,
             @ApiParam(value = "삭제하려는 댓글 id", required = true) @RequestParam Long commentId) {
 
-        Long userId = getUserIdFromRequest(request);
+        Long userId = tokenProvider.getUserIdFromRequest(request);
 
         Comment comment = commentService.findOne(commentId);
 
@@ -120,7 +120,7 @@ public class CommentController {
             @ApiParam(value = "페이지네이션 옵션")
             @PageableDefault(page = 0, size = 20, sort = "createDateTime", direction = DESC) Pageable pageable)
     {
-        Long userId = getUserIdFromRequest(request);
+        Long userId = tokenProvider.getUserIdFromRequest(request);
 
         Page<CommentResponseDto> pages = commentService.getUserCommentList(userId, pageable);
 
@@ -208,7 +208,7 @@ public class CommentController {
             HttpServletRequest request,
             @ApiParam(value = "삭제하려는 댓글 Id", required = true) @RequestParam Long commentId) {
 
-        Long userId = getUserIdFromRequest(request);
+        Long userId = tokenProvider.getUserIdFromRequest(request);
 
         PostComment comment = postCommentService.findOne(commentId);
 
@@ -233,7 +233,7 @@ public class CommentController {
             @ApiParam(value = "페이지네이션 옵션")
             @PageableDefault(page = 0, size = 20, sort = "createDateTime", direction = DESC) Pageable pageable) {
 
-        Long userId = getUserIdFromRequest(request);
+        Long userId = tokenProvider.getUserIdFromRequest(request);
 
         Page<PostCommentResponseDto> pages = postCommentService.getUserPostCommentList(userId, pageable);
 
@@ -249,7 +249,7 @@ public class CommentController {
             HttpServletRequest request,
             @ApiParam(value = "게시글 댓글 id", required = true) @PathVariable("commentId") Long commentId) {
 
-        Long userId = getUserIdFromRequest(request);
+        Long userId = tokenProvider.getUserIdFromRequest(request);
 
         int index = postCommentService.updateRecommendCnt(commentId, userId);
 
@@ -261,17 +261,5 @@ public class CommentController {
         else {
             return new CommonResponse(true, 0, "추천취소완료");
         }
-    }
-
-
-
-
-
-    // HttpRequest에서 userId 추출
-    private Long getUserIdFromRequest(HttpServletRequest request) {
-
-        String token = tokenProvider.resolveToken(request);
-
-        return tokenProvider.getId(token);
     }
 }

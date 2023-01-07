@@ -60,6 +60,10 @@ public class User extends BaseTimeEntity implements UserDetails {
     private List<PostComment> postComments = new ArrayList<>();
 
 
+    //== 비지니스 로직 관련 메소드 ==//
+    public void changePermission(Permission permission) {
+        this.permission = permission;
+    }
 
 
     @Override

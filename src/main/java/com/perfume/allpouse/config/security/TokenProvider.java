@@ -111,4 +111,11 @@ public class TokenProvider implements InitializingBean {
         Jws<Claims> claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
         return !claims.getBody().getExpiration().before(new Date());
     }
+
+
+    // HttpRequest에서 userId 가져옴
+    public Long getUserIdFromRequest(HttpServletRequest request) {
+        String token = resolveToken(request);
+        return getId(token);
+    }
 }

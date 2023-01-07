@@ -85,7 +85,7 @@ public class PostController {
             HttpServletRequest request,
             @ApiParam(value = "삭제하려는 게시글 id", required = true) @RequestParam Long postId) {
 
-        Long userId = getUserIdFromRequest(request);
+        Long userId = tokenProvider.getUserIdFromRequest(request);
 
         Post post = postService.findOne(postId);
 
@@ -110,7 +110,7 @@ public class PostController {
             @ApiParam(value = "페이지네이션 옵션")
             @PageableDefault(page = 0, size = 20, sort = "createDateTime", direction = DESC) Pageable pageable) {
 
-        Long userId = getUserIdFromRequest(request);
+        Long userId = tokenProvider.getUserIdFromRequest(request);
 
         Page<PostResponseDto> pages = postService.getUserPostList(userId, pageable);
 
@@ -139,7 +139,7 @@ public class PostController {
             HttpServletRequest request,
             @ApiParam(value = "게시글 id", required = true) @PathVariable("postId") Long postId) {
 
-        Long userId = getUserIdFromRequest(request);
+        Long userId = tokenProvider.getUserIdFromRequest(request);
         boolean isRecommended;
 
         // 게시글
@@ -165,7 +165,7 @@ public class PostController {
             HttpServletRequest request,
             @ApiParam(value = "게시글 id", required = true) @PathVariable Long postId) {
 
-        Long userId = getUserIdFromRequest(request);
+        Long userId = tokenProvider.getUserIdFromRequest(request);
 
         int index = postService.updateRecommendCnt(postId, userId);
 
@@ -189,12 +189,4 @@ public class PostController {
         return responseService.getListResponse(banners);
     }
 
-    
-
-    // HttpRequest에서 userId추출
-    private Long getUserIdFromRequest(HttpServletRequest request) {
-
-        String token = tokenProvider.resolveToken(request);
-        return tokenProvider.getId(token);
-    }
 }
