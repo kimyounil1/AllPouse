@@ -1,7 +1,7 @@
 package com.perfume.allpouse.service;
 
-import com.perfume.allpouse.data.entity.PerfumerApplication;
 import com.perfume.allpouse.model.dto.PerfumerApplicationForm;
+import com.perfume.allpouse.model.dto.PerfumerApplicationResponseDto;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -14,7 +14,7 @@ public interface PerfumerApplicationService {
      */
 
     // [조향사 신청] 등록(저장)
-    Long save(PerfumerApplicationForm form, MultipartFile file) throws IOException;
+    Long save(PerfumerApplicationForm form, List<MultipartFile> file) throws IOException;
 
 
     // [조향사 신청] 삭제
@@ -34,15 +34,15 @@ public interface PerfumerApplicationService {
      */
 
     // [조향사 신청] 전체 내역 조회
-    List<PerfumerApplication> getApplicationList();
+    List<PerfumerApplicationResponseDto> getApplicationList();
 
 
     // [조향사 신청] 승인 내역 조회
-    List<PerfumerApplication> getApprovedApplicationList();
+    List<PerfumerApplicationResponseDto> getApprovedApplicationList();
 
 
     // [조향사 신청] 미승인 내역 조회
-    List<PerfumerApplication> getNonApprovedApplicationList();
+    List<PerfumerApplicationResponseDto> getNotApprovedApplicationList();
 
 
 

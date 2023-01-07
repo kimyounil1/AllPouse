@@ -29,22 +29,6 @@ public class PhotoServiceImpl implements PhotoService {
     private final PhotoRepository photoRepository;
 
 
-    // 사진 하나일 때 저장
-    @Override
-    public String save(MultipartFile file, BoardType boardType, Long boardId) throws IOException {
-        String result = s3ServiceImpl.upload(file);
-
-        Photo photo = Photo.builder()
-                .boardId(boardId)
-                .boardType(boardType)
-                .build();
-
-        photoRepository.save(photo);
-        LOGGER.info("[save] 사진 Entity 저장 완료");
-
-        return result;
-    }
-
     // 사진 여러개일 때 저장
     @Override
     @Transactional

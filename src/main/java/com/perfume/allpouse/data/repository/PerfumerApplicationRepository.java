@@ -11,12 +11,6 @@ import java.util.List;
 @Repository
 public interface PerfumerApplicationRepository extends JpaRepository<PerfumerApplication, Long>, PerfumerApplicationRepositoryCustom {
 
-    // 전체 내역 조회
-    List<PerfumerApplication> findPerfumerApplicationsByUserNotNullOrderByCreateDateTimeAsc();
 
-    // 승인 내역 조회
-    List<PerfumerApplication> findPerfumerApplicationsByIsApprovedIsTrueOrderByCreateDateTimeAsc();
-
-    // 미승인 내역 조회
-    List<PerfumerApplication> findPerfumerApplicationsByIsApprovedIsFalseOrderByCreateDateTimeAsc();
 }
+

@@ -8,9 +8,6 @@ import java.util.List;
 
 public interface PhotoService {
 
-    // 사진 하나일 때 저장
-    String save(MultipartFile file, BoardType boardType, Long boardId) throws IOException;
-
     // 사진 여러개 저장
     List<String> save(List<MultipartFile> multipartFileList, BoardType boardType, Long boardId) throws IOException;
 

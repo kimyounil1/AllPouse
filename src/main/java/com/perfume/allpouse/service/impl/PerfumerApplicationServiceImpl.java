@@ -6,6 +6,7 @@ import com.perfume.allpouse.data.repository.PerfumerApplicationRepository;
 import com.perfume.allpouse.data.repository.UserRepository;
 import com.perfume.allpouse.exception.CustomException;
 import com.perfume.allpouse.model.dto.PerfumerApplicationForm;
+import com.perfume.allpouse.model.dto.PerfumerApplicationResponseDto;
 import com.perfume.allpouse.service.PerfumerApplicationService;
 import com.perfume.allpouse.service.PhotoService;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +28,7 @@ import static com.perfume.allpouse.model.enums.Permission.ROLE_PERFUMER;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Transactional
 public class PerfumerApplicationServiceImpl implements PerfumerApplicationService {
 
     private final Logger LOGGER = LoggerFactory.getLogger(PerfumerApplication.class);
@@ -39,10 +40,10 @@ public class PerfumerApplicationServiceImpl implements PerfumerApplicationServic
     private final UserRepository userRepository;
 
 
+
     // 신청폼/사진 저장
     @Override
-    @Transactional
-    public Long save(PerfumerApplicationForm form, MultipartFile file) throws IOException {
+    public Long save(PerfumerApplicationForm form, List<MultipartFile> file) throws IOException {
 
         PerfumerApplication application = perfumerApplicationRepository.save(toEntity(form));
         Long applicationId = application.getId();
@@ -53,11 +54,23 @@ public class PerfumerApplicationServiceImpl implements PerfumerApplicationServic
         return applicationId;
     }
 
+    public Long save(PerfumerApplicationForm form) throws IOException {
+
+        PerfumerApplication application = perfumerApplicationRepository.save(toEntity(form));
+        Long applicationId = application.getId();
+        System.out.println("applicationId : " + applicationId);
+        System.out.println("userId : " + application.getUser().getId());
+
+        // 사진 저장
+        //photoService.save(file, PERFUMER_APPLICATION, applicationId);
+
+        return applicationId;
+    }
+
 
     // 신청/사진 삭제
     // 승인 때 사용 X
     @Override
-    @Transactional
     public void delete(Long applicationId) {
 
         perfumerApplicationRepository.deleteById(applicationId);
@@ -68,7 +81,6 @@ public class PerfumerApplicationServiceImpl implements PerfumerApplicationServic
     // 신청 승인
     // (올바른 신청일 때) : 1. 신청서 승인상태 변경, 2. 유저 Permission 변경, 3. 승인 메시지 푸싱
     @Override
-    @Transactional
     public void approve(Long applicationId) {
 
         Optional<PerfumerApplication> applicationOpt = perfumerApplicationRepository.findById(applicationId);
@@ -102,7 +114,6 @@ public class PerfumerApplicationServiceImpl implements PerfumerApplicationServic
     // 신청 거절
     // : 1. 신청 삭제하고, 2. 메시지 푸싱
     @Override
-    @Transactional
     public void deny(Long applicationId) {
 
         // 신청 삭제
@@ -115,37 +126,40 @@ public class PerfumerApplicationServiceImpl implements PerfumerApplicationServic
 
     // 전체 신청 내역 조회(승인 + 미승인)
     @Override
-    public List<PerfumerApplication> getApplicationList() {
-        return perfumerApplicationRepository.findPerfumerApplicationsByUserNotNullOrderByCreateDateTimeAsc();
+    public List<PerfumerApplicationResponseDto> getApplicationList() {
+        return perfumerApplicationRepository.getAllApplication();
     }
 
 
     // 승인 내역 조회
     @Override
-    public List<PerfumerApplication> getApprovedApplicationList() {
-        return perfumerApplicationRepository.findPerfumerApplicationsByIsApprovedIsTrueOrderByCreateDateTimeAsc();
+    public List<PerfumerApplicationResponseDto> getApprovedApplicationList() {
+        return perfumerApplicationRepository.getApprovedApplications();
     }
 
 
     // 미승인 내역 조회
     @Override
-    public List<PerfumerApplication> getNonApprovedApplicationList() {
-        return perfumerApplicationRepository.findPerfumerApplicationsByIsApprovedIsFalseOrderByCreateDateTimeAsc();
+    public List<PerfumerApplicationResponseDto> getNotApprovedApplicationList() {
+        return perfumerApplicationRepository.getNotApprovedApplications();
     }
 
 
     // DTO(Form) -> Application
     private PerfumerApplication toEntity(PerfumerApplicationForm form) {
 
+
+        System.out.println("시작");
         User user = userRepository.findById(form.getUserId()).get();
 
         PerfumerApplication application = PerfumerApplication.builder()
-                .id(user.getId())
+                .id(form.getId())
                 .user(user)
                 .text(form.getText())
                 .isApproved(false)
                 .build();
 
+        System.out.println("유저 입력은됨");
         return application;
     }
 }
