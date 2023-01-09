@@ -7,12 +7,15 @@ import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import static javax.persistence.GenerationType.AUTO;
 
 
 @Entity
-@Getter @Setter
+@Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -29,12 +32,20 @@ public class ReviewBoard extends BaseTimeEntity{
     private int recommendCnt;
 
     @Convert(converter = LongListConverter.class)
+    @Builder.Default
     private List<Long> recommendUserList = new ArrayList<>();
 
     private String subject;
 
     @Column(columnDefinition = "TEXT")
     private String content;
+
+    // 각 리뷰의, 향수에 대한 점수
+    @ElementCollection
+    @MapKeyColumn(name = "attribute")
+    @Column(name = "value")
+    @CollectionTable(name = "score_attributes", joinColumns = @JoinColumn(name = "score_id"))
+    Map<String, Long> score = new HashMap<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -61,7 +72,6 @@ public class ReviewBoard extends BaseTimeEntity{
         this.perfume = perfume;
         perfume.getReviews().add(this);
     }
-
 
 
     //== 리뷰 내용 변경 =//

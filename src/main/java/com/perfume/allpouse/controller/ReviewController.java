@@ -72,6 +72,7 @@ public class ReviewController {
         else {
             reviewService.save(saveReviewDto);
         }
+
         return responseService.getSuccessCommonResponse();
     }
 
@@ -138,15 +139,13 @@ public class ReviewController {
             @ApiParam(value = "리뷰 id", required = true) @PathVariable("reviewId") Long reviewId) {
 
         final int size = 5;
-
         // 리뷰
         ReviewResponseDto reviewDto = reviewService.getReviewDtoByReviewId(reviewId);
-
         // 댓글
         List<Comment> comments = commentService.findByReviewId(reviewId, size);
         List<CommentResponseDto> commentDtoList = CommentResponseDto.toDtoList(comments);
-
         ReviewCommentDto reviewCommentDto = new ReviewCommentDto(reviewDto, commentDtoList);
+
 
         return responseService.getSingleResponse(reviewCommentDto);
     }

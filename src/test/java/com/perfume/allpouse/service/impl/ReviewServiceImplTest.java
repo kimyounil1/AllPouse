@@ -1,14 +1,21 @@
 package com.perfume.allpouse.service.impl;
 
+import com.perfume.allpouse.data.entity.Photo;
+import com.perfume.allpouse.data.repository.PhotoRepository;
 import com.perfume.allpouse.data.repository.ReviewBoardRepository;
 import com.perfume.allpouse.model.dto.ReviewResponseDto;
+import com.perfume.allpouse.service.PhotoService;
+import com.perfume.allpouse.service.ReviewService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+
+import static com.perfume.allpouse.model.enums.BoardType.REVIEW;
 
 
 @SpringBootTest
@@ -18,7 +25,13 @@ class ReviewServiceImplTest {
     ReviewBoardRepository reviewRepository;
 
     @Autowired
-    ReviewServiceImpl reviewService;
+    ReviewService reviewService;
+
+    @Autowired
+    PhotoRepository photoRepository;
+
+    @Autowired
+    PhotoService photoService;
 
 
     @Test
@@ -32,6 +45,25 @@ class ReviewServiceImplTest {
     @DisplayName("향수 id, 권한으로 리뷰 찾기")
     @Transactional
     public void findReviewsWithPerfumeIdAndPermission() throws Exception {
+
+    }
+
+    @Test
+    @DisplayName("리뷰 삭제 - S3 객체 삭제 테스트")
+    @Transactional
+    @Rollback(false)
+    public void s3ObejectDeleteTest() throws Exception{
+        //given
+        Long reviewId = 516L;
+        //Photo photo = photoRepository.findPhotoByBoardTypeAndBoardId(REVIEW, reviewId);
+
+        photoService.delete(REVIEW, reviewId);
+
+
+
+        //when
+
+        //then
 
     }
 

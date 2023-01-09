@@ -36,20 +36,8 @@ public class S3ServiceImpl implements S3Service {
     private String bucket;
 
 
-    // upload : 단일 파일 형태
-    public String upload(MultipartFile multipartFile) throws IOException {
-
-        try{
-            File uploadFile = convert(multipartFile)
-                    .orElseThrow(() -> new IllegalArgumentException("MultipartFile -> 파일 전환 실패"));
-            return upload(uploadFile);
-
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-    }
-    // upload : 파일 List 형태일 때
+    // 저장
+    @Override
     public List<String> upload(List<MultipartFile> multipartFileList) throws IOException {
         List<String> dataList = new ArrayList<>();
         multipartFileList.forEach(multipartFile -> {
@@ -64,6 +52,7 @@ public class S3ServiceImpl implements S3Service {
         return dataList;
     }
 
+
     private String upload(File uploadFile) {
         String s3FileName = UUID.randomUUID() + "-" + uploadFile.getName();
         String uploadImageUrl = putS3(uploadFile, s3FileName);
@@ -73,6 +62,7 @@ public class S3ServiceImpl implements S3Service {
         return uploadImageUrl;      // 업로드된 파일의 S3 URL 주소 반환
     }
 
+
     private String putS3(File uploadFile, String fileName) {
         amazonS3.putObject(
                 new PutObjectRequest(bucket, fileName, uploadFile)
@@ -81,10 +71,11 @@ public class S3ServiceImpl implements S3Service {
         return amazonS3.getUrl(bucket, fileName).toString();
     }
 
+
     private void removeNewFile(File targetFile) {
         if(targetFile.delete()) {
             LOGGER.info("[removeNewFile]파일이 삭제되었습니다.");
-        }else {
+        } else {
             LOGGER.info("[removeNewFile]파일이 삭제되지 못했습니다.");
         }
     }
@@ -100,10 +91,19 @@ public class S3ServiceImpl implements S3Service {
         return Optional.empty();
     }
 
-    public void delete(String fileName) {
-        amazonS3.deleteObject(new DeleteObjectRequest(bucket, fileName));
+
+    // 삭제
+    @Override
+    public void delete(String path) {
+
+        // path -> key
+        String amazonUrl = "https://perfume-log.s3.ap-northeast-2.amazonaws.com/";
+        int start = amazonUrl.length();
+        String key = path.substring(start);
+
+        // DeleteRequest 보냄
+        DeleteObjectRequest request = new DeleteObjectRequest(bucket, key);
+        amazonS3.deleteObject(request);
     }
-
-
 
 }

@@ -70,12 +70,14 @@ public class ReviewServiceImpl implements ReviewService {
     public Long save(SaveReviewDto saveReviewDto, List<MultipartFile> photos) throws IOException {
 
         Long reviewId = saveReviewDto.getId();
+        System.out.println("reviewId : " + reviewId);
 
         // 등록된 적 없는 리뷰 -> 글/사진 저장
         if (reviewId == null) {
             ReviewBoard savedReview = reviewRepository.save(toEntity(saveReviewDto));
             Long savedId = savedReview.getId();
-            photoService.save(photos, REVIEW, savedId);
+            List<String> save = photoService.save(photos, REVIEW, savedId);
+            System.out.println(save);
             return savedId;
         }
 
@@ -236,6 +238,7 @@ public class ReviewServiceImpl implements ReviewService {
     // 리뷰 id로 리뷰 검색해서 반환
     // 리뷰 상세 페이지 전달할 때 사용 -> 조회수 + 1 로직 포함
     @Override
+    @Transactional
     public ReviewResponseDto getReviewDtoByReviewId(Long reviewId) {
 
         try{
@@ -270,7 +273,7 @@ public class ReviewServiceImpl implements ReviewService {
                         reviewBoard.perfume.brand.name, reviewBoard.hitCnt, reviewBoard.recommendCnt, photo.path, reviewBoard.createDateTime))
                 .from(reviewBoard)
                 .leftJoin(photo)
-                .on(reviewBoard.id.eq(photo.boardId).and(photo.boardType.eq(PERFUME)))
+                .on(reviewBoard.id.eq(photo.boardId).and(photo.boardType.eq(REVIEW)))
                 .where(reviewBoard.perfume.brand.id.eq(boardId))
                 .orderBy(ORDERS.toArray(OrderSpecifier[]::new))
                 .fetch();
@@ -289,7 +292,7 @@ public class ReviewServiceImpl implements ReviewService {
                         reviewBoard.perfume.subject, reviewBoard.perfume.brand.name, reviewBoard.hitCnt, reviewBoard.recommendCnt, photo.path, reviewBoard.createDateTime))
                 .from(reviewBoard)
                 .leftJoin(photo)
-                .on(reviewBoard.id.eq(photo.boardId).and(photo.boardType.eq(PERFUME)))
+                .on(reviewBoard.id.eq(photo.boardId).and(photo.boardType.eq(REVIEW)))
                 .where(reviewBoard.perfume.brand.id.eq(boardId).and(reviewBoard.user.permission.eq(permission)))
                 .orderBy(reviewBoard.hitCnt.desc())
                 .limit(size)
@@ -302,18 +305,21 @@ public class ReviewServiceImpl implements ReviewService {
     // 향수에 달린 리뷰들 가져와서 반환
     // 기본정렬 : 작성일자 기준 내림차순
     @Override
-    public List<ReviewResponseDto> getReviewsOnPerfume(Long boardId, Pageable pageable) {
+    public List<ReviewResponseDto> getReviewsOnPerfume(Long perfumeId, Pageable pageable) {
 
         List<OrderSpecifier> ORDERS = getAllOrderSpecifiers(pageable);
 
         List<ReviewResponseDto> reviewDtoList = queryFactory
-                .select(new QReviewResponseDto(reviewBoard.id, reviewBoard.user.userName, reviewBoard.subject, reviewBoard.content,
-                        reviewBoard.perfume.subject, reviewBoard.perfume.brand.name, reviewBoard.hitCnt, reviewBoard.recommendCnt, photo.path, reviewBoard.createDateTime))
+                .select(new QReviewResponseDto(reviewBoard.id, reviewBoard.user.userName,
+                        reviewBoard.subject, reviewBoard.content, reviewBoard.perfume.subject,
+                        reviewBoard.perfume.brand.name, reviewBoard.hitCnt, reviewBoard.recommendCnt,
+                        photo.path, reviewBoard.createDateTime))
                 .from(reviewBoard)
                 .leftJoin(photo)
-                .on(reviewBoard.id.eq(photo.boardId).and(photo.boardType.eq(PERFUME)))
-                .where(reviewBoard.perfume.id.eq(boardId))
+                .on(reviewBoard.id.eq(photo.boardId).and(photo.boardType.eq(REVIEW)))
+                .where(reviewBoard.perfume.id.eq(perfumeId))
                 .orderBy(ORDERS.toArray(OrderSpecifier[]::new))
+                .limit(3)
                 .fetch();
 
         return reviewDtoList;
@@ -323,15 +329,17 @@ public class ReviewServiceImpl implements ReviewService {
     // 향수에 달린 사용자분류(USER : 일반사용자, PERFUMER : 조향사)별 베스트 댓글 가져와서 반환
     // 정렬 : 추천수 기준 내림차순(고정)
     @Override
-    public List<ReviewResponseDto>getReviewsOnPerfume(Long boardId, Permission permission, int size) {
+    public List<ReviewResponseDto>getReviewsOnPerfume(Long perfumeId, Permission permission, int size) {
 
         List<ReviewResponseDto> reviewDtoList = queryFactory
-                .select(new QReviewResponseDto(reviewBoard.id, reviewBoard.user.userName, reviewBoard.subject, reviewBoard.content,
-                        reviewBoard.perfume.subject, reviewBoard.perfume.brand.name, reviewBoard.hitCnt, reviewBoard.recommendCnt, photo.path, reviewBoard.createDateTime))
+                .select(new QReviewResponseDto(reviewBoard.id, reviewBoard.user.userName,
+                        reviewBoard.subject, reviewBoard.content, reviewBoard.perfume.subject,
+                        reviewBoard.perfume.brand.name, reviewBoard.hitCnt, reviewBoard.recommendCnt,
+                        photo.path, reviewBoard.createDateTime))
                 .from(reviewBoard)
                 .leftJoin(photo)
-                .on(reviewBoard.id.eq(photo.boardId).and(photo.boardType.eq(PERFUME)))
-                .where(reviewBoard.perfume.id.eq(boardId).and(reviewBoard.user.permission.eq(permission)))
+                .on(reviewBoard.id.eq(photo.boardId).and(photo.boardType.eq(REVIEW)))
+                .where(reviewBoard.perfume.id.eq(perfumeId).and(reviewBoard.user.permission.eq(permission)))
                 .orderBy(reviewBoard.hitCnt.desc())
                 .limit(size)
                 .fetch();
@@ -404,9 +412,6 @@ public class ReviewServiceImpl implements ReviewService {
         reviewBoard.setUser(user);
         reviewBoard.setPerfume(perfumeBoard);
     }
-
-
-
 
 
     // Pageable에서 정렬기준 추출

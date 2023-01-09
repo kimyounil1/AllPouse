@@ -42,8 +42,8 @@ public class ReviewResponseDto {
         this.brandName = brandName;
         this.hitCnt = hitCnt;
         this.recommendCnt = recommendCnt;
-        this.createDateTime = createDateTime;
         this.images = images;
+        this.createDateTime = createDateTime;
     }
 }
 

@@ -113,11 +113,7 @@ public class CommentServiceImpl implements CommentService {
                 .limit(size)
                 .fetch();
 
-        if (comments.size() == 0) {
-            throw new CustomException(INVALID_PARAMETER);
-        } else {
-            return comments;
-        }
+        return comments;
     }
 
 

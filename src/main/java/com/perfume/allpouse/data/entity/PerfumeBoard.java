@@ -7,7 +7,9 @@ import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static javax.persistence.GenerationType.AUTO;
 import static lombok.AccessLevel.*;
@@ -37,6 +39,19 @@ public class PerfumeBoard extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "brand_id")
     private Brand brand;
+
+    // 향수에 대한 점수(리뷰의 점수 합 / 리뷰 수)
+    @ElementCollection
+    @MapKeyColumn(name = "attribute")
+    @Column(name = "value")
+    @CollectionTable(name = "score_attributes", joinColumns = @JoinColumn(name = "score_id"))
+    Map<String, Long> score = new HashMap<>(){{
+        put("persistence", 0L); // 지속성
+        put("costEffectiveness", 0L); // 가성비
+        put("attribute3", 0L); // 속성3
+        put("attribute4", 0L); // 속성4
+        put("attribute5", 0L); // 속성5
+    }};
 
 
     @Builder.Default

@@ -3,6 +3,8 @@ package com.perfume.allpouse.service.impl;
 import com.perfume.allpouse.controller.ReviewController;
 import com.perfume.allpouse.data.entity.Photo;
 import com.perfume.allpouse.data.repository.PhotoRepository;
+import com.perfume.allpouse.exception.CustomException;
+import com.perfume.allpouse.exception.ExceptionEnum;
 import com.perfume.allpouse.model.enums.BoardType;
 import com.perfume.allpouse.service.PhotoService;
 import com.perfume.allpouse.utils.StringListConverter;
@@ -16,6 +18,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.perfume.allpouse.exception.ExceptionEnum.*;
 
 @Service
 @RequiredArgsConstructor
@@ -47,6 +51,7 @@ public class PhotoServiceImpl implements PhotoService {
         return result;
     }
 
+
     @Override
     @Transactional
     public List<String> update(List<MultipartFile> multipartFileList, BoardType boardType, Long boardId) throws IOException {
@@ -65,6 +70,7 @@ public class PhotoServiceImpl implements PhotoService {
         return result;
     }
 
+
     @Override
     @Transactional
     public void delete(BoardType type, Long boardId) {
@@ -73,16 +79,16 @@ public class PhotoServiceImpl implements PhotoService {
 
         if (photo != null) {
 
-            List<String> fileNameList = photo.getPath();
+            List<String> pathList = photo.getPath();
+
+            for (String path : pathList) {
+                s3ServiceImpl.delete(path);
+            }
 
             photoRepository.delete(photo);
-
-            for (String fileName : fileNameList) {
-                s3ServiceImpl.delete(fileName);
-            }
         }
-
     }
+
 
     public List<String> getImagePath(BoardType type, Long boardId) {
 
@@ -90,6 +96,7 @@ public class PhotoServiceImpl implements PhotoService {
 
         return photo.getPath();
     }
+
 
     public boolean getExistsImage(BoardType type, Long boardId) {
 
