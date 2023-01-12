@@ -2,6 +2,7 @@ package com.perfume.allpouse.data.entity;
 
 import com.perfume.allpouse.model.dto.SaveBrandDto;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 
@@ -26,6 +27,8 @@ public class Brand {
     @Column(columnDefinition = "TEXT")
     private String content;
 
+    @ColumnDefault("0")
+    private int hitCnt;
 
     @Builder.Default
     @OneToMany(mappedBy = "brand", cascade = CascadeType.ALL)

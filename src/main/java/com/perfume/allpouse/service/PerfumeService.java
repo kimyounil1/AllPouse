@@ -30,9 +30,9 @@ public interface PerfumeService {
 
     PerfumeInfoDto getPerfumeInfo(Long id);
 
-    PerfumeBoard findById(Long id);
+    List<PerfumeResponseDto> getPerfumeListByBrandId(Long BrandId, int size);
 
-    List<PerfumeBoard> findByBrandId(Long id);
+    PerfumeBoard findById(Long id);
 
     Page<PerfumeResponseDto> getPerfumeByHitCnt(Pageable pageable);
 

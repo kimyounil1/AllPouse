@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static javax.persistence.FetchType.LAZY;
 import static javax.persistence.GenerationType.AUTO;
 
 
@@ -41,17 +42,38 @@ public class ReviewBoard extends BaseTimeEntity{
     private String content;
 
     // 각 리뷰의, 향수에 대한 점수
-    @ElementCollection
+    @ElementCollection(fetch = LAZY)
+    @CollectionTable(
+            name = "review_score",
+            joinColumns = @JoinColumn(name = "review_id")
+    )
     @MapKeyColumn(name = "attribute")
     @Column(name = "value")
-    @CollectionTable(name = "score_attributes", joinColumns = @JoinColumn(name = "score_id"))
-    Map<String, Long> score = new HashMap<>();
+    @Builder.Default
+    Map<String, Long> perfumeScore = new HashMap<>(){{
+        /*
+         리뷰 점수 초기화
+         */
+        // 지속성
+        put("persistence", 0L);
+        // 잔향
+        put("sillage", 0L);
+        // 확산력
+        put("diffusion", 0L);
+        // 가성비
+        put("cost_effectiveness", 0L);
+        // 디자인(향수병)
+        put("design", 0L);
+    }};
 
-    @ManyToOne(fetch = FetchType.LAZY)
+
+
+
+    @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "perfume_board_id")
     private PerfumeBoard perfume;
 

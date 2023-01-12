@@ -2,6 +2,8 @@ package com.perfume.allpouse.controller;
 
 
 import com.perfume.allpouse.config.security.TokenProvider;
+import com.perfume.allpouse.data.entity.Brand;
+import com.perfume.allpouse.data.entity.PerfumeBoard;
 import com.perfume.allpouse.model.dto.*;
 import com.perfume.allpouse.model.reponse.CommonResponse;
 import com.perfume.allpouse.model.reponse.ListResponse;
@@ -18,6 +20,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -41,6 +44,8 @@ public class BrandController {
 
     private final BrandService brandService;
 
+    private final PerfumeService perfumeService;
+
     private final BoardLogService boardLogService;
 
     private final PhotoService photoService;
@@ -50,28 +55,36 @@ public class BrandController {
 
     // 브랜드 페이지
     @GetMapping("brand/{brandId}")
-    @Operation(summary = "브랜드 및 리뷰 페이지", description = "브랜드 상세 페이지. 기본 정보 및 리뷰 제공. (페이지네이션 파라미터 전달하지 않아도 됨)")
-    public SingleResponse<BestReviewDto> getBrandPage(HttpServletRequest request, @ApiParam(value = "브랜드 id", required = true) @PathVariable Long brandId,
-                                                      @PageableDefault(page = 0, size = 5, sort = "hitCnt", direction = Sort.Direction.DESC) Pageable pageable) {
+    @Operation(summary = "브랜드 및 리뷰 페이지", description = "브랜드 상세 페이지. 기본 정보 및 리뷰 제공.")
+    public SingleResponse<BrandDetails<BrandInfoDto>> getBrandPage(HttpServletRequest request, @ApiParam(value = "브랜드 id", required = true) @PathVariable Long brandId,
+                                                      @ApiIgnore @PageableDefault(page = 0, size = 5, sort = "recommendCnt", direction = Sort.Direction.DESC) Pageable pageable) {
 
         final int size = 5;
 
         long id = tokenProvider.getId(tokenProvider.resolveToken(request));
 
+        // 브랜드 정보
         BrandInfoDto brandInfo = brandService.getBrandInfo(brandId);
 
+        // 브랜드 향수 size개(조회수 기준 내림차순)
+        List<PerfumeResponseDto> perfumeList = perfumeService.getPerfumeListByBrandId(brandId, size);
+
+        // 조향사 리뷰
         List<ReviewResponseDto> perfumerReviews = reviewService.getReviewsOnBrand(brandId, ROLE_PERFUMER, size);
 
+        // 일반 유저 리뷰
         List<ReviewResponseDto> userReviews = reviewService.getReviewsOnBrand(brandId, ROLE_USER, size);
 
+        // 가장 추천수 많은 리뷰
         List<ReviewResponseDto> bestReviewsOnPerfume = reviewService.getReviewsOnBrand(brandId, pageable);
 
-        BestReviewDto bestReviewDto = new BestReviewDto(brandInfo, perfumerReviews, userReviews, bestReviewsOnPerfume);
+
+        BrandDetails<BrandInfoDto> brandDetails = new BrandDetails<>(brandInfo, perfumeList, perfumerReviews, userReviews, bestReviewsOnPerfume);
 
         boardLogService.save(boardLogService.setSuccessLog(Thread.currentThread().getStackTrace()[1].getClassName(),Thread.currentThread().getStackTrace()[1].getMethodName(),
                 "get single brand detail",brandId,id));
 
-        return responseService.getSingleResponse(bestReviewDto);
+        return responseService.getSingleResponse(brandDetails);
     }
 
 

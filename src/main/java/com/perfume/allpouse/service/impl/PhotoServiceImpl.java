@@ -7,6 +7,7 @@ import com.perfume.allpouse.exception.CustomException;
 import com.perfume.allpouse.exception.ExceptionEnum;
 import com.perfume.allpouse.model.enums.BoardType;
 import com.perfume.allpouse.service.PhotoService;
+import com.perfume.allpouse.service.S3Service;
 import com.perfume.allpouse.utils.StringListConverter;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -28,7 +29,7 @@ public class PhotoServiceImpl implements PhotoService {
 
     private final Logger LOGGER = LoggerFactory.getLogger(ReviewController.class);
 
-    private final S3ServiceImpl s3ServiceImpl;
+    private final S3Service s3ServiceImpl;
 
     private final PhotoRepository photoRepository;
 

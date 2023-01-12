@@ -17,7 +17,7 @@ import static javax.persistence.CascadeType.*;
 
 @Entity
 @Table(name = "users")
-@Data
+@Getter
 @Builder
 @ToString
 @AllArgsConstructor
@@ -42,6 +42,10 @@ public class User extends BaseTimeEntity implements UserDetails {
     private String loginType;
 
     private String userStatus;
+
+    @Convert(converter = StringListConverter.class)
+    @Builder.Default
+    private List<String> keywords = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = ALL)
     @Builder.Default
@@ -80,7 +84,6 @@ public class User extends BaseTimeEntity implements UserDetails {
                 .userName(userName)
                 .build();
     }
-
 
     @Override
     public String getPassword() {

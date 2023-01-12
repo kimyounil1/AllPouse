@@ -3,14 +3,14 @@ package com.perfume.allpouse.data.entity;
 import com.perfume.allpouse.model.dto.SavePerfumeDto;
 import com.perfume.allpouse.utils.StringListConverter;
 import lombok.*;
+import org.hibernate.annotations.CollectionId;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+import static javax.persistence.FetchType.LAZY;
 import static javax.persistence.GenerationType.AUTO;
 import static lombok.AccessLevel.*;
 
@@ -36,26 +36,41 @@ public class PerfumeBoard extends BaseTimeEntity {
 
     private int price;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "brand_id")
     private Brand brand;
 
-    // 향수에 대한 점수(리뷰의 점수 합 / 리뷰 수)
-    @ElementCollection
-    @MapKeyColumn(name = "attribute")
-    @Column(name = "value")
-    @CollectionTable(name = "score_attributes", joinColumns = @JoinColumn(name = "score_id"))
-    Map<String, Long> score = new HashMap<>(){{
-        put("persistence", 0L); // 지속성
-        put("costEffectiveness", 0L); // 가성비
-        put("attribute3", 0L); // 속성3
-        put("attribute4", 0L); // 속성4
-        put("attribute5", 0L); // 속성5
+    @Convert(converter = StringListConverter.class)
+    @Builder.Default
+    private List<String> keyword = new ArrayList<>();
+
+    @ElementCollection(fetch = LAZY)
+    @CollectionTable(
+            name="perfume_score",
+            joinColumns =@JoinColumn(name="perfume_id")
+    )
+    @MapKeyColumn(name="attribute")
+    @Column(name="value")
+    @Builder.Default
+    Map<String, Long> perfumeScore = new HashMap<>(){{
+        /*
+         리뷰 점수 초기화
+         */
+        // 지속성
+        put("persistence", 0L);
+        // 잔향
+        put("sillage", 0L);
+        // 확산력
+        put("diffusion", 0L);
+        // 가성비
+        put("cost_effectiveness", 0L);
+        // 디자인(향수병)
+        put("design", 0L);
     }};
 
 
-    @Builder.Default
     @OneToMany(mappedBy = "perfume", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<ReviewBoard> reviews = new ArrayList<>();
 
 
@@ -69,11 +84,26 @@ public class PerfumeBoard extends BaseTimeEntity {
 
     //== 향수 내용 변경 ==//
 
-    //1. Dto -> Entity 내용 변경
+    // 1. Dto -> Entity 내용 변경
     // 변경가능항목 : subject, content, price, image_path
     public void changePerfume(SavePerfumeDto perfumeDto) {
         this.subject = perfumeDto.getSubject();
         this.content = perfumeDto.getContent();
         this.price = perfumeDto.getPrice();
+    }
+
+    // 2. Perfume_Score <- Review_Score 반영
+    public void updatePerfumeScore(Map<String, Long> reviewScore) {
+
+        int size = this.reviews.size() + 1;
+        Set<String> reviewKeySet = reviewScore.keySet();
+        Set<String> perfumeKeySet = this.perfumeScore.keySet();
+
+        for (String attribute : perfumeKeySet) {
+
+            Long reviewValue = reviewScore.get(attribute);
+            this.perfumeScore.put(attribute,
+                    (this.perfumeScore.get(attribute) + reviewValue) / size);
+        }
     }
 }

@@ -159,6 +159,16 @@ public class PerfumeServiceImpl implements PerfumeService {
         return perfumeInfoDto;
     }
 
+    // 특정 브랜드 향수 size개 가져옴
+    @Override
+    public List<PerfumeResponseDto> getPerfumeListByBrandId(Long BrandId, int size) {
+        List<PerfumeResponseDto> perfumeDtoList = perfumeRepository.getPerfumeByBrandId(BrandId, size);
+
+        return perfumeDtoList;
+    }
+
+
+
 
     // 향수 단건 조회(with id)
     @Override
@@ -172,19 +182,6 @@ public class PerfumeServiceImpl implements PerfumeService {
         }    }
 
 
-    // 향수 조회(파라미터 Brand_id로 조회)
-    // 기본정렬 : 이름(subject) 오름차순
-    @Override
-    public List<PerfumeBoard> findByBrandId(Long id) {
-
-        List<PerfumeBoard> perfumes = perfumeRepository.findByBrandId(id);
-
-        if (perfumes.isEmpty()) {
-            throw new IllegalStateException("검색된 향수가 없습니다.");
-        } else {
-            return perfumes;
-        }
-    }
 
 
     // 조회수 순으로 향수 가져옴

@@ -73,4 +73,46 @@ public class PerfumeBoardRepositoryImpl extends QuerydslRepositorySupport implem
         return perfumePages;
     }
 
+
+    // 브랜드id로 해당 브랜드 향수 조회수 순으로 size개 가져옴
+    @Override
+    public List<PerfumeResponseDto> getPerfumeByBrandId(Long brandId, int size) {
+
+        if (size == 0) {
+            List<PerfumeResponseDto> perfumes = from(perfume)
+                    .leftJoin(photo)
+                    .on(perfume.id.eq(photo.boardId).and(photo.boardType.eq(PERFUME)))
+                    .where(perfume.brand.id.eq(brandId))
+                    .select(new QPerfumeResponseDto(
+                            perfume.id,
+                            perfume.subject,
+                            perfume.brand.id,
+                            perfume.brand.name,
+                            photo.path
+                    ))
+                    .orderBy(perfume.hitCnt.desc())
+                    .fetch();
+
+            return perfumes;
+
+        } else {
+            List<PerfumeResponseDto> perfumes = from(perfume)
+                    .leftJoin(photo)
+                    .on(perfume.id.eq(photo.boardId).and(photo.boardType.eq(PERFUME)))
+                    .where(perfume.brand.id.eq(brandId))
+                    .select(new QPerfumeResponseDto(
+                            perfume.id,
+                            perfume.subject,
+                            perfume.brand.id,
+                            perfume.brand.name,
+                            photo.path
+                    ))
+                    .orderBy(perfume.hitCnt.desc())
+                    .limit(size)
+                    .fetch();
+
+            return perfumes;
+        }
+    }
+
 }

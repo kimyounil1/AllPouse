@@ -164,14 +164,18 @@ public class BrandServiceImpl implements BrandService {
 
     // 브랜드 Id로 BrandInfoDto 받는 메소드
     @Override
+    @Transactional
     public BrandInfoDto getBrandInfo(Long id) {
         BrandInfoDto brandInfoDto = queryFactory
-                .select(new QBrandInfoDto(brand.id, brand.name, brand.content, photo.path))
+                .select(new QBrandInfoDto(brand.id, brand.name, brand.content, photo.path, brand.hitCnt))
                 .from(brand)
                 .leftJoin(photo)
                 .on(brand.id.eq(photo.boardId).and(photo.boardType.eq(BRAND)))
                 .where(brand.id.eq(id))
                 .fetchOne();
+
+        // 조회수 + 1
+        brandRepository.updateHitCnt(id);
 
         return brandInfoDto;
     }

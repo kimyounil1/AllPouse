@@ -20,6 +20,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -52,11 +53,11 @@ public class PerfumeController {
 
     // 향수 페이지
     @GetMapping("perfume/{perfumeId}")
-    @Operation(summary = "향수정보 및 리뷰 페이지", description = "향수 상세 페이지. 기본 정보 및 리뷰 제공. (페이지네이션 파라미터 전달하지 않아도 됨)")
+    @Operation(summary = "향수정보 및 리뷰 페이지", description = "향수 상세 페이지. 기본 정보 및 리뷰 제공.")
     public SingleResponse<BestReviewDto> getPerfumePage(
             HttpServletRequest request,
             @ApiParam(value = "향수 id", required = true) @PathVariable Long perfumeId,
-            @PageableDefault(page = 0, size = 5, sort = "hitCnt", direction = Sort.Direction.DESC) Pageable pageable) {
+            @ApiIgnore @PageableDefault(page = 0, size = 5, sort = "hitCnt", direction = Sort.Direction.DESC) Pageable pageable) {
         final int size = 5;
 
         perfumeService.addHitCnt(perfumeId);
@@ -140,6 +141,23 @@ public class PerfumeController {
 
         return responseService.getPageResponse(pages);
     }
+
+
+
+    // 특정 브랜드 향수 조회
+    @GetMapping(value = "brand-perfume/{brandId}")
+    @Operation(summary = "특정 브랜드 향수", description = "특정 브랜드 향수 가져오는 API.")
+    public SingleResponse<PerfumeResponseSet> getPerfumesOnBrand(@ApiParam @PathVariable("brandId") Long brandId) {
+
+        List<PerfumeResponseDto> perfumes = perfumeService.getPerfumeListByBrandId(brandId, 0);
+
+        int size = perfumes.size();
+
+        PerfumeResponseSet set = new PerfumeResponseSet(perfumes, size);
+
+        return responseService.getSingleResponse(set);
+    }
+
 
 
 

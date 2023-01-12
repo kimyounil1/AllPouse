@@ -15,4 +15,9 @@ public interface PerfumeBoardRepositoryCustom {
     // 조회수 순 향수 페이징
     Page<PerfumeResponseDto> getPerfumeByHitCnt(Pageable pageable);
 
+    // 특정 브랜드의 향수 가져옴(조회수 순)
+    List<PerfumeResponseDto> getPerfumeByBrandId(Long brandId, int size);
+
+    //
+
 }

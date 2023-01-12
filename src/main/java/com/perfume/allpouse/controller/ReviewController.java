@@ -77,6 +77,28 @@ public class ReviewController {
     }
 
 
+     // 리뷰 업데이트
+    @PatchMapping(value = "review", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
+    @Operation(summary = "리뷰 업데이트", description = "리뷰 수정하는 API")
+    public CommonResponse updateReview(
+            HttpServletRequest request,
+            @ApiParam(value = "업데이트할 리뷰 내용 담는 DTO", required = true) @RequestPart SaveReviewDto saveReviewDto,
+            @ApiParam(value = "리뷰에 첨부할 사진들") @RequestPart(value = "photo", required = false) List<MultipartFile> photos) throws IOException {
+
+
+        // 첨부 사진 있는 경우
+        if (photos != null) {
+            reviewService.save(saveReviewDto, photos);
+        }
+        // 첨부 사진 없는 경우
+        else {
+            reviewService.save(saveReviewDto);
+        }
+
+        return responseService.getSuccessCommonResponse();
+    }
+
+
     // 리뷰 삭제
     @DeleteMapping(value = "review")
     @Operation(summary = "리뷰 삭제", description = "reviewId 받아서 해당 리뷰 삭제하는 API")
@@ -95,7 +117,9 @@ public class ReviewController {
             reviewService.delete(reviewId);
             photoService.delete(REVIEW, reviewId);
             return responseService.getSuccessCommonResponse();
-        } else {throw new CustomException(INVALID_PARAMETER);}
+        } else {
+            throw new CustomException(INVALID_PARAMETER);
+        }
     }
 
 
