@@ -58,7 +58,6 @@ public class CommentController {
      * 3. 회원이 작성한 (향수리뷰) 댓글 가져옴 - myCommentList()
      * 4. 리뷰에 달린 댓글 가져옴 - commentsOnReview()
      */
-
     // 댓글 저장 및 수정
     // SaveCommentDto 필수 필드값 : (id), title, content, (reviewId) / 괄호는 수정 시
     @PostMapping(value = "comment")

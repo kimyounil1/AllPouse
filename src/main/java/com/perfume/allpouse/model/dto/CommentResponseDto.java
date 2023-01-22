@@ -1,6 +1,7 @@
 package com.perfume.allpouse.model.dto;
 
 import com.perfume.allpouse.data.entity.Comment;
+import com.querydsl.core.annotations.QueryProjection;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -10,7 +11,6 @@ import java.util.stream.Collectors;
 @Builder
 @ToString
 @Data
-@AllArgsConstructor
 public class CommentResponseDto {
 
     private Long id;
@@ -23,11 +23,27 @@ public class CommentResponseDto {
 
     private String userName;
 
+    private List<String> userImage;
+
     private Long reviewId;
 
     private String perfumeName;
 
     private LocalDateTime createDateTime;
+
+
+    @QueryProjection
+    public CommentResponseDto(Long id, String title, String content, Long userId, String userName, List<String> userImage, Long reviewId, String perfumeName, LocalDateTime createDateTime) {
+        this.id = id;
+        this.title = title;
+        this.content = content;
+        this.userId = userId;
+        this.userName = userName;
+        this.userImage = userImage;
+        this.reviewId = reviewId;
+        this.perfumeName = perfumeName;
+        this.createDateTime = createDateTime;
+    }
 
 
     // Comment -> CommentResponseDto

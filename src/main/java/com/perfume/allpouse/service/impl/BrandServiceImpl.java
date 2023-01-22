@@ -4,6 +4,7 @@ import com.perfume.allpouse.data.entity.Brand;
 import com.perfume.allpouse.data.entity.QBrand;
 import com.perfume.allpouse.data.entity.QPhoto;
 import com.perfume.allpouse.data.repository.BrandRepository;
+import com.perfume.allpouse.data.repository.PerfumeBoardRepository;
 import com.perfume.allpouse.exception.CustomException;
 import com.perfume.allpouse.model.dto.*;
 import com.perfume.allpouse.service.BrandService;
@@ -28,6 +29,8 @@ import static com.perfume.allpouse.model.enums.BoardType.*;
 public class BrandServiceImpl implements BrandService {
 
     private final BrandRepository brandRepository;
+
+    private final PerfumeBoardRepository perfumeBoardRepository;
 
     private final JPAQueryFactory queryFactory;
 
@@ -124,7 +127,7 @@ public class BrandServiceImpl implements BrandService {
     public List<BrandResponseDto> findAllWithSize(int size) {
 
         List<BrandResponseDto> brandDtoList = queryFactory
-                .select(new QBrandResponseDto(brand.id, brand.name, photo.path))
+                .select(new QBrandResponseDto(brand.id, brand.name, photo.path, brand.perfumes.size()))
                 .from(brand)
                 .leftJoin(photo)
                 .on(brand.id.eq(photo.boardId).and(photo.boardType.eq(BRAND)))

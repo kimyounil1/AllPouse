@@ -8,34 +8,38 @@ import com.perfume.allpouse.model.dto.BannerResponseDto;
 import com.perfume.allpouse.model.dto.PostResponseDto;
 import com.perfume.allpouse.model.dto.QBannerResponseDto;
 import com.perfume.allpouse.model.dto.QPostResponseDto;
-import com.perfume.allpouse.model.enums.BulletinType;
+import com.perfume.allpouse.service.PhotoService;
 import com.perfume.allpouse.utils.PageUtils;
 import com.perfume.allpouse.utils.QueryDslUtil;
+import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.jpa.impl.JPAQueryFactory;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static com.perfume.allpouse.model.enums.BoardType.POST;
-import static com.perfume.allpouse.model.enums.BulletinType.*;
+import static com.perfume.allpouse.model.enums.BoardType.USER;
+import static com.perfume.allpouse.model.enums.BulletinType.BANNER;
 
 public class PostRepositoryImpl extends QuerydslRepositorySupport implements PostRepositoryCustom {
 
-    public PostRepositoryImpl() {super(Post.class);}
+    private final PhotoService photoService;
+
 
     QPost post = QPost.post;
-    QPhoto photo = QPhoto.photo;
 
+    QPhoto photo = new QPhoto("photo");
+    QPhoto userPhoto = new QPhoto("userPhoto");
+
+    public PostRepositoryImpl(PhotoService photoService) {
+        super(Post.class);
+        this.photoService = photoService;
+    }
 
     // 기본검색
     @Override
@@ -43,7 +47,9 @@ public class PostRepositoryImpl extends QuerydslRepositorySupport implements Pos
 
         List<PostResponseDto> posts = from(this.post)
                 .leftJoin(photo)
-                .on(this.post.id.eq(photo.boardId).and(photo.boardType.eq(POST)))
+                .on((this.post.id.eq(photo.boardId).and(photo.boardType.eq(POST))))
+                .leftJoin(userPhoto)
+                .on(post.user.id.eq(userPhoto.boardId).and(userPhoto.boardType.eq(USER)))
                 .where(this.post.title.containsIgnoreCase(keyword).or(this.post.content.containsIgnoreCase(keyword)))
                 .select(new QPostResponseDto(
                         this.post.id,
@@ -55,6 +61,7 @@ public class PostRepositoryImpl extends QuerydslRepositorySupport implements Pos
                         this.post.recommendCnt,
                         this.post.user.id,
                         this.post.user.userName,
+                        this.userPhoto.path,
                         this.post.createDateTime))
                 .orderBy(this.post.title.asc())
                 .limit(10)
@@ -72,7 +79,9 @@ public class PostRepositoryImpl extends QuerydslRepositorySupport implements Pos
 
         List<PostResponseDto> posts = from(this.post)
                 .leftJoin(photo)
-                .on(this.post.id.eq(photo.boardId).and(photo.boardType.eq(POST)))
+                .on((this.post.id.eq(photo.boardId).and(photo.boardType.eq(POST))))
+                .leftJoin(userPhoto)
+                .on(post.user.id.eq(userPhoto.boardId).and(userPhoto.boardType.eq(USER)))
                 .where(this.post.title.containsIgnoreCase(keyword).or(this.post.content.containsIgnoreCase(keyword)))
                 .select(new QPostResponseDto(
                         this.post.id,
@@ -84,6 +93,7 @@ public class PostRepositoryImpl extends QuerydslRepositorySupport implements Pos
                         this.post.recommendCnt,
                         this.post.user.id,
                         this.post.user.userName,
+                        this.userPhoto.path,
                         this.post.createDateTime))
                 .orderBy(ORDERS.toArray(OrderSpecifier[]::new))
                 .fetch();

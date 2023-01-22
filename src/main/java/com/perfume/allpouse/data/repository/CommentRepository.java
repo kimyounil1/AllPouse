@@ -2,6 +2,7 @@ package com.perfume.allpouse.data.repository;
 
 import com.perfume.allpouse.data.entity.Comment;
 import com.perfume.allpouse.data.entity.QComment;
+import com.perfume.allpouse.data.repository.custom.CommentRepositoryCustom;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +16,7 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
 import java.util.List;
 
-public interface CommentRepository extends JpaRepository<Comment, Long> {
+public interface CommentRepository extends JpaRepository<Comment, Long>, CommentRepositoryCustom {
 
     @Query("select c from Comment c " +
             "where c.user.id = :userId " +

@@ -4,9 +4,11 @@ import com.perfume.allpouse.model.enums.BulletinType;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Builder;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -30,11 +32,13 @@ public class PostResponseDto {
 
     private String userName;
 
+    private List<String> userImage;
+
     private LocalDateTime createDateTime;
 
 
     @QueryProjection
-    public PostResponseDto(Long id, BulletinType type, String title, String content, List<String> images, int hitCnt, int recommendCnt, Long userId, String userName, LocalDateTime createDateTime) {
+    public PostResponseDto(Long id, BulletinType type, String title, String content, List<String> images, int hitCnt, int recommendCnt, Long userId, String userName, List<String> userImage, LocalDateTime createDateTime) {
         this.id = id;
         this.type = type.getValue();
         this.title = title;
@@ -44,6 +48,7 @@ public class PostResponseDto {
         this.recommendCnt = recommendCnt;
         this.userId = userId;
         this.userName = userName;
+        this.userImage = userImage;
         this.createDateTime = createDateTime;
     }
 

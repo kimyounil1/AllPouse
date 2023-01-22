@@ -1,7 +1,6 @@
 package com.perfume.allpouse.controller;
 
 import com.perfume.allpouse.config.security.TokenProvider;
-import com.perfume.allpouse.data.entity.Comment;
 import com.perfume.allpouse.data.entity.ReviewBoard;
 import com.perfume.allpouse.exception.CustomException;
 import com.perfume.allpouse.model.dto.*;
@@ -28,7 +27,7 @@ import java.io.IOException;
 import java.util.List;
 
 import static com.perfume.allpouse.exception.ExceptionEnum.INVALID_PARAMETER;
-import static com.perfume.allpouse.model.enums.BoardType.*;
+import static com.perfume.allpouse.model.enums.BoardType.REVIEW;
 import static com.perfume.allpouse.model.enums.Permission.ROLE_PERFUMER;
 import static com.perfume.allpouse.model.enums.Permission.ROLE_USER;
 
@@ -166,10 +165,9 @@ public class ReviewController {
         // 리뷰
         ReviewResponseDto reviewDto = reviewService.getReviewDtoByReviewId(reviewId);
         // 댓글
-        List<Comment> comments = commentService.findByReviewId(reviewId, size);
-        List<CommentResponseDto> commentDtoList = CommentResponseDto.toDtoList(comments);
-        ReviewCommentDto reviewCommentDto = new ReviewCommentDto(reviewDto, commentDtoList);
+        List<CommentResponseDto> commentDtoList = commentService.findByReviewId(reviewId, size);
 
+        ReviewCommentDto reviewCommentDto = new ReviewCommentDto(reviewDto, commentDtoList);
 
         return responseService.getSingleResponse(reviewCommentDto);
     }

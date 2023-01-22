@@ -95,8 +95,11 @@ public class PhotoServiceImpl implements PhotoService {
 
         Photo photo = photoRepository.findPhotoByBoardTypeAndBoardId(type, boardId);
 
-        return photo.getPath();
+        List<String> path = photo.getPath();
+
+        return path;
     }
+
 
 
     public boolean getExistsImage(BoardType type, Long boardId) {

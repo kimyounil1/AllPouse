@@ -105,15 +105,11 @@ public class CommentServiceImpl implements CommentService {
     // 리뷰에 대한 전체 댓글 조회(파라미터: 리뷰id, 데이터 개수)
     // 기본정렬 : 작성일자(cre_dt)
     @Override
-    public List<Comment> findByReviewId(Long id, int size) {
+    public List<CommentResponseDto> findByReviewId(Long reviewId, int size) {
 
-        List<Comment> comments = queryFactory.selectFrom(comment)
-                .where(comment.review.id.eq(id))
-                .orderBy(comment.createDateTime.desc())
-                .limit(size)
-                .fetch();
+        List<CommentResponseDto> commentDtoList = commentRepository.findByReviewId(reviewId, size);
 
-        return comments;
+        return commentDtoList;
     }
 
 
@@ -132,54 +128,33 @@ public class CommentServiceImpl implements CommentService {
 
     // 유저가 작성한 향수리뷰 댓글 페이지네이션 후 전달
     @Override
-    public Page<CommentResponseDto> getUserCommentList(Long id, Pageable pageable) {
+    public Page<CommentResponseDto> getUserCommentList(Long userId, Pageable pageable) {
 
-        Page<Comment> comments = commentRepository.findCommentsByUserId(id, pageable);
+        Page<CommentResponseDto> pages = commentRepository.getUserCommentDtoList(userId, pageable);
 
-        Page<CommentResponseDto> dtoPage = comments.map(new Function<Comment, CommentResponseDto>() {
-
-            @Override
-            public CommentResponseDto apply(Comment comment) {
-                return CommentResponseDto.toDto(comment);
-            }
-        });
-
-        return dtoPage;
+        return pages;
     }
 
 
+    // 전체 댓글 DTO 가져옴
     @Override
     public Page<CommentResponseDto> getAllCommentsList(Pageable pageable) {
 
-        Page<Comment> comments = commentRepository.findAll(pageable);
+        Page<CommentResponseDto> pages = commentRepository.getAllCommentDtoList(pageable);
 
-        Page<CommentResponseDto> dtoPage = comments.map(new Function<Comment, CommentResponseDto>() {
-
-            @Override
-            public CommentResponseDto apply(Comment comment) {
-                return CommentResponseDto.toDto(comment);
-            }
-        });
-
-        return dtoPage;
+        return pages;
     }
 
 
+    // 리뷰에 대한 댓글 DTO 가져옴
     @Override
-    public Page<CommentResponseDto> getReviewCommentList(Long id, Pageable pageable) {
+    public Page<CommentResponseDto> getReviewCommentList(Long reviewId, Pageable pageable) {
 
-        Page<Comment> comments = commentRepository.findCommentsByReviewId(id, pageable);
+        Page<CommentResponseDto> pages = commentRepository.getReviewCommentList(reviewId, pageable);
 
-        Page<CommentResponseDto> dtoPage = comments.map(new Function<Comment, CommentResponseDto>() {
-
-            @Override
-            public CommentResponseDto apply(Comment comment) {
-                return CommentResponseDto.toDto(comment);
-            }
-        });
-
-        return dtoPage;
+        return pages;
     }
+
 
 
     // Dto -> Comment

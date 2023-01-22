@@ -37,6 +37,8 @@ class PostServiceImplTest {
     @Rollback(false)
     public void savePostTest() throws Exception {
 
+        List<PostResponseDto> postResponseDtoList = postService.getPopularPost(3);
+        System.out.println(postResponseDtoList);
     }
 
     @Test
@@ -48,17 +50,12 @@ class PostServiceImplTest {
     }
 
     @Test
-    @DisplayName("사진있는 게시글 저장 테스트")
+    @DisplayName("사진 테스트")
     @Transactional
     @Rollback(false)
-    public void savePostWithPhotoTest() throws Exception{
-        //given
-
-
-        //when
-
-        //then
-
+    public void photoTest() throws Exception{
+        List<PostResponseDto> popularPost = postService.getPopularPost(3);
+        System.out.println(popularPost);
     }
 
 
@@ -81,4 +78,6 @@ class PostServiceImplTest {
         System.out.println(popularPost.get(0));
 
     }
+
+
 }

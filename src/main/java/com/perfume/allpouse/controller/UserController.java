@@ -9,6 +9,7 @@ import com.perfume.allpouse.service.impl.PhotoServiceImpl;
 import com.perfume.allpouse.service.impl.ResponseServiceImpl;
 import com.perfume.allpouse.service.impl.UserServiceImpl;
 import io.swagger.annotations.ApiParam;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +25,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/")
+@RequiredArgsConstructor
 public class UserController {
 
     private final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
@@ -33,12 +35,6 @@ public class UserController {
     private final PhotoServiceImpl photoServiceImpl;
     private final UserServiceImpl userServiceImpl;
 
-    public UserController(TokenProvider tokenProvider, ResponseServiceImpl responseServiceImpl, PhotoServiceImpl photoServiceImpl, UserServiceImpl userServiceImpl) {
-        this.tokenProvider = tokenProvider;
-        this.responseServiceImpl = responseServiceImpl;
-        this.photoServiceImpl = photoServiceImpl;
-        this.userServiceImpl = userServiceImpl;
-    }
 
     @GetMapping(value = "user/user-info")
     public SingleResponse<UserInfoDto> userInfo(HttpServletRequest request) {

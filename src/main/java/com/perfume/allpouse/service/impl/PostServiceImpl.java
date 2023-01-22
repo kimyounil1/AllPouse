@@ -1,9 +1,6 @@
 package com.perfume.allpouse.service.impl;
 
-import com.perfume.allpouse.data.entity.Post;
-import com.perfume.allpouse.data.entity.QPhoto;
-import com.perfume.allpouse.data.entity.QPost;
-import com.perfume.allpouse.data.entity.User;
+import com.perfume.allpouse.data.entity.*;
 import com.perfume.allpouse.data.repository.PostRepository;
 import com.perfume.allpouse.data.repository.UserRepository;
 import com.perfume.allpouse.exception.CustomException;
@@ -18,13 +15,13 @@ import com.perfume.allpouse.utils.PageUtils;
 import com.perfume.allpouse.utils.QueryDslUtil;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Path;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -41,6 +38,7 @@ import java.util.Optional;
 import static com.perfume.allpouse.exception.ExceptionEnum.INVALID_PARAMETER;
 import static com.perfume.allpouse.exception.ExceptionEnum.POST_ID_NOT_FOUND;
 import static com.perfume.allpouse.model.enums.BoardType.POST;
+import static com.perfume.allpouse.model.enums.BoardType.USER;
 import static com.perfume.allpouse.model.enums.BulletinType.*;
 import static com.perfume.allpouse.model.enums.Permission.ROLE_ADMIN;
 import static com.perfume.allpouse.model.enums.Permission.ROLE_USER;
@@ -67,6 +65,8 @@ public class PostServiceImpl implements PostService {
      * 동적 쿼리 -> 전부 RepositoryCustom / RepositoryImpl로 옮기기
      */
     QPost post = new QPost("post");
+
+    QPhoto userPhoto = new QPhoto("userPhoto");
     QPhoto photo = new QPhoto("photo");
 
 
@@ -159,15 +159,23 @@ public class PostServiceImpl implements PostService {
 
         LocalDateTime now = LocalDateTime.now();
 
-        List<PostResponseDto> postList = queryFactory.select(new QPostResponseDto(post.id, post.type, post.title, post.content,
-                        photo.path, post.hitCnt, post.recommendCnt, post.user.id, post.user.userName, post.createDateTime))
+        List<PostResponseDto> postList =
+                queryFactory.select(new QPostResponseDto(post.id, post.type, post.title, post.content,
+                                photo.path, post.hitCnt, post.recommendCnt, post.user.id, post.user.userName,
+                                userPhoto.path,
+                                post.createDateTime))
                 .from(post)
-                .leftJoin(photo)
-                .on(post.id.eq(photo.boardId).and(photo.boardType.eq(POST)))
+                        .leftJoin(photo)
+                        .on(post.id.eq(photo.boardId).and(photo.boardType.eq(POST)))
+                        .leftJoin(userPhoto)
+                        .on(post.user.id.eq(userPhoto.boardId).and(userPhoto.boardType.eq(USER)))
                 .where(post.createDateTime.between(now.minusMonths(3), now))
                 .orderBy(post.recommendCnt.desc())
                 .limit(size)
                 .fetch();
+
+
+
 
         return postList;
     }
@@ -183,10 +191,14 @@ public class PostServiceImpl implements PostService {
 
         return queryFactory
                 .select(new QPostResponseDto(post.id, post.type, post.title, post.content, photo.path,
-                        post.hitCnt, post.recommendCnt, post.user.id, post.user.userName, post.createDateTime))
+                        post.hitCnt, post.recommendCnt, post.user.id, post.user.userName,
+                        userPhoto.path,
+                        post.createDateTime))
                 .from(post)
                 .leftJoin(photo)
                 .on(post.id.eq(photo.boardId).and(photo.boardType.eq(POST)))
+                .leftJoin(userPhoto)
+                .on(post.user.id.eq(userPhoto.boardId).and(userPhoto.boardType.eq(USER)))
                 .where(post.id.eq(postId))
                 .fetchOne();
     }
@@ -202,10 +214,14 @@ public class PostServiceImpl implements PostService {
         List<PostResponseDto> postDtoList = queryFactory
                 .select(new QPostResponseDto(post.id, post.type, post.title,
                         post.content, photo.path, post.hitCnt, post.recommendCnt,
-                        post.user.id, post.user.userName, post.createDateTime))
+                        post.user.id, post.user.userName,
+                        userPhoto.path,
+                        post.createDateTime))
                 .from(post)
                 .leftJoin(photo)
                 .on(post.id.eq(photo.boardId).and(photo.boardType.eq(POST)))
+                .leftJoin(userPhoto)
+                .on(post.user.id.eq(userPhoto.boardId).and(userPhoto.boardType.eq(USER)))
                 .where(post.user.id.eq(userId))
                 .orderBy(ORDERS.toArray(OrderSpecifier[]::new))
                 .fetch();

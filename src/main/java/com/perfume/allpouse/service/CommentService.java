@@ -18,7 +18,7 @@ public interface CommentService {
 
     List<Comment> findByUserId(Long id);
 
-    List<Comment> findByReviewId(Long id, int size);
+    List<CommentResponseDto> findByReviewId(Long reviewId, int size);
 
     Comment findOne(Long id);
 
@@ -26,5 +26,5 @@ public interface CommentService {
 
     Page<CommentResponseDto> getAllCommentsList(Pageable pageable);
 
-    Page<CommentResponseDto> getReviewCommentList(Long id, Pageable pageable);
+    Page<CommentResponseDto> getReviewCommentList(Long reviewId, Pageable pageable);
 }

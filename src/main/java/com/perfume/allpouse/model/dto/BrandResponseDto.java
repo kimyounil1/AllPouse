@@ -18,11 +18,14 @@ public class BrandResponseDto {
 
     private List<String> imagePath;
 
+    private int perfumeCnt;
+
 
     @QueryProjection
-    public BrandResponseDto(Long id, String name, List<String> imagePath) {
+    public BrandResponseDto(Long id, String name, List<String> imagePath, int perfumeCnt) {
         this.id = id;
         this.name = name;
         this.imagePath = imagePath;
+        this.perfumeCnt = perfumeCnt;
     }
 }
