@@ -7,13 +7,16 @@ import lombok.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Builder
 @Data
 public class ReviewResponseDto {
 
     private Long id;
 
+    private Long userId;
+
     private String userName;
+
+    private List<String> userImage;
 
     private String subject;
 
@@ -33,8 +36,10 @@ public class ReviewResponseDto {
 
 
     @QueryProjection
-    public ReviewResponseDto(Long id, String userName, String subject, String content, String perfumeName, String brandName, int hitCnt, int recommendCnt, List<String> images, LocalDateTime createDateTime) {
+    public ReviewResponseDto(Long id, Long userId, List<String> userImage, String userName, String subject, String content, String perfumeName, String brandName, int hitCnt, int recommendCnt, List<String> images, LocalDateTime createDateTime) {
         this.id = id;
+        this.userId = userId;
+        this.userImage = userImage;
         this.userName = userName;
         this.subject = subject;
         this.content = content;

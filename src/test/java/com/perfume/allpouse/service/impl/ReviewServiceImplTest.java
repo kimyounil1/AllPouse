@@ -6,6 +6,7 @@ import com.perfume.allpouse.data.repository.ReviewBoardRepository;
 import com.perfume.allpouse.model.dto.ReviewResponseDto;
 import com.perfume.allpouse.service.PhotoService;
 import com.perfume.allpouse.service.ReviewService;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,13 +59,20 @@ class ReviewServiceImplTest {
         //Photo photo = photoRepository.findPhotoByBoardTypeAndBoardId(REVIEW, reviewId);
 
         photoService.delete(REVIEW, reviewId);
+    }
 
-
+    @Test
+    @DisplayName("리뷰 id로 리뷰 찾기 테스트")
+    @Transactional
+    public void findReviewByReviewId() throws Exception{
+        //given
+        Long reviewId = 1425L;
 
         //when
+        ReviewResponseDto dto = reviewRepository.getReviewDtoByReviewId(reviewId);
 
         //then
-
+        Assertions.assertThat(dto.getId()).isEqualTo(reviewId);
     }
 
 }

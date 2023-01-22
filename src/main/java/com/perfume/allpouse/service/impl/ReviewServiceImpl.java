@@ -35,7 +35,6 @@ import java.util.Optional;
 
 import static com.perfume.allpouse.exception.ExceptionEnum.INVALID_PARAMETER;
 import static com.perfume.allpouse.exception.ExceptionEnum.REVIEW_ID_NOT_FOUND;
-import static com.perfume.allpouse.model.enums.BoardType.PERFUME;
 import static com.perfume.allpouse.model.enums.BoardType.REVIEW;
 
 
@@ -194,24 +193,9 @@ public class ReviewServiceImpl implements ReviewService {
     // 기본정렬 : 작성일자 기준 내림차순(pageable로 변경 가능)
     @Override
     public Page<ReviewResponseDto> getReviewDto(Long userId, Pageable pageable) {
+        Page<ReviewResponseDto> pages = reviewRepository.getReviewDto(userId, pageable);
 
-        List<OrderSpecifier> ORDERS = getAllOrderSpecifiers(pageable);
-
-        List<ReviewResponseDto> reviewDtoList = queryFactory
-                .select(new QReviewResponseDto(reviewBoard.id, reviewBoard.user.userName,
-                        reviewBoard.subject, reviewBoard.content, reviewBoard.perfume.subject,
-                        reviewBoard.perfume.brand.name, reviewBoard.hitCnt, reviewBoard.recommendCnt,
-                        photo.path, reviewBoard.createDateTime))
-                .from(reviewBoard)
-                .leftJoin(photo)
-                .on(reviewBoard.id.eq(photo.boardId).and(photo.boardType.eq(REVIEW)))
-                .where(reviewBoard.user.id.eq(userId))
-                .orderBy(ORDERS.toArray(OrderSpecifier[]::new))
-                .fetch();
-
-        Page<ReviewResponseDto> pageList = PageUtils.makePageList(reviewDtoList, pageable);
-
-        return pageList;
+        return pages;
     }
 
 
@@ -219,19 +203,9 @@ public class ReviewServiceImpl implements ReviewService {
     // 정렬 : 작성일자 기준 내림차순(고정)
     @Override
     public Page<ReviewResponseDto> getRecentReviewDto(Pageable pageable) {
+        Page<ReviewResponseDto> pages = reviewRepository.getRecentReviewDto(pageable);
 
-
-        List<ReviewResponseDto> reviewDtoList = queryFactory
-                .select(new QReviewResponseDto(reviewBoard.id, reviewBoard.user.userName, reviewBoard.subject, reviewBoard.content, reviewBoard.perfume.subject, reviewBoard.perfume.brand.name, reviewBoard.hitCnt, reviewBoard.recommendCnt, photo.path, reviewBoard.createDateTime))
-                .from(reviewBoard)
-                .leftJoin(photo)
-                .on(reviewBoard.id.eq(photo.boardId).and(photo.boardType.eq(REVIEW)))
-                .orderBy(reviewBoard.createDateTime.desc())
-                .fetch();
-
-        Page<ReviewResponseDto> pageList = PageUtils.makePageList(reviewDtoList, pageable);
-
-        return pageList;
+        return pages;
     }
 
 
@@ -241,42 +215,19 @@ public class ReviewServiceImpl implements ReviewService {
     @Transactional
     public ReviewResponseDto getReviewDtoByReviewId(Long reviewId) {
 
-        try{
-            List<ReviewResponseDto> reviewDtoList = queryFactory
-                    .select(new QReviewResponseDto(reviewBoard.id, reviewBoard.user.userName, reviewBoard.subject, reviewBoard.content, reviewBoard.perfume.subject,
-                            reviewBoard.perfume.brand.name, reviewBoard.hitCnt, reviewBoard.recommendCnt, photo.path, reviewBoard.createDateTime))
-                    .from(reviewBoard)
-                    .leftJoin(photo)
-                    .on(reviewBoard.id.eq(photo.boardId).and(photo.boardType.eq(REVIEW)))
-                    .where(reviewBoard.id.eq(reviewId))
-                    .fetch();
+        ReviewResponseDto reviewDto = reviewRepository.getReviewDtoByReviewId(reviewId);
 
-            if (reviewDtoList.size() != 1) {throw new CustomException(INVALID_PARAMETER);}
-
-            // 조회수 + 1
-            reviewRepository.updateHitCnt(reviewId);
-            return reviewDtoList.get(0);
-
-        } catch (Exception e) {throw new CustomException(INVALID_PARAMETER);}
+        // 조회수 + 1
+        reviewRepository.updateHitCnt(reviewId);
+        return reviewDto;
     }
 
 
     // 브랜드에 달린 리뷰를 가져와서 반환
     // 기본정렬 : 작성일자 기준 내림차순
     @Override
-    public List<ReviewResponseDto> getReviewsOnBrand(Long boardId, Pageable pageable) {
-
-        List<OrderSpecifier> ORDERS = getAllOrderSpecifiers(pageable);
-
-        List<ReviewResponseDto> reviewDtoList = queryFactory
-                .select(new QReviewResponseDto(reviewBoard.id, reviewBoard.user.userName, reviewBoard.subject, reviewBoard.content, reviewBoard.perfume.subject,
-                        reviewBoard.perfume.brand.name, reviewBoard.hitCnt, reviewBoard.recommendCnt, photo.path, reviewBoard.createDateTime))
-                .from(reviewBoard)
-                .leftJoin(photo)
-                .on(reviewBoard.id.eq(photo.boardId).and(photo.boardType.eq(REVIEW)))
-                .where(reviewBoard.perfume.brand.id.eq(boardId))
-                .orderBy(ORDERS.toArray(OrderSpecifier[]::new))
-                .fetch();
+    public List<ReviewResponseDto> getReviewsOnBrand(Long brandId, Pageable pageable) {
+        List<ReviewResponseDto> reviewDtoList = reviewRepository.getReviewsOnBrand(brandId, pageable);
 
         return reviewDtoList;
     }
@@ -285,18 +236,9 @@ public class ReviewServiceImpl implements ReviewService {
     // 브랜드에 달린 사용자분류(USER : 일반사용자, PERFUMER : 조향사)별 베스트 댓글 가져와서 반환
     // 정렬 : 추천수 기준 내림차순(고정)
     @Override
-    public List<ReviewResponseDto> getReviewsOnBrand(Long boardId, Permission permission, int size) {
+    public List<ReviewResponseDto> getReviewsOnBrand(Long brandId, Permission permission, int size) {
 
-        List<ReviewResponseDto> reviewDtoList = queryFactory
-                .select(new QReviewResponseDto(reviewBoard.id, reviewBoard.user.userName, reviewBoard.subject, reviewBoard.content,
-                        reviewBoard.perfume.subject, reviewBoard.perfume.brand.name, reviewBoard.hitCnt, reviewBoard.recommendCnt, photo.path, reviewBoard.createDateTime))
-                .from(reviewBoard)
-                .leftJoin(photo)
-                .on(reviewBoard.id.eq(photo.boardId).and(photo.boardType.eq(REVIEW)))
-                .where(reviewBoard.perfume.brand.id.eq(boardId).and(reviewBoard.user.permission.eq(permission)))
-                .orderBy(reviewBoard.hitCnt.desc())
-                .limit(size)
-                .fetch();
+        List<ReviewResponseDto> reviewDtoList = reviewRepository.getReviewsOnBrand(brandId, permission, size);
 
         return reviewDtoList;
     }
@@ -307,20 +249,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public List<ReviewResponseDto> getReviewsOnPerfume(Long perfumeId, Pageable pageable) {
 
-        List<OrderSpecifier> ORDERS = getAllOrderSpecifiers(pageable);
-
-        List<ReviewResponseDto> reviewDtoList = queryFactory
-                .select(new QReviewResponseDto(reviewBoard.id, reviewBoard.user.userName,
-                        reviewBoard.subject, reviewBoard.content, reviewBoard.perfume.subject,
-                        reviewBoard.perfume.brand.name, reviewBoard.hitCnt, reviewBoard.recommendCnt,
-                        photo.path, reviewBoard.createDateTime))
-                .from(reviewBoard)
-                .leftJoin(photo)
-                .on(reviewBoard.id.eq(photo.boardId).and(photo.boardType.eq(REVIEW)))
-                .where(reviewBoard.perfume.id.eq(perfumeId))
-                .orderBy(ORDERS.toArray(OrderSpecifier[]::new))
-                .limit(3)
-                .fetch();
+        List<ReviewResponseDto> reviewDtoList = reviewRepository.getReviewsOnPerfume(perfumeId, pageable);
 
         return reviewDtoList;
     }
@@ -331,18 +260,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public List<ReviewResponseDto>getReviewsOnPerfume(Long perfumeId, Permission permission, int size) {
 
-        List<ReviewResponseDto> reviewDtoList = queryFactory
-                .select(new QReviewResponseDto(reviewBoard.id, reviewBoard.user.userName,
-                        reviewBoard.subject, reviewBoard.content, reviewBoard.perfume.subject,
-                        reviewBoard.perfume.brand.name, reviewBoard.hitCnt, reviewBoard.recommendCnt,
-                        photo.path, reviewBoard.createDateTime))
-                .from(reviewBoard)
-                .leftJoin(photo)
-                .on(reviewBoard.id.eq(photo.boardId).and(photo.boardType.eq(REVIEW)))
-                .where(reviewBoard.perfume.id.eq(perfumeId).and(reviewBoard.user.permission.eq(permission)))
-                .orderBy(reviewBoard.hitCnt.desc())
-                .limit(size)
-                .fetch();
+        List<ReviewResponseDto> reviewDtoList = reviewRepository.getReviewsOnPerfume(perfumeId, permission, size);
 
         return reviewDtoList;
     }
