@@ -32,9 +32,9 @@ public class PostRepositoryImpl extends QuerydslRepositorySupport implements Pos
 
 
     QPost post = QPost.post;
-
     QPhoto photo = new QPhoto("photo");
     QPhoto userPhoto = new QPhoto("userPhoto");
+
 
     public PostRepositoryImpl(PhotoService photoService) {
         super(Post.class);

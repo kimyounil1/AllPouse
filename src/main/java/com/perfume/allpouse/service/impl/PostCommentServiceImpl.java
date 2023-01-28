@@ -9,7 +9,6 @@ import com.perfume.allpouse.data.repository.PostRepository;
 import com.perfume.allpouse.data.repository.UserRepository;
 import com.perfume.allpouse.exception.CustomException;
 import com.perfume.allpouse.model.dto.PostCommentResponseDto;
-import com.perfume.allpouse.model.dto.QPostCommentResponseDto;
 import com.perfume.allpouse.model.dto.SavePostCommentDto;
 import com.perfume.allpouse.service.PostCommentService;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -23,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.perfume.allpouse.exception.ExceptionEnum.INVALID_PARAMETER;
 import static com.perfume.allpouse.exception.ExceptionEnum.POST_COMMENT_ID_NOT_FOUND;
@@ -55,6 +54,7 @@ public class PostCommentServiceImpl implements PostCommentService {
 
         // 등록된 적 없는 댓글 -> save
         if (commentId == null) {
+            System.out.println(postCommentDto);
             PostComment comment = postCommentRepository.save(toEntity(postCommentDto));
             return comment.getId();
         }
@@ -115,43 +115,33 @@ public class PostCommentServiceImpl implements PostCommentService {
     @Override
     public Page<PostCommentResponseDto> getUserPostCommentList(Long userId, Pageable pageable) {
 
-        Page<PostComment> comments = postCommentRepository.findPostCommentsByUserId(userId, pageable);
+        Page<PostCommentResponseDto> postCommentList = postCommentRepository.getUserPostCommentList(userId, pageable);
 
-        Page<PostCommentResponseDto> dtoPage = comments.map(new Function<PostComment, PostCommentResponseDto>() {
+        postCommentList.forEach(dto -> dto.setRecommended(isRecommended(dto.getId(), userId)));
 
-            @Override
-            public PostCommentResponseDto apply(PostComment postComment) {
-                return PostCommentResponseDto.toDto(postComment);
-            }
-        });
-
-        return dtoPage;
+        return postCommentList;
     }
 
 
     // 게시글에 달린 댓글
     // 정렬 : createDateTime / DESC
     @Override
-    public List<PostCommentResponseDto> getPostCommentList(Long postId) {
+    public List<PostCommentResponseDto> getPostCommentList(Long postId, Long userId) {
 
-        return queryFactory
-                .select(new QPostCommentResponseDto(postComment.id, postComment.content, postComment.recommendCnt,
-                        postComment.post.id, postComment.user.id, postComment.user.userName, postComment.referCommentId, postComment.createDateTime))
-                .from(postComment)
-                .where(postComment.post.id.eq(postId))
-                .orderBy(postComment.createDateTime.desc())
-                .fetch();
+        List<PostCommentResponseDto> postCommentList = postCommentRepository.getPostCommentList(postId, userId);
+
+        postCommentList.forEach(dto -> dto.setRecommended(isRecommended(dto.getId(), userId)));
+
+        return postCommentList;
     }
 
-
-    // 유저가 (게시글) 댓글 추천했는지 여부
+    // 유저가 게시글 댓글 추천했는지 여부
     @Override
     public boolean isRecommended(Long commentId, Long userId) {
 
         PostComment comment = postCommentRepository.findById(commentId).get();
-        List<Long> userList = comment.getRecommendUserList();
 
-        return userList.contains(userId);
+        return comment.getRecommendUserList().contains(userId);
     }
 
 
@@ -184,12 +174,18 @@ public class PostCommentServiceImpl implements PostCommentService {
         }
     }
 
+    //테스트 메소드
+    @Override
+    public PostComment convert(SavePostCommentDto dto) {
+        return toEntity(dto);
+    }
+
 
     // Dto -> PostComment
     private PostComment toEntity(SavePostCommentDto commentDto) {
 
-        Post post = postRepository.findById(commentDto.getPostId()).get();
         User user = userRepository.findById(commentDto.getUserId()).get();
+        Post post = postRepository.findById(commentDto.getPostId()).get();
 
 
         PostComment comment = PostComment.builder()

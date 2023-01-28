@@ -32,11 +32,13 @@ public class ReviewResponseDto {
 
     private List<String> images;
 
+    private int commentCnt;
+
     private LocalDateTime createDateTime;
 
 
     @QueryProjection
-    public ReviewResponseDto(Long id, Long userId, List<String> userImage, String userName, String subject, String content, String perfumeName, String brandName, int hitCnt, int recommendCnt, List<String> images, LocalDateTime createDateTime) {
+    public ReviewResponseDto(Long id, Long userId, List<String> userImage, String userName, String subject, String content, String perfumeName, String brandName, int hitCnt, int recommendCnt, List<String> images, int commentCnt, LocalDateTime createDateTime) {
         this.id = id;
         this.userId = userId;
         this.userImage = userImage;
@@ -48,7 +50,9 @@ public class ReviewResponseDto {
         this.hitCnt = hitCnt;
         this.recommendCnt = recommendCnt;
         this.images = images;
+        this.commentCnt = commentCnt;
         this.createDateTime = createDateTime;
     }
+
 }
 

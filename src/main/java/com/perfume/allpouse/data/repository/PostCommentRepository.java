@@ -1,6 +1,7 @@
 package com.perfume.allpouse.data.repository;
 
 import com.perfume.allpouse.data.entity.PostComment;
+import com.perfume.allpouse.data.repository.custom.PostCommentRepositoryCustom;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -8,9 +9,8 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface PostCommentRepository extends JpaRepository<PostComment, Long> {
+public interface PostCommentRepository extends JpaRepository<PostComment, Long>, PostCommentRepositoryCustom {
 
-    Page<PostComment> findPostCommentsByUserId(Long userId, Pageable pageable);
 
     // 추천수 + 1
     @Modifying

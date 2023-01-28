@@ -18,6 +18,8 @@ public class SaveReviewDto {
 
     private String content;
 
+    private int score;
+
     private Long userId;
 
     private Long perfumeId;
@@ -33,9 +35,10 @@ public class SaveReviewDto {
     }
 
 
-    public SaveReviewDto(String subject, String content, Long userId, Long perfumeId) {
+    public SaveReviewDto(String subject, String content, int score, Long userId, Long perfumeId) {
         this.subject = subject;
         this.content = content;
+        this.score = score;
         this.userId = userId;
         this.perfumeId = perfumeId;
     }

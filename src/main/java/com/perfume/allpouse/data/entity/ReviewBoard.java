@@ -6,6 +6,7 @@ import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -42,31 +43,8 @@ public class ReviewBoard extends BaseTimeEntity{
     private String content;
 
     // 각 리뷰의, 향수에 대한 점수
-    @ElementCollection(fetch = LAZY)
-    @CollectionTable(
-            name = "review_score",
-            joinColumns = @JoinColumn(name = "review_id")
-    )
-    @MapKeyColumn(name = "attribute")
-    @Column(name = "value")
-    @Builder.Default
-    Map<String, Long> perfumeScore = new HashMap<>(){{
-        /*
-         리뷰 점수 초기화
-         */
-        // 지속성
-        put("persistence", 0L);
-        // 잔향
-        put("sillage", 0L);
-        // 확산력
-        put("diffusion", 0L);
-        // 가성비
-        put("cost_effectiveness", 0L);
-        // 디자인(향수병)
-        put("design", 0L);
-    }};
-
-
+    @Column(name = "review_score")
+    private Integer score;
 
 
     @ManyToOne(fetch = LAZY)

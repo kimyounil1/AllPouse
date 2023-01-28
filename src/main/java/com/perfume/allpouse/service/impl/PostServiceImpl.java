@@ -226,6 +226,8 @@ public class PostServiceImpl implements PostService {
                 .orderBy(ORDERS.toArray(OrderSpecifier[]::new))
                 .fetch();
 
+        postDtoList.forEach(dto -> dto.setRecommended(isRecommended(dto.getId(), userId)));
+
         Page<PostResponseDto> pageList = PageUtils.makePageList(postDtoList, pageable);
 
         return pageList;

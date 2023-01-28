@@ -59,6 +59,7 @@ public class PerfumeServiceImpl implements PerfumeService {
         // 아직 저장된 적 없음 -> save
         if (perfumeId == null) {
             PerfumeBoard savedPerfume = perfumeRepository.save(toEntity(savePerfumeDto));
+            savedPerfume.initializeScore();
             Long savedId = savedPerfume.getId();
             photoService.save(photos, PERFUME, savedId);
 
@@ -82,6 +83,7 @@ public class PerfumeServiceImpl implements PerfumeService {
         // 아직 저장된 적 없음 -> save
         if (perfumeId == null) {
             PerfumeBoard savedPerfume = perfumeRepository.save(toEntity(savePerfumeDto));
+            savedPerfume.initializeScore();
             return savedPerfume.getId();
         } else {
             photoService.delete(PERFUME, perfumeId);

@@ -6,13 +6,11 @@ import com.perfume.allpouse.data.repository.PostRepository;
 import com.perfume.allpouse.data.repository.ReviewBoardRepository;
 import com.perfume.allpouse.data.repository.UserRepository;
 import com.perfume.allpouse.exception.CustomException;
-import com.perfume.allpouse.model.dto.QReviewResponseDto;
 import com.perfume.allpouse.model.dto.ReviewResponseDto;
 import com.perfume.allpouse.model.dto.SaveReviewDto;
 import com.perfume.allpouse.model.enums.Permission;
 import com.perfume.allpouse.service.PhotoService;
 import com.perfume.allpouse.service.ReviewService;
-import com.perfume.allpouse.utils.PageUtils;
 import com.perfume.allpouse.utils.QueryDslUtil;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
@@ -69,11 +67,12 @@ public class ReviewServiceImpl implements ReviewService {
     public Long save(SaveReviewDto saveReviewDto, List<MultipartFile> photos) throws IOException {
 
         Long reviewId = saveReviewDto.getId();
-        System.out.println("reviewId : " + reviewId);
+        PerfumeBoard perfume = perfumeRepository.findById(saveReviewDto.getPerfumeId()).get();
 
         // 등록된 적 없는 리뷰 -> 글/사진 저장
         if (reviewId == null) {
             ReviewBoard savedReview = reviewRepository.save(toEntity(saveReviewDto));
+            perfume.convertToPerfumeScore(saveReviewDto.getScore());
             Long savedId = savedReview.getId();
             List<String> save = photoService.save(photos, REVIEW, savedId);
             System.out.println(save);
@@ -96,11 +95,14 @@ public class ReviewServiceImpl implements ReviewService {
     public Long save(SaveReviewDto saveReviewDto) {
 
         Long reviewId = saveReviewDto.getId();
+        PerfumeBoard perfume = perfumeRepository.findById(saveReviewDto.getPerfumeId()).get();
 
         // 아직 저장된 적 없음 -> save
         if (reviewId == null) {
-            ReviewBoard review = reviewRepository.save(toEntity(saveReviewDto));
-            return review.getId();
+            ReviewBoard savedReview = reviewRepository.save(toEntity(saveReviewDto));
+
+            perfume.convertToPerfumeScore(saveReviewDto.getScore());
+            return savedReview.getId();
         } else {
             photoService.delete(REVIEW, reviewId);
             Long savedReviewId = update(saveReviewDto);
@@ -318,6 +320,7 @@ public class ReviewServiceImpl implements ReviewService {
                 .id(reviewDto.getId())
                 .subject(reviewDto.getSubject())
                 .content(reviewDto.getContent())
+                .score(reviewDto.getScore())
                 .build();
 
         addUserAndPerfume(review, user, perfume);

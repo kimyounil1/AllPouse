@@ -121,6 +121,7 @@ public class CommentController {
     {
         Long userId = tokenProvider.getUserIdFromRequest(request);
 
+
         Page<CommentResponseDto> pages = commentService.getUserCommentList(userId, pageable);
 
         return responseService.getPageResponse(pages);
@@ -233,6 +234,8 @@ public class CommentController {
             @PageableDefault(page = 0, size = 20, sort = "createDateTime", direction = DESC) Pageable pageable) {
 
         Long userId = tokenProvider.getUserIdFromRequest(request);
+
+        System.out.println("userId : " + userId);
 
         Page<PostCommentResponseDto> pages = postCommentService.getUserPostCommentList(userId, pageable);
 

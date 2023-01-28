@@ -24,6 +24,7 @@ public class SavePostCommentDto {
     private int recommendCnt;
 
     private LocalDateTime createdDateTime;
+
 }
 
 

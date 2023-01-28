@@ -145,13 +145,13 @@ public class PostController {
         // 게시글
         PostResponseDto post = postService.getPost(postId);
 
+        // 게시글 추천여부 -> Service 계층으로 옮기기
+        post.setRecommended(postService.isRecommended(postId, userId));
+
         // 댓글
-        List<PostCommentResponseDto> commentList = postCommentService.getPostCommentList(postId);
+        List<PostCommentResponseDto> commentList = postCommentService.getPostCommentList(postId, userId);
 
-        // 추천 여부
-        isRecommended = postService.isRecommended(postId, userId);
-
-        PostCommentDto postCommentDto = new PostCommentDto(post, commentList, isRecommended);
+        PostCommentDto postCommentDto = new PostCommentDto(post, commentList);
 
         return responseService.getSingleResponse(postCommentDto);
     }

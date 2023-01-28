@@ -24,11 +24,14 @@ public interface PostCommentService {
 
     Page<PostCommentResponseDto> getUserPostCommentList(Long userId, Pageable pageable);
 
-    List<PostCommentResponseDto> getPostCommentList(Long postId);
-
-    boolean isRecommended(Long commentId, Long userId);
-
+    List<PostCommentResponseDto> getPostCommentList(Long postId, Long userId);
 
     // 기타 로직
+    boolean isRecommended(Long commentId, Long userId);
+
     int updateRecommendCnt(Long commentId, Long userId);
+
+
+    // for Test
+    PostComment convert(SavePostCommentDto savePostCommentDto);
 }

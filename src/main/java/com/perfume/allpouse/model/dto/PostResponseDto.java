@@ -34,6 +34,8 @@ public class PostResponseDto {
 
     private List<String> userImage;
 
+    private boolean isRecommended;
+
     private LocalDateTime createDateTime;
 
 

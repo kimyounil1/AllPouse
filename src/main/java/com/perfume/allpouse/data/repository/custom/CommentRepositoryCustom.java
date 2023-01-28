@@ -1,7 +1,5 @@
 package com.perfume.allpouse.data.repository.custom;
 
-import com.perfume.allpouse.data.entity.Comment;
-import com.perfume.allpouse.data.repository.CommentRepository;
 import com.perfume.allpouse.model.dto.CommentResponseDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

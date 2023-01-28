@@ -1,7 +1,10 @@
 package com.perfume.allpouse.service.impl;
 
-import com.perfume.allpouse.data.entity.PerfumeBoard;
+import com.perfume.allpouse.data.entity.*;
+import com.perfume.allpouse.data.repository.BrandRepository;
 import com.perfume.allpouse.data.repository.PerfumeBoardRepository;
+import com.perfume.allpouse.data.repository.ReviewBoardRepository;
+import com.perfume.allpouse.data.repository.UserRepository;
 import com.perfume.allpouse.model.dto.SavePerfumeDto;
 import com.perfume.allpouse.model.dto.SaveReviewDto;
 import com.perfume.allpouse.service.PerfumeService;
@@ -15,6 +18,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
+import javax.swing.text.html.parser.Entity;
+import javax.transaction.TransactionScoped;
+import java.math.BigDecimal;
+
+import static org.assertj.core.api.Assertions.*;
+
 @SpringBootTest
 class PerfumeServiceImplTest {
 
@@ -24,13 +34,21 @@ class PerfumeServiceImplTest {
     }
 
     @Autowired
+    BrandRepository brandRepository;
+    @Autowired
     PerfumeService perfumeService;
 
     @Autowired
     PerfumeBoardRepository perfumeRepository;
+
+    @Autowired
+    UserRepository userRepository;
     
     @Autowired
     ReviewService reviewService;
+
+    @Autowired
+    ReviewBoardRepository reviewRepository;
     
 
     @Test
@@ -85,8 +103,30 @@ class PerfumeServiceImplTest {
         //when
         
         //then
-
-
         
     }
+
+    @Test
+    @DisplayName("향수 저장 시 점수 초기화 테스트")
+    @Transactional
+    public void perfumeScoreTest_1() throws Exception {
+        //given
+        Long brandId = 7L;
+
+        Brand brand = brandRepository.findById(brandId).get();
+
+
+        PerfumeBoard perfume = PerfumeBoard.builder()
+                .brand(brand)
+                .subject("test subject")
+                .brand(brand)
+                .content("test content")
+                .build();
+
+        PerfumeBoard savedPerfume = perfumeRepository.save(perfume);
+
+        assertThat(savedPerfume.getScore()).isEqualTo(new BigDecimal(0));
+    }
+
+
 }

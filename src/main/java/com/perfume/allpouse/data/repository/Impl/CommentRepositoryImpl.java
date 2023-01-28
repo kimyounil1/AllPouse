@@ -151,7 +151,7 @@ public class CommentRepositoryImpl extends QuerydslRepositorySupport implements 
             for (Sort.Order order : pageable.getSort()) {
                 Order direction = order.getDirection().isAscending() ? Order.ASC : Order.DESC;
 
-                OrderSpecifier<?> orderDateTime = QueryDslUtil.getSortedColumn(direction, comment.createDateTime, "createDateTime");
+                OrderSpecifier<?> orderDateTime = QueryDslUtil.getSortedColumn(direction, QComment.comment.createDateTime, "createDateTime");
                 ORDERS.add(orderDateTime);
             }
         }

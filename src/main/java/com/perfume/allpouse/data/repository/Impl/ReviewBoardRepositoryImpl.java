@@ -64,6 +64,7 @@ public class ReviewBoardRepositoryImpl extends QuerydslRepositorySupport impleme
                         review.hitCnt,
                         review.recommendCnt,
                         reviewPhoto.path,
+                        review.comments.size(),
                         review.createDateTime))
                 .orderBy(review.subject.asc())
                 .limit(10)
@@ -97,6 +98,7 @@ public class ReviewBoardRepositoryImpl extends QuerydslRepositorySupport impleme
                         review.hitCnt,
                         review.recommendCnt,
                         reviewPhoto.path,
+                        review.comments.size(),
                         review.createDateTime))
                 .orderBy(ORDERS.toArray(OrderSpecifier[]::new))
                 .fetch();
@@ -132,6 +134,7 @@ public class ReviewBoardRepositoryImpl extends QuerydslRepositorySupport impleme
                         review.hitCnt,
                         review.recommendCnt,
                         reviewPhoto.path,
+                        review.comments.size(),
                         review.createDateTime))
                 .orderBy(ORDERS.toArray(OrderSpecifier[]::new))
                 .fetch();
@@ -164,6 +167,7 @@ public class ReviewBoardRepositoryImpl extends QuerydslRepositorySupport impleme
                         review.hitCnt,
                         review.recommendCnt,
                         reviewPhoto.path,
+                        review.comments.size(),
                         review.createDateTime))
                 .orderBy(ORDERS.toArray(OrderSpecifier[]::new))
                 .fetch();
@@ -197,6 +201,7 @@ public class ReviewBoardRepositoryImpl extends QuerydslRepositorySupport impleme
                             review.hitCnt,
                             review.recommendCnt,
                             reviewPhoto.path,
+                            review.comments.size(),
                             review.createDateTime))
                     .fetch();
 
@@ -234,6 +239,7 @@ public class ReviewBoardRepositoryImpl extends QuerydslRepositorySupport impleme
                         review.hitCnt,
                         review.recommendCnt,
                         reviewPhoto.path,
+                        review.comments.size(),
                         review.createDateTime))
                 .orderBy(ORDERS.toArray(OrderSpecifier[]::new))
                 .fetch();
@@ -264,6 +270,7 @@ public class ReviewBoardRepositoryImpl extends QuerydslRepositorySupport impleme
                         review.hitCnt,
                         review.recommendCnt,
                         reviewPhoto.path,
+                        review.comments.size(),
                         review.createDateTime))
                 .orderBy(review.hitCnt.desc())
                 .limit(size)
@@ -295,6 +302,7 @@ public class ReviewBoardRepositoryImpl extends QuerydslRepositorySupport impleme
                         review.hitCnt,
                         review.recommendCnt,
                         reviewPhoto.path,
+                        review.comments.size(),
                         review.createDateTime))
                 .orderBy(ORDERS.toArray(OrderSpecifier[]::new))
                 .limit(3)
@@ -325,6 +333,7 @@ public class ReviewBoardRepositoryImpl extends QuerydslRepositorySupport impleme
                         review.hitCnt,
                         review.recommendCnt,
                         reviewPhoto.path,
+                        review.comments.size(),
                         review.createDateTime))
                 .orderBy(review.hitCnt.desc())
                 .limit(size)

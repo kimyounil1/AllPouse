@@ -15,6 +15,4 @@ public class PostCommentDto {
 
     private List<PostCommentResponseDto> postCommentDto;
 
-    private boolean isRecommended;
-
 }
