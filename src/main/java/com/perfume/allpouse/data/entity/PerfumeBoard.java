@@ -11,6 +11,8 @@ import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,7 +51,7 @@ public class PerfumeBoard extends BaseTimeEntity {
     private List<String> keyword = new ArrayList<>();
 
     // 향수에 대한 리뷰들의 평균
-    @Column(name = "perfume_score", precision=3, scale=2)
+    @Column(name = "perfume_score", precision=3, scale=4)
     private BigDecimal score;
 
     @OneToMany(mappedBy = "perfume", cascade = CascadeType.ALL)
@@ -93,9 +95,7 @@ public class PerfumeBoard extends BaseTimeEntity {
         // pre_sum_of_scores
         BigDecimal preSumOfScore = preReviewSize.multiply(score);
 
-        // Save avg_perfume_score
-        this.score = preSumOfScore.add(new BigDecimal(reviewScore)).divide(postReviewSize);
+        // Save
+        this.score = preSumOfScore.add(new BigDecimal(reviewScore)).divide(postReviewSize).round(MathContext.DECIMAL32);
     }
-
-    //
 }

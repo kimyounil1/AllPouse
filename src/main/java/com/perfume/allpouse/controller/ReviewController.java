@@ -22,6 +22,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.List;
@@ -137,6 +138,11 @@ public class ReviewController {
 
         Page<ReviewResponseDto> pages = reviewService.getReviewDto(userId, pageable);
 
+        // 유저가 리뷰 추천했는지 여부 넣어줌
+        pages.forEach(
+                dto -> dto.setRecommended(reviewService.isRecommended(dto.getId(), userId))
+        );
+
         return responseService.getPageResponse(pages);
     }
 
@@ -145,10 +151,18 @@ public class ReviewController {
     @GetMapping(value = "review/recent")
     @Operation(summary = "최근에 작성된 리뷰", description = "최근에 작성된 리뷰를 페이지별로 보여주는 API.")
     public PageResponse recentReview(
+            HttpServletRequest request,
             @ApiParam(value = "페이지네이션 옵션", required = true)
             @PageableDefault(page = 0, size = 20) Pageable pageable) {
 
+        Long userId = tokenProvider.getUserIdFromRequest(request);
+
         Page<ReviewResponseDto> pages = reviewService.getRecentReviewDto(pageable);
+
+        // 유저가 리뷰 추천했는지 여부 넣어줌
+        pages.forEach(
+                dto -> dto.setRecommended(reviewService.isRecommended(dto.getId(), userId))
+        );
 
         return responseService.getPageResponse(pages);
     }
@@ -159,11 +173,18 @@ public class ReviewController {
     @GetMapping(value = "review/{reviewId}")
     @Operation(summary = "리뷰/댓글(N개)", description = "리뷰와 해당 리뷰에 달린 댓글(N개)을 가져오는 API")
     public SingleResponse<ReviewCommentDto> getReviewPage(
+            HttpServletRequest request,
             @ApiParam(value = "리뷰 id", required = true) @PathVariable("reviewId") Long reviewId) {
+
+        Long userId = tokenProvider.getUserIdFromRequest(request);
 
         final int size = 5;
         // 리뷰
         ReviewResponseDto reviewDto = reviewService.getReviewDtoByReviewId(reviewId);
+
+        // 유저가 리뷰 추천했는지 여부 넣어줌
+        reviewDto.setRecommended(reviewService.isRecommended(reviewDto.getId(), userId));
+
         // 댓글
         List<CommentResponseDto> commentDtoList = commentService.findByReviewId(reviewId, size);
 
@@ -178,18 +199,35 @@ public class ReviewController {
     @GetMapping(value = "review/best/{perfumeId}")
     @Operation(summary = "향수에 대한 분류별 리뷰", description = "향수에 대한 분류별 리뷰(조향사, 일반, 추천순) 가져옴")
     public SingleResponse<BestReviewDto> getBestReviews(
+            HttpServletRequest request,
             @ApiParam(value = "향수 id", required = true) @PathVariable("perfumeId") Long perfumeId,
             @PageableDefault(page = 0, size = 5, sort = "hitCnt", direction = Sort.Direction.DESC) Pageable pageable) {
+
+        Long userId = tokenProvider.getUserIdFromRequest(request);
 
         final int size = 5;
 
         PerfumeInfoDto perfumeInfo = perfumeService.getPerfumeInfo(perfumeId);
 
+
+        // 조향사 리뷰들
         List<ReviewResponseDto> perfumerReviews = reviewService.getReviewsOnPerfume(perfumeId, ROLE_PERFUMER, size);
 
+        perfumerReviews.forEach(dto -> dto.setRecommended(reviewService.isRecommended(dto.getId(), userId)));
+
+
+        // 일반 사용자 리뷰들
         List<ReviewResponseDto> userReviews = reviewService.getReviewsOnPerfume(perfumeId, ROLE_USER, size);
 
+        userReviews.forEach(dto -> dto.setRecommended(reviewService.isRecommended(dto.getId(), userId)));
+
+
+        // 베스트 리뷰들
         List<ReviewResponseDto> bestReviewsOnPerfume = reviewService.getReviewsOnPerfume(perfumeId, pageable);
+
+        bestReviewsOnPerfume.forEach(dto -> dto.setRecommended(reviewService.isRecommended(dto.getId(), userId)));
+
+
 
         BestReviewDto bestReviewDto = new BestReviewDto(perfumeInfo, perfumerReviews, userReviews, bestReviewsOnPerfume);
 

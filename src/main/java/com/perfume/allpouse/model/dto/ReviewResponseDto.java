@@ -34,6 +34,8 @@ public class ReviewResponseDto {
 
     private int commentCnt;
 
+    private boolean isRecommended;
+
     private LocalDateTime createDateTime;
 
 

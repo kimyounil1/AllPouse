@@ -235,12 +235,13 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
 
-    // 브랜드에 달린 사용자분류(USER : 일반사용자, PERFUMER : 조향사)별 베스트 댓글 가져와서 반환
+    // 브랜드에 달린 사용자분류(USER : 일반사용자, PERFUMER : 조향사)별 베스트 리뷰 가져와서 반환
     // 정렬 : 추천수 기준 내림차순(고정)
     @Override
     public List<ReviewResponseDto> getReviewsOnBrand(Long brandId, Permission permission, int size) {
 
         List<ReviewResponseDto> reviewDtoList = reviewRepository.getReviewsOnBrand(brandId, permission, size);
+
 
         return reviewDtoList;
     }
@@ -289,19 +290,21 @@ public class ReviewServiceImpl implements ReviewService {
 
         if (reviewOpt.isEmpty()) {
             throw new CustomException(REVIEW_ID_NOT_FOUND);
-        } else {
+        }
+        // 리뷰 존재
+        else {
             ReviewBoard review = reviewOpt.get();
             List<Long> userList = review.getRecommendUserList();
 
             // 해당 게시물 추천한 사람 없거나, 유저가 게시글 추천한 적 X -> 0 (추천)
-            if (userList == null || !userList.contains(reviewId)) {
-                userList.add(reviewId);
+            if (userList == null || !userList.contains(userId)) {
+                userList.add(userId);
                 reviewRepository.addRecommendCnt(reviewId);
                 return 0;
             }
             // 추천한 적 O -> 1 (추천취소)
             else {
-                userList.remove(reviewId);
+                userList.remove(userId);
                 reviewRepository.minusRecommendCnt(reviewId);
                 return 1;
             }

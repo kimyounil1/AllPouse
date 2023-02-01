@@ -112,7 +112,6 @@ class ReviewServiceImplTest {
         
     }
 
-
     @Test
     @Transactional
     @DisplayName("리뷰 스코어 설정 테스트")
@@ -128,6 +127,21 @@ class ReviewServiceImplTest {
         reviewService.save(dto);
 
         //then
+
+    }
+
+    @Test
+    @Transactional
+    @DisplayName("리뷰 생성 테스트 - 사진 없음")
+    public void saveReviewTest_1() throws Exception{
+        //given
+        SaveReviewDto saveReviewDto = new SaveReviewDto("테스트 주제", "테스트 컨텐츠", 4, 5L, 132L);
+
+        //when
+        Long savedId = reviewService.save(saveReviewDto);
+
+        //then
+        Assertions.assertThat(savedId).isNotNull();
 
     }
 
