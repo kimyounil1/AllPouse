@@ -24,9 +24,11 @@ public class SearchReviewDto {
 
     private List<String> path;
 
+    private int score;
+
 
     @QueryProjection
-    public SearchReviewDto(Long id, String subject, String content, Long userId, String userName, int recommendCnt, int commentCnt, List<String> path) {
+    public SearchReviewDto(Long id, String subject, String content, Long userId, String userName, int recommendCnt, int commentCnt, List<String> path, int score) {
         this.id = id;
         this.subject = subject;
         this.content = content;
@@ -35,5 +37,6 @@ public class SearchReviewDto {
         this.recommendCnt = recommendCnt;
         this.commentCnt = commentCnt;
         this.path = path;
+        this.score = score;
     }
 }

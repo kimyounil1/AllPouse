@@ -59,7 +59,6 @@ public class PerfumeServiceImpl implements PerfumeService {
         // 아직 저장된 적 없음 -> save
         if (perfumeId == null) {
             PerfumeBoard savedPerfume = perfumeRepository.save(toEntity(savePerfumeDto));
-            savedPerfume.initializeScore();
             Long savedId = savedPerfume.getId();
             photoService.save(photos, PERFUME, savedId);
 
@@ -83,7 +82,6 @@ public class PerfumeServiceImpl implements PerfumeService {
         // 아직 저장된 적 없음 -> save
         if (perfumeId == null) {
             PerfumeBoard savedPerfume = perfumeRepository.save(toEntity(savePerfumeDto));
-            savedPerfume.initializeScore();
             return savedPerfume.getId();
         } else {
             photoService.delete(PERFUME, perfumeId);
@@ -136,7 +134,7 @@ public class PerfumeServiceImpl implements PerfumeService {
     public List<PerfumeResponseDto> findAllWithSize(int size) {
 
         List<PerfumeResponseDto> perfumeDtoList = queryFactory
-                .select(new QPerfumeResponseDto(perfumeBoard.id, perfumeBoard.subject, perfumeBoard.brand.id, perfumeBoard.brand.name, photo.path))
+                .select(new QPerfumeResponseDto(perfumeBoard.id, perfumeBoard.subject, perfumeBoard.brand.id, perfumeBoard.brand.name, photo.path, perfumeBoard.score))
                 .from(perfumeBoard)
                 .leftJoin(photo)
                 .on(perfumeBoard.id.eq(photo.boardId).and(photo.boardType.eq(PERFUME)))
@@ -151,7 +149,7 @@ public class PerfumeServiceImpl implements PerfumeService {
     @Override
     public PerfumeInfoDto getPerfumeInfo(Long id) {
         PerfumeInfoDto perfumeInfoDto = queryFactory
-                .select(new QPerfumeInfoDto(perfumeBoard.id, perfumeBoard.subject, perfumeBoard.brand.name, perfumeBoard.price, perfumeBoard.content, perfumeBoard.hitCnt, photo.path))
+                .select(new QPerfumeInfoDto(perfumeBoard.id, perfumeBoard.subject, perfumeBoard.brand.name, perfumeBoard.price, perfumeBoard.content, perfumeBoard.hitCnt, photo.path, perfumeBoard.score))
                 .from(perfumeBoard)
                 .leftJoin(photo)
                 .on(perfumeBoard.id.eq(photo.boardId).and(photo.boardType.eq(PERFUME)))

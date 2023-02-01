@@ -63,7 +63,8 @@ public class PerfumeBoardRepositoryImpl extends QuerydslRepositorySupport implem
                         perfume.subject,
                         perfume.brand.id,
                         perfume.brand.name,
-                        photo.path
+                        photo.path,
+                        perfume.score
                 ))
                 .orderBy(perfume.hitCnt.desc())
                 .fetch();
@@ -88,7 +89,8 @@ public class PerfumeBoardRepositoryImpl extends QuerydslRepositorySupport implem
                             perfume.subject,
                             perfume.brand.id,
                             perfume.brand.name,
-                            photo.path
+                            photo.path,
+                            perfume.score
                     ))
                     .orderBy(perfume.hitCnt.desc())
                     .fetch();
@@ -105,7 +107,8 @@ public class PerfumeBoardRepositoryImpl extends QuerydslRepositorySupport implem
                             perfume.subject,
                             perfume.brand.id,
                             perfume.brand.name,
-                            photo.path
+                            photo.path,
+                            perfume.score
                     ))
                     .orderBy(perfume.hitCnt.desc())
                     .limit(size)

@@ -1,7 +1,6 @@
 package com.perfume.allpouse.service.impl;
 
 import com.perfume.allpouse.data.entity.PerfumeBoard;
-import com.perfume.allpouse.data.entity.Photo;
 import com.perfume.allpouse.data.entity.ReviewBoard;
 import com.perfume.allpouse.data.repository.PerfumeBoardRepository;
 import com.perfume.allpouse.data.repository.PhotoRepository;
@@ -17,9 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.math.BigDecimal;
-import java.util.List;
 
 import static com.perfume.allpouse.model.enums.BoardType.REVIEW;
 
@@ -88,28 +84,28 @@ class ReviewServiceImplTest {
     @DisplayName("리뷰 스코어 향수 반영 테스트 1")
     @Transactional
     public void reviewScoreReflectionTest_1() throws Exception{
-        //given
-        Long userId = 1381L;
-        Long perfumeId = 134L;
 
-        for(int i = 1; i <= 10; i++){
+        Long perfumeId = 2781L;
+        Long userId = 5L;
 
-            SaveReviewDto dto = new SaveReviewDto("test subject", "test content", i, userId, perfumeId);
+        SaveReviewDto dto_1 = new SaveReviewDto("test subject", "content", 10, userId, perfumeId);
+        SaveReviewDto dto_2 = new SaveReviewDto("test subject", "content", 3, userId, perfumeId);
 
-            Long savedId = reviewService.save(dto);
 
-            PerfumeBoard perfume = perfumeRepository.findById(perfumeId).get();
+        Long oneId = reviewService.save(dto_1);
+        Long twoId = reviewService.save(dto_2);
 
-            BigDecimal score = perfume.getScore();
-            int reviewSize = perfume.getReviews().size();
 
-            System.out.println(i + "번째 리뷰 추가 후 리뷰 개수  : " + reviewSize);
-            System.out.println(i + "번째 리뷰 추가 후 향수 스코어 : " + score);
-        }
-        //when
-        
-        //then
-        
+        ReviewBoard review_1 = reviewRepository.findById(oneId).get();
+        ReviewBoard review_2 = reviewRepository.findById(twoId).get();
+
+
+        System.out.println("review_score : " + review_1.getScore());
+        Assertions.assertThat(review_2.getScore()).isNotNull();
+
+        PerfumeBoard perfume = perfumeRepository.findById(perfumeId).get();
+        System.out.println("perfume_score : " + perfume.getScore());
+        Assertions.assertThat(perfume.getScore()).isNotZero();
     }
 
     @Test

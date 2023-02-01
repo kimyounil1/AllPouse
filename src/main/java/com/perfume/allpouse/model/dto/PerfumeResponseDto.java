@@ -22,12 +22,15 @@ public class PerfumeResponseDto {
 
     private List<String> imagePath;
 
+    private double score;
+
     @QueryProjection
-    public PerfumeResponseDto(Long id, String subject, Long brandId, String brandName, List<String> imagePath) {
+    public PerfumeResponseDto(Long id, String subject, Long brandId, String brandName, List<String> imagePath, double score) {
         this.id = id;
         this.subject = subject;
         this.brandId = brandId;
         this.brandName = brandName;
         this.imagePath = imagePath;
+        this.score = score;
     }
 }

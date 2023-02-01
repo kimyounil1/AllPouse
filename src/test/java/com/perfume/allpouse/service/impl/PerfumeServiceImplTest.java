@@ -109,6 +109,7 @@ class PerfumeServiceImplTest {
     @Test
     @DisplayName("향수 저장 시 점수 초기화 테스트")
     @Transactional
+    @Rollback(false)
     public void perfumeScoreTest_1() throws Exception {
         //given
         Long brandId = 7L;
@@ -125,8 +126,10 @@ class PerfumeServiceImplTest {
 
         PerfumeBoard savedPerfume = perfumeRepository.save(perfume);
 
-        assertThat(savedPerfume.getScore()).isEqualTo(new BigDecimal(0));
+        assertThat(savedPerfume.getScore()).isEqualTo(0L);
     }
+
+
 
 
 }

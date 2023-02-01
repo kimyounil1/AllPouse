@@ -26,9 +26,11 @@ public class PerfumeInfoDto {
 
     private List<String> path;
 
+    private double score;
+
 
     @QueryProjection
-    public PerfumeInfoDto(Long id, String subject, String brandName, int price, String content, int hitCnt, List<String> path) {
+    public PerfumeInfoDto(Long id, String subject, String brandName, int price, String content, int hitCnt, List<String> path, double score) {
         this.id = id;
         this.subject = subject;
         this.brandName = brandName;
@@ -36,5 +38,6 @@ public class PerfumeInfoDto {
         this.content = content;
         this.hitCnt = hitCnt;
         this.path = path;
+        this.score = score;
     }
 }

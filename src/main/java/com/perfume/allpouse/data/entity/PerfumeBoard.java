@@ -50,9 +50,10 @@ public class PerfumeBoard extends BaseTimeEntity {
     @Builder.Default
     private List<String> keyword = new ArrayList<>();
 
-    // 향수에 대한 리뷰들의 평균
-    @Column(name = "perfume_score", precision=3, scale=4)
-    private BigDecimal score;
+    // 향수들의 리뷰에 대한 평균
+    @ColumnDefault("0")
+    @Column(name = "perfume_score")
+    private double score;
 
     @OneToMany(mappedBy = "perfume", cascade = CascadeType.ALL)
     @Builder.Default
@@ -60,15 +61,9 @@ public class PerfumeBoard extends BaseTimeEntity {
 
     //== 연관관계 메소드 ==//
     // 1. Brand
-    public void addBrand(Brand brand){
+    public void addBrand(Brand brand) {
         this.brand = brand;
         brand.getPerfumes().add(this);
-    }
-
-    //== 향수 내용 변경 ==//
-    // 1. 향수 생성시 점수 초기화
-    public void initializeScore() {
-        this.score = BigDecimal.ZERO;
     }
 
     // 2. Dto -> Entity 내용 변경
@@ -81,21 +76,13 @@ public class PerfumeBoard extends BaseTimeEntity {
 
     // 3. ReviewScore -> PerfumeScore 반영
     public void convertToPerfumeScore(int reviewScore) {
-
-        System.out.println("reviews : " + reviews);
-
         int reviewSize = reviews.size();
+        int preReviewSize = reviewSize - 1;
 
-        // pre_review_size
-        BigDecimal preReviewSize = new BigDecimal(reviewSize - 1);
+        double preTotal = score * preReviewSize;
 
-        // post_review_size
-        BigDecimal postReviewSize = new BigDecimal(reviewSize);
+        double renewedScore = Math.round(((preTotal + reviewScore) / reviewSize) * 100) / 100.0;
 
-        // pre_sum_of_scores
-        BigDecimal preSumOfScore = preReviewSize.multiply(score);
-
-        // Save
-        this.score = preSumOfScore.add(new BigDecimal(reviewScore)).divide(postReviewSize).round(MathContext.DECIMAL32);
+        this.score = renewedScore;
     }
 }
