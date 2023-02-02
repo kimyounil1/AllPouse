@@ -108,7 +108,7 @@ public class PostController {
     public PageResponse myPostList(
             HttpServletRequest request,
             @ApiParam(value = "페이지네이션 옵션")
-            @PageableDefault(page = 0, size = 20, sort = "createDateTime", direction = DESC) Pageable pageable) {
+            @PageableDefault(page=0, size=20, sort="createDateTime", direction=DESC) Pageable pageable) {
 
         Long userId = tokenProvider.getUserIdFromRequest(request);
 
@@ -163,7 +163,7 @@ public class PostController {
             "API 호출한 시점 기준으로 만약 이전에 추천한 적 없다면 추천하기 실행되고, 추천한 적있다면 추천 취소 실행")
     public CommonResponse recommendPost(
             HttpServletRequest request,
-            @ApiParam(value = "게시글 id", required = true) @PathVariable Long postId) {
+            @ApiParam(value = "게시글 id", required = true) @PathVariable("postId") Long postId) {
 
         Long userId = tokenProvider.getUserIdFromRequest(request);
 
@@ -177,6 +177,20 @@ public class PostController {
         else {
             return new CommonResponse(true, 0, "추천취소완료");
         }
+    }
+
+
+    // 게시판 종류 별로 글 가져옴
+    @GetMapping(value = "post")
+    @Operation(summary = "게시판 별 게시글", description = "게시판 별 게시글 가져오는 API 페이지네이션 옵션 지정 가능함." +
+            "[boardId] : {자유게시판 : 1, 조향사 게시판 : 2}")
+    public PageResponse getPostByBoardType(
+            @ApiParam(value = "게시판 id", required = true) @RequestParam Long boardId,
+            @PageableDefault(page=0, size=20, sort="createDateTime", direction=DESC) Pageable pageable) {
+
+        Page<PostResponseDto> postPages = postService.getPostByBoardType(boardId, pageable);
+
+        return responseService.getPageResponse(postPages);
     }
 
 

@@ -244,6 +244,12 @@ public class PostServiceImpl implements PostService {
         return userList.contains(userId);
     }
 
+    @Override
+    public Page<PostResponseDto> getPostByBoardType(Long boardId, Pageable pageable) {
+
+        return postRepository.getPostByBoardType(boardId, pageable);
+    }
+
 
     // 배너 게시글 가져옴
     @Override

@@ -36,7 +36,10 @@ public interface PostService {
 
     boolean isRecommended(Long postId, Long userId);
 
+    Page<PostResponseDto> getPostByBoardType(Long boardId, Pageable pageable);
+
     List<BannerResponseDto> getBannerPost();
+
 
 
 

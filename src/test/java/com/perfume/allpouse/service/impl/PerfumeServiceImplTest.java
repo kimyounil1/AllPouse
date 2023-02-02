@@ -22,6 +22,7 @@ import javax.persistence.EntityManager;
 import javax.swing.text.html.parser.Entity;
 import javax.transaction.TransactionScoped;
 import java.math.BigDecimal;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -127,6 +128,27 @@ class PerfumeServiceImplTest {
         PerfumeBoard savedPerfume = perfumeRepository.save(perfume);
 
         assertThat(savedPerfume.getScore()).isEqualTo(0L);
+    }
+
+    @Test
+    @DisplayName("부모 삭제 자식 테스트")
+    @Transactional
+    public void deleteTest() throws Exception{
+        //given
+        Long reviewId = 2802L;
+        ReviewBoard review = reviewRepository.findById(reviewId).get();
+
+        Long perfumeId = review.getPerfume().getId();
+        PerfumeBoard perfume = perfumeRepository.findById(perfumeId).get();
+        int beforeSize = perfume.getReviews().size();
+
+        // 리뷰 삭제할 때에는
+        // 1. 사진 삭제
+        // 2. 리뷰-향수 간 연관관계 끊기
+        perfume.getReviews().remove(review);
+        PerfumeBoard perfumeAfter = perfumeRepository.findById(perfumeId).get();
+
+        org.assertj.core.api.Assertions.assertThat(perfumeAfter.getReviews().size()).isNotEqualTo(beforeSize);
     }
 
 

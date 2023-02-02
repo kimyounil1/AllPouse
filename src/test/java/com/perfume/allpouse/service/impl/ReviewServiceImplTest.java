@@ -17,6 +17,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 import static com.perfume.allpouse.model.enums.BoardType.REVIEW;
 
 
@@ -138,7 +140,48 @@ class ReviewServiceImplTest {
 
         //then
         Assertions.assertThat(savedId).isNotNull();
-
     }
+
+    @Test
+    @DisplayName("리뷰 삭제 -> Perfume.reviews 반영 테스트")
+    @Transactional
+    public void delete_test_1() throws Exception{
+        //given
+        Long reviewId = 2802L;
+        Long perfumeId = 2800L;
+
+        reviewService.delete(reviewId);
+
+        PerfumeBoard perfume = perfumeRepository.findById(perfumeId).get();
+
+        Assertions.assertThat(perfume.getReviews().size()).isEqualTo(0);
+        Assertions.assertThat(perfume.getScore()).isEqualTo(0);
+    }
+
+    @Test
+    @DisplayName("리뷰 업데이트 -> Perfume.score 반영 테스트" +
+            "Perfume.reviews 1개일 때")
+    @Transactional
+    public void update_test_1() throws Exception{
+        //given
+        Long reviewId = 2802L;
+        Long perfumeId = 2800L;
+
+        //when
+        SaveReviewDto dto = new SaveReviewDto(reviewId, "changed subject", "changed content", 5, 5L, 2800L);
+        reviewService.save(dto);
+
+        //then
+        ReviewBoard review = reviewRepository.findById(reviewId).get();
+        PerfumeBoard perfume = perfumeRepository.findById(perfumeId).get();
+
+        int reviewSize = perfume.getReviews().size();
+
+        Assertions.assertThat(reviewSize).isEqualTo(1);
+        Assertions.assertThat(review.getScore()).isEqualTo(5);
+        Assertions.assertThat(perfume.getScore()).isEqualTo(5);
+    }
+
+
 
 }

@@ -72,7 +72,7 @@ public class ReviewServiceImpl implements ReviewService {
         // 등록된 적 없는 리뷰 -> 글/사진 저장
         if (reviewId == null) {
             ReviewBoard savedReview = reviewRepository.save(toEntity(saveReviewDto));
-            perfume.convertToPerfumeScore(saveReviewDto.getScore());
+            perfume.updateScore_save(saveReviewDto.getScore());
             Long savedId = savedReview.getId();
             List<String> save = photoService.save(photos, REVIEW, savedId);
             System.out.println(save);
@@ -101,7 +101,7 @@ public class ReviewServiceImpl implements ReviewService {
         if (reviewId == null) {
             ReviewBoard savedReview = reviewRepository.save(toEntity(saveReviewDto));
 
-            perfume.convertToPerfumeScore(saveReviewDto.getScore());
+            perfume.updateScore_save(saveReviewDto.getScore());
             return savedReview.getId();
         } else {
             photoService.delete(REVIEW, reviewId);
@@ -121,8 +121,17 @@ public class ReviewServiceImpl implements ReviewService {
         Optional<ReviewBoard> review = reviewRepository.findById(reviewId);
 
         if (review.isPresent()) {
-            ReviewBoard reviewBoard = review.get();
-            reviewBoard.changeReview(saveReviewDto);
+            ReviewBoard prevReviewBoard = review.get();
+            int newScore = saveReviewDto.getScore();
+
+            Long perfumeId = prevReviewBoard.getPerfume().getId();
+            PerfumeBoard perfumeBoard = perfumeRepository.findById(perfumeId).get();
+
+            // 리뷰 점수 -> 향수에 업데이트 반영
+            perfumeBoard.updateScore_update(prevReviewBoard, newScore);
+
+            // 리뷰 내용 수정
+            prevReviewBoard.changeReview(saveReviewDto);
 
             return reviewId;
         } else {throw new CustomException(INVALID_PARAMETER);}
@@ -137,7 +146,15 @@ public class ReviewServiceImpl implements ReviewService {
         Optional<ReviewBoard> review = reviewRepository.findById(id);
 
         if (review.isPresent()) {
-            reviewRepository.delete(review.get());
+            ReviewBoard reviewBoard = review.get();
+            PerfumeBoard perfumeBoard = perfumeRepository.findById(reviewBoard.getPerfume().getId()).get();
+
+            // 향수 점수 수정 + 향수-리뷰 연관관계 끊음
+            perfumeBoard.updateScore_delete(reviewBoard);
+
+            // 리뷰 삭제
+            reviewRepository.deleteById(id);
+
         } else {
             throw new IllegalStateException("삭제할 리뷰가 없습니다.");
         }

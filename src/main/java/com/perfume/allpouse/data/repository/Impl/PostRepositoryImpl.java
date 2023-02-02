@@ -4,10 +4,13 @@ import com.perfume.allpouse.data.entity.Post;
 import com.perfume.allpouse.data.entity.QPhoto;
 import com.perfume.allpouse.data.entity.QPost;
 import com.perfume.allpouse.data.repository.custom.PostRepositoryCustom;
+import com.perfume.allpouse.exception.CustomException;
+import com.perfume.allpouse.exception.ExceptionEnum;
 import com.perfume.allpouse.model.dto.BannerResponseDto;
 import com.perfume.allpouse.model.dto.PostResponseDto;
 import com.perfume.allpouse.model.dto.QBannerResponseDto;
 import com.perfume.allpouse.model.dto.QPostResponseDto;
+import com.perfume.allpouse.model.enums.BulletinType;
 import com.perfume.allpouse.service.PhotoService;
 import com.perfume.allpouse.utils.PageUtils;
 import com.perfume.allpouse.utils.QueryDslUtil;
@@ -22,9 +25,10 @@ import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.perfume.allpouse.exception.ExceptionEnum.*;
 import static com.perfume.allpouse.model.enums.BoardType.POST;
 import static com.perfume.allpouse.model.enums.BoardType.USER;
-import static com.perfume.allpouse.model.enums.BulletinType.BANNER;
+import static com.perfume.allpouse.model.enums.BulletinType.*;
 
 public class PostRepositoryImpl extends QuerydslRepositorySupport implements PostRepositoryCustom {
 
@@ -103,6 +107,40 @@ public class PostRepositoryImpl extends QuerydslRepositorySupport implements Pos
         return pages;
     }
 
+    @Override
+    public Page<PostResponseDto> getPostByBoardType(Long boardId, Pageable pageable) {
+
+        List<OrderSpecifier> ORDERS = getAllOrderSpecifiers(pageable);
+
+        BulletinType boardType = toBulletinType(boardId);
+
+        List<PostResponseDto> posts = from(post)
+                .leftJoin(photo)
+                .on(post.id.eq(photo.boardId).and(photo.boardType.eq(POST)))
+                .leftJoin(userPhoto)
+                .on(post.user.id.eq(userPhoto.boardId).and(userPhoto.boardType.eq(USER)))
+                .where(post.type.eq(boardType))
+                .select(new QPostResponseDto(
+                        post.id,
+                        post.type,
+                        post.title,
+                        post.content,
+                        photo.path,
+                        post.hitCnt,
+                        post.recommendCnt,
+                        post.user.id,
+                        post.user.userName,
+                        userPhoto.path,
+                        post.createDateTime
+                ))
+                .orderBy(ORDERS.toArray(OrderSpecifier[]::new))
+                .fetch();
+
+        Page<PostResponseDto> pages = PageUtils.makePageList(posts, pageable);
+
+        return pages;
+    }
+
 
     // 배너게시글 가져오기
     @Override
@@ -111,8 +149,8 @@ public class PostRepositoryImpl extends QuerydslRepositorySupport implements Pos
         List<BannerResponseDto> bannerPosts = from(post)
                 .leftJoin(photo)
                 .on(post.id.eq(photo.boardId).and(photo.boardType.eq(POST)))
-                .select(new QBannerResponseDto(post.id, photo.path, post.createDateTime))
                 .where(post.type.eq(BANNER))
+                .select(new QBannerResponseDto(post.id, photo.path, post.createDateTime))
                 .orderBy(post.createDateTime.desc())
                 .fetch();
 
@@ -151,5 +189,18 @@ public class PostRepositoryImpl extends QuerydslRepositorySupport implements Pos
             }
         }
         return ORDERS;
+    }
+
+
+    // boardId로 BulletinType 가져오는 메소드
+    private BulletinType toBulletinType(Long boardId) {
+        // 자유게시판
+        if (boardId == 1L){
+            return FREE;
+        } else if (boardId == 2L) {
+            return PERFUMER;
+        } else {
+            throw new CustomException(BOARD_TYPE_ID_NOT_FOUND);
+        }
     }
 }

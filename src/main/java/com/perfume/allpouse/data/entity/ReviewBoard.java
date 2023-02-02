@@ -44,7 +44,7 @@ public class ReviewBoard extends BaseTimeEntity{
 
     // 각 리뷰의, 향수에 대한 점수
     @Column(name = "review_score")
-    private Integer score;
+    private int score;
 
 
     @ManyToOne(fetch = LAZY)
@@ -58,7 +58,6 @@ public class ReviewBoard extends BaseTimeEntity{
     @Builder.Default
     @OneToMany(mappedBy = "review", cascade = CascadeType.ALL)
     private List<Comment> comments = new ArrayList<>();
-
 
     //== 연관관계 메소드 ==//
     // 1. User
@@ -76,9 +75,11 @@ public class ReviewBoard extends BaseTimeEntity{
 
     //== 리뷰 내용 변경 =//
     // 1. Dto -> Entity 내용 변경
-    // 변경가능항목 : subject, content
+    // 변경가능항목 : subject, content, score
     public void changeReview(SaveReviewDto reviewDto) {
         this.subject = reviewDto.getSubject();
         this.content = reviewDto.getContent();
+        this.score = reviewDto.getScore();
     }
+
 }
