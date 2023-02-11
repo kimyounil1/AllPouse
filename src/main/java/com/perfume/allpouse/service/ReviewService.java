@@ -46,7 +46,7 @@ public interface ReviewService {
 
     List<ReviewResponseDto> getReviewsOnPerfume(Long boardId, Permission permission, int size);
 
-
+    List<ReviewResponseDto> getReviewsByPeriod(Long userId, int periodNum);
 
     // 기타 로직
     boolean isRecommended(Long reviewId, Long userId);

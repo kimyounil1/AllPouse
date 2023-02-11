@@ -182,6 +182,23 @@ class ReviewServiceImplTest {
         Assertions.assertThat(perfume.getScore()).isEqualTo(5);
     }
 
+    @Test
+    @DisplayName("리뷰 점수 반영 테스트")
+    @Transactional
+    @Rollback(false)
+    public void review_save_score_test_2() throws Exception{
+        //given
+        Long perfumeId = 2407L;
+
+        SaveReviewDto dto = new SaveReviewDto("new subject", "new content", 10, 5L, perfumeId);
+
+        //when
+        Long savedId = reviewService.save(dto);
+
+        //then
+        Assertions.assertThat(savedId).isNotNull();
+
+    }
 
 
 }

@@ -32,7 +32,7 @@ public class PostCommentRepositoryImpl extends QuerydslRepositorySupport impleme
 
     // 게시글에 달린 댓글
     @Override
-    public List<PostCommentResponseDto> getPostCommentList(Long postId, Long userId) {
+    public List<PostCommentResponseDto> getPostCommentList(Long postId) {
 
         List<PostCommentResponseDto> commentDtoList = from(postComment)
                 .leftJoin(userPhoto)
@@ -54,6 +54,37 @@ public class PostCommentRepositoryImpl extends QuerydslRepositorySupport impleme
 
         return commentDtoList;
     }
+
+    @Override
+    public Page<PostCommentResponseDto> getPostCommentPageList(Long postId, Pageable pageable) {
+
+        List<OrderSpecifier> ORDERS = getAllOrderSpecifiers(pageable);
+
+        List<PostCommentResponseDto> commentDtoList = from(postComment)
+                .leftJoin(userPhoto)
+                .on(postComment.user.id.eq(userPhoto.boardId).and(userPhoto.boardType.eq(USER)))
+                .where(postComment.post.id.eq(postId))
+                .select(new QPostCommentResponseDto(
+                        postComment.id,
+                        postComment.content,
+                        postComment.recommendCnt,
+                        postComment.post.id,
+                        postComment.user.id,
+                        postComment.user.userName,
+                        userPhoto.path,
+                        postComment.referCommentId,
+                        postComment.createDateTime
+                ))
+                .orderBy(ORDERS.toArray(OrderSpecifier[]::new))
+                .fetch();
+
+        Page<PostCommentResponseDto> pages = PageUtils.makePageList(commentDtoList, pageable);
+
+        return pages;
+    }
+
+    // 게시글에 달린 댓글(+페이지네이션)
+
 
 
     // 유저가 작성한 게시글(+페이지네이션)

@@ -53,11 +53,11 @@ public class PerfumeController {
 
     // 향수 페이지
     @GetMapping("perfume/{perfumeId}")
-    @Operation(summary = "향수정보 및 리뷰 페이지", description = "향수 상세 페이지. 기본 정보 및 리뷰 제공.")
+    @Operation(summary="향수정보 및 리뷰 페이지", description="향수 상세 페이지. 기본 정보 및 리뷰 제공.")
     public SingleResponse<BestReviewDto> getPerfumePage(
             HttpServletRequest request,
-            @ApiParam(value = "향수 id", required = true) @PathVariable Long perfumeId,
-            @ApiIgnore @PageableDefault(page = 0, size = 5, sort = "hitCnt", direction = Sort.Direction.DESC) Pageable pageable) {
+            @ApiParam(value="향수 id", required=true) @PathVariable Long perfumeId,
+            @ApiIgnore @PageableDefault(page=0, size=5, sort="hitCnt", direction=Sort.Direction.DESC) Pageable pageable) {
         final int size = 5;
 
         perfumeService.addHitCnt(perfumeId);

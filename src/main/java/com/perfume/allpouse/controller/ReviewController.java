@@ -5,6 +5,7 @@ import com.perfume.allpouse.data.entity.ReviewBoard;
 import com.perfume.allpouse.exception.CustomException;
 import com.perfume.allpouse.model.dto.*;
 import com.perfume.allpouse.model.reponse.CommonResponse;
+import com.perfume.allpouse.model.reponse.ListResponse;
 import com.perfume.allpouse.model.reponse.PageResponse;
 import com.perfume.allpouse.model.reponse.SingleResponse;
 import com.perfume.allpouse.service.*;
@@ -22,7 +23,6 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.List;
@@ -31,6 +31,19 @@ import static com.perfume.allpouse.exception.ExceptionEnum.INVALID_PARAMETER;
 import static com.perfume.allpouse.model.enums.BoardType.REVIEW;
 import static com.perfume.allpouse.model.enums.Permission.ROLE_PERFUMER;
 import static com.perfume.allpouse.model.enums.Permission.ROLE_USER;
+
+/**
+ * [리뷰 컨트롤러]
+ *
+ * 1> API 메소드 목록
+ * - saveAndUpdateReview : 리뷰 저장 및 업데이트
+ * - deleteReview : 리뷰 삭제
+ * - getMyReviewList : 회원이 작성한 리뷰
+ * - recentReview : 최근에 작성한 리뷰
+ * - getReviewPage : 리뷰 상세 내용과 댓글 N개
+ * - getBestReview : (특정 향수에 대한) 조향사, 일반, 추천순 리뷰
+ * - recommendReview : 리뷰 추천
+ */
 
 @Slf4j
 @RestController
@@ -56,7 +69,7 @@ public class ReviewController {
     // 리뷰 저장 및 업데이트
     @PostMapping(value = "review", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
     @Operation(summary = "리뷰 저장 및 수정", description = "리뷰를 저장하거나 수정하는 API")
-    public CommonResponse saveAndUpdateReview(
+    public SingleResponse<Long> saveAndUpdateReview(
             HttpServletRequest request,
             @ApiParam(value = "리뷰 내용을 담는 DTO", required = true) @RequestPart SaveReviewDto saveReviewDto,
             @ApiParam(value = "리뷰에 첨부하는 사진들") @RequestPart(value = "photo", required = false) List<MultipartFile> photos) throws IOException {
@@ -66,37 +79,38 @@ public class ReviewController {
 
         // 첨부 사진 있는 경우
         if (photos != null) {
-            reviewService.save(saveReviewDto, photos);
+            Long savedId = reviewService.save(saveReviewDto, photos);
+            return responseService.getSingleResponse(savedId);
         }
         // 첨부 사진 없는 경우
         else {
-            reviewService.save(saveReviewDto);
-        }
+            Long savedId = reviewService.save(saveReviewDto);
+            return responseService.getSingleResponse(savedId);
 
-        return responseService.getSuccessCommonResponse();
+        }
     }
 
 
-     // 리뷰 업데이트
-    @PatchMapping(value = "review", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
-    @Operation(summary = "리뷰 업데이트", description = "리뷰 수정하는 API")
-    public CommonResponse updateReview(
-            HttpServletRequest request,
-            @ApiParam(value = "업데이트할 리뷰 내용 담는 DTO", required = true) @RequestPart SaveReviewDto saveReviewDto,
-            @ApiParam(value = "리뷰에 첨부할 사진들") @RequestPart(value = "photo", required = false) List<MultipartFile> photos) throws IOException {
-
-
-        // 첨부 사진 있는 경우
-        if (photos != null) {
-            reviewService.save(saveReviewDto, photos);
-        }
-        // 첨부 사진 없는 경우
-        else {
-            reviewService.save(saveReviewDto);
-        }
-
-        return responseService.getSuccessCommonResponse();
-    }
+    // // 리뷰 업데이트
+    //@PatchMapping(value = "review", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
+    //@Operation(summary = "리뷰 업데이트", description = "리뷰 수정하는 API")
+    //public SingleResponse<Long> updateReview(
+    //        HttpServletRequest request,
+    //        @ApiParam(value = "업데이트할 리뷰 내용 담는 DTO", required = true) @RequestPart SaveReviewDto saveReviewDto,
+    //        @ApiParam(value = "리뷰에 첨부할 사진들") @RequestPart(value = "photo", required = false) List<MultipartFile> photos) throws IOException {
+//
+//
+    //    // 첨부 사진 있는 경우
+    //    if (photos != null) {
+    //        Long savedId = reviewService.save(saveReviewDto, photos);
+    //        return responseService.getSingleResponse(savedId);
+    //    }
+    //    // 첨부 사진 없는 경우
+    //    else {
+    //        Long savedId = reviewService.save(saveReviewDto);
+    //        return responseService.getSingleResponse(savedId);
+    //    }
+    //}
 
 
     // 리뷰 삭제
@@ -126,24 +140,19 @@ public class ReviewController {
     // 회원이 작성한 리뷰
     // 쿼리 파라미터(pageable에 매핑됨)로 페이지네이션 옵션 설정
     // 기본 설정 : 20 posts per Page, 최신순 정렬
-    @GetMapping(value = "review/me")
-    @Operation(summary = "회원이 쓴 리뷰", description = "회원이 작성한 리뷰 가져오는 API. 쿼리파라미터로 페이지네이션 옵션 지정할 수 있음")
-    public PageResponse myReviewList(
+    @GetMapping(value="review/user/{period}}")
+    @Operation(summary="회원이 쓴 리뷰(기간별)",
+            description = "회원이 작성한 리뷰 가져오는 API. period 파라미터로 가져올 기간 설정할 수 있음. " +
+                    "<기간 설정> : { 0: 전체, 1: 1주, 2: 1개월, 3: 6개월 }")
+    public ListResponse<ReviewResponseDto> getMyReviewList(
             HttpServletRequest request,
-            @ApiParam(value = "페이지네이션 옵션")
-            @PageableDefault(page = 0, size = 20, sort = "createDateTime", direction = Sort.Direction.DESC) Pageable pageable
-            ) {
+            @ApiParam(value="리뷰 가져올 기간 설정", required=true) @RequestParam("period") int periodNum) {
 
         Long userId = tokenProvider.getUserIdFromRequest(request);
 
-        Page<ReviewResponseDto> pages = reviewService.getReviewDto(userId, pageable);
+        List<ReviewResponseDto> reviewDtoList = reviewService.getReviewsByPeriod(userId, periodNum);
 
-        // 유저가 리뷰 추천했는지 여부 넣어줌
-        pages.forEach(
-                dto -> dto.setRecommended(reviewService.isRecommended(dto.getId(), userId))
-        );
-
-        return responseService.getPageResponse(pages);
+        return responseService.getListResponse(reviewDtoList);
     }
 
 
@@ -152,7 +161,7 @@ public class ReviewController {
     @Operation(summary = "최근에 작성된 리뷰", description = "최근에 작성된 리뷰를 페이지별로 보여주는 API.")
     public PageResponse recentReview(
             HttpServletRequest request,
-            @ApiParam(value = "페이지네이션 옵션", required = true)
+            @ApiParam(value="페이지네이션 옵션", required = true)
             @PageableDefault(page = 0, size = 20) Pageable pageable) {
 
         Long userId = tokenProvider.getUserIdFromRequest(request);

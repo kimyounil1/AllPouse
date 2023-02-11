@@ -13,6 +13,7 @@ import com.perfume.allpouse.model.dto.SavePostCommentDto;
 import com.perfume.allpouse.model.reponse.CommonResponse;
 import com.perfume.allpouse.model.reponse.PageResponse;
 import com.perfume.allpouse.service.*;
+import com.perfume.allpouse.utils.PageUtils;
 import io.swagger.annotations.ApiParam;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,8 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+
+import java.util.List;
 
 import static com.perfume.allpouse.exception.ExceptionEnum.AUTHORITY_FORBIDDEN;
 import static com.perfume.allpouse.exception.ExceptionEnum.INVALID_PARAMETER;
@@ -223,11 +226,30 @@ public class CommentController {
     }
 
 
+    // 게시글에 달린 댓글 페이지 별로 가져옴
+    // 쿼리 파라미터(pageable에 매핑됨)로 페이지네이션 옵션 설정
+    // 기본 설정 : 20 comments per Page, 최신순 정렬
+    @GetMapping(value="post-comment/{postId}")
+    @Operation(summary="게시글에 달린 댓글", description="게시글 id로 해당 게시글에 달린 댓글 가져오는 API. 쿼리파라미터로 페이지네이션 옵션 지정할 수 있음." +
+            "<페이지네이션 설정 항목> : page, size, sort_direction(ASC, DESC). (sort 종류는 createDateTime으로 고정)")
+    public PageResponse getPostComments(
+            HttpServletRequest request,
+            @ApiParam(value="게시글id", required = true) @PathVariable("postId") Long postId,
+            @ApiParam(value="페이지네이션 옵션")
+            @PageableDefault(page=0, size=20, sort="createDateTime", direction = DESC) Pageable pageable) {
+
+        Long userId = tokenProvider.getUserIdFromRequest(request);
+
+        Page<PostCommentResponseDto> pageList = postCommentService.getPostCommentPageList(postId, userId, pageable);
+
+        return responseService.getPageResponse(pageList);
+    }
+
     // 회원이 작성한 게시글 댓글 페이지 별로 가져옴
     // 쿼리 파라미터(pageable에 매핑됨)로 페이지네이션 옵션 설정
     // 기본 설정 : 20 comments per Page, 최신순 정렬
     @GetMapping(value = "post-comment/me")
-    @Operation(summary = "회원이 작성한 게시글 댓글", description = "회원이 작성한 게시글 댓글을 가져오는 API. 쿼리파라미터로 페이지네이션 옵션 지정할 수 있음")
+    @Operation(summary = "회원이 작성한 게시글 댓글", description = "회원이 작성한 게시글 댓글을 가져오는 API. 쿼리파라미터로 페이지네이션 옵션 지정할 수 있음.")
     public PageResponse myPostCommentList(
             HttpServletRequest request,
             @ApiParam(value = "페이지네이션 옵션")

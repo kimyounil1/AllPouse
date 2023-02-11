@@ -13,7 +13,10 @@ public interface PostCommentRepositoryCustom {
      */
 
     // 게시글에 달린 댓글
-    List<PostCommentResponseDto> getPostCommentList(Long postId, Long userId);
+    List<PostCommentResponseDto> getPostCommentList(Long postId);
+
+    // 게시글에 달린 댓글 + 페이지네이션
+    Page<PostCommentResponseDto> getPostCommentPageList(Long postId, Pageable pageable);
 
     // 유저가 작성한 댓글
     Page<PostCommentResponseDto> getUserPostCommentList(Long userId, Pageable pageable);

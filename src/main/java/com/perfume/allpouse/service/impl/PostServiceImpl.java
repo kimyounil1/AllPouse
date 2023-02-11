@@ -163,6 +163,7 @@ public class PostServiceImpl implements PostService {
                 queryFactory.select(new QPostResponseDto(post.id, post.type, post.title, post.content,
                                 photo.path, post.hitCnt, post.recommendCnt, post.user.id, post.user.userName,
                                 userPhoto.path,
+                                post.postComments.size(),
                                 post.createDateTime))
                 .from(post)
                         .leftJoin(photo)
@@ -173,9 +174,6 @@ public class PostServiceImpl implements PostService {
                 .orderBy(post.recommendCnt.desc())
                 .limit(size)
                 .fetch();
-
-
-
 
         return postList;
     }
@@ -193,6 +191,7 @@ public class PostServiceImpl implements PostService {
                 .select(new QPostResponseDto(post.id, post.type, post.title, post.content, photo.path,
                         post.hitCnt, post.recommendCnt, post.user.id, post.user.userName,
                         userPhoto.path,
+                        post.postComments.size(),
                         post.createDateTime))
                 .from(post)
                 .leftJoin(photo)
@@ -216,6 +215,7 @@ public class PostServiceImpl implements PostService {
                         post.content, photo.path, post.hitCnt, post.recommendCnt,
                         post.user.id, post.user.userName,
                         userPhoto.path,
+                        post.postComments.size(),
                         post.createDateTime))
                 .from(post)
                 .leftJoin(photo)

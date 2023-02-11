@@ -286,6 +286,17 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
 
+    // 회원이 작성한 리뷰를 기간별로 가져옴
+    // 기간 : 1주, 1달, 6개월
+    @Override
+    public List<ReviewResponseDto> getReviewsByPeriod(Long userId, int periodNum) {
+
+        List<ReviewResponseDto> reviews = reviewRepository.getReviewsByPeriod(userId, periodNum);
+
+        return reviews;
+    }
+
+
     // 유저가 리뷰 추천했는지 여부
     @Override
     public boolean isRecommended(Long reviewId, Long userId) {

@@ -26,6 +26,7 @@ public enum ExceptionEnum {
     POST_COMMENT_ID_NOT_FOUND(404, false, "존재하지 않는 게시글 댓글 ID 입니다."),
     PERFUMER_APPLICATION_ID_NOT_FOUND(404, false, "존재하지 않는 조향사 신청 ID 입니다."),
     BOARD_TYPE_ID_NOT_FOUND(404, false, "존재하지 않는 게시판 ID 입니다."),
+    INAPPROPRIATE_PERIOD_NUM(404, false, "올바르지 않은 기간 설정 코드입니다."),
 
     TOKEN_NOT_FOUND(404,false , "토큰이 존재 하지 않습니다."),
 

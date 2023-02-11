@@ -37,6 +37,8 @@ public interface ReviewBoardRepositoryCustom {
     // 향수에 달린 사용자분류(USER : 일반사용자, PERFUMER : 조향사)별 베스트 리뷰 DTO
     List<ReviewResponseDto> getReviewsOnPerfume(Long perfumeId, Permission permission, int size);
 
+    // 회원이 작성한 리뷰 기간 별로 가져옴
+    List<ReviewResponseDto> getReviewsByPeriod(Long userId, int periodNum);
 
 
 }

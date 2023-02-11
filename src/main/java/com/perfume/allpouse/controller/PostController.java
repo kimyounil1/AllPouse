@@ -8,6 +8,7 @@ import com.perfume.allpouse.model.enums.Permission;
 import com.perfume.allpouse.model.reponse.CommonResponse;
 import com.perfume.allpouse.model.reponse.ListResponse;
 import com.perfume.allpouse.model.reponse.PageResponse;
+import com.perfume.allpouse.model.reponse.SingleResponse;
 import com.perfume.allpouse.service.PhotoService;
 import com.perfume.allpouse.service.PostCommentService;
 import com.perfume.allpouse.service.PostService;
@@ -55,7 +56,7 @@ public class PostController {
     // 게시글 저장 및 업데이트
     @PostMapping(value = "post", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
     @Operation(summary = "게시글 저장 및 수정", description = "게시글을 저장하거나 수정하는 API")
-    public CommonResponse saveAndUpdatePost(
+    public SingleResponse<Long> saveAndUpdatePost(
             HttpServletRequest request,
             @ApiParam(value = "게시글 내용을 담는 DTO", required = true) @RequestPart SavePostDto savePostDto,
             @ApiParam(value = "게시글에 첨부하는 사진들") @RequestPart(value = "photo", required = false) List<MultipartFile> photos) throws IOException {
@@ -68,13 +69,14 @@ public class PostController {
 
         // 첨부사진 있는 경우
         if (photos != null) {
-            postService.save(savePostDto, photos, role);
+            Long savedId = postService.save(savePostDto, photos, role);
+            return responseService.getSingleResponse(savedId);
         }
         // 첨부사진 없는 경우
         else {
-            postService.save(savePostDto, role);
+            Long savedId = postService.save(savePostDto, role);
+            return responseService.getSingleResponse(savedId);
         }
-        return responseService.getSuccessCommonResponse();
     }
 
 

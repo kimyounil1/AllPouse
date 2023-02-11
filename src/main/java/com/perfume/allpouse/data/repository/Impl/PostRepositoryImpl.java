@@ -5,7 +5,6 @@ import com.perfume.allpouse.data.entity.QPhoto;
 import com.perfume.allpouse.data.entity.QPost;
 import com.perfume.allpouse.data.repository.custom.PostRepositoryCustom;
 import com.perfume.allpouse.exception.CustomException;
-import com.perfume.allpouse.exception.ExceptionEnum;
 import com.perfume.allpouse.model.dto.BannerResponseDto;
 import com.perfume.allpouse.model.dto.PostResponseDto;
 import com.perfume.allpouse.model.dto.QBannerResponseDto;
@@ -14,7 +13,6 @@ import com.perfume.allpouse.model.enums.BulletinType;
 import com.perfume.allpouse.service.PhotoService;
 import com.perfume.allpouse.utils.PageUtils;
 import com.perfume.allpouse.utils.QueryDslUtil;
-import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import org.springframework.data.domain.Page;
@@ -25,7 +23,7 @@ import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.perfume.allpouse.exception.ExceptionEnum.*;
+import static com.perfume.allpouse.exception.ExceptionEnum.BOARD_TYPE_ID_NOT_FOUND;
 import static com.perfume.allpouse.model.enums.BoardType.POST;
 import static com.perfume.allpouse.model.enums.BoardType.USER;
 import static com.perfume.allpouse.model.enums.BulletinType.*;
@@ -66,6 +64,7 @@ public class PostRepositoryImpl extends QuerydslRepositorySupport implements Pos
                         this.post.user.id,
                         this.post.user.userName,
                         this.userPhoto.path,
+                        this.post.postComments.size(),
                         this.post.createDateTime))
                 .orderBy(this.post.title.asc())
                 .limit(10)
@@ -98,6 +97,7 @@ public class PostRepositoryImpl extends QuerydslRepositorySupport implements Pos
                         this.post.user.id,
                         this.post.user.userName,
                         this.userPhoto.path,
+                        this.post.postComments.size(),
                         this.post.createDateTime))
                 .orderBy(ORDERS.toArray(OrderSpecifier[]::new))
                 .fetch();
@@ -131,6 +131,7 @@ public class PostRepositoryImpl extends QuerydslRepositorySupport implements Pos
                         post.user.id,
                         post.user.userName,
                         userPhoto.path,
+                        this.post.postComments.size(),
                         post.createDateTime
                 ))
                 .orderBy(ORDERS.toArray(OrderSpecifier[]::new))

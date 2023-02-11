@@ -81,15 +81,7 @@ class PostCommentServiceImplTest {
     @DisplayName("게시글 댓글 조회 테스트")
     @Transactional
     public void findPostCommentTest_1() throws Exception{
-        //given
-        Long postId = 66L;
-        Long userId = 5L;
 
-        //when
-        List<PostCommentResponseDto> commentList = postCommentRepository.getPostCommentList(postId, userId);
-
-        //then
-        System.out.println(commentList);
 
     }
 

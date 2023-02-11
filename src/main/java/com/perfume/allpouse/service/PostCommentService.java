@@ -26,6 +26,9 @@ public interface PostCommentService {
 
     List<PostCommentResponseDto> getPostCommentList(Long postId, Long userId);
 
+    Page<PostCommentResponseDto> getPostCommentPageList(Long postId, Long userId, Pageable pageable);
+
+
     // 기타 로직
     boolean isRecommended(Long commentId, Long userId);
 

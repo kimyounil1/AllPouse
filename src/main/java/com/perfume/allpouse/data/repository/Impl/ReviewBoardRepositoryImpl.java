@@ -11,6 +11,7 @@ import com.perfume.allpouse.model.dto.QSearchReviewDto;
 import com.perfume.allpouse.model.dto.ReviewResponseDto;
 import com.perfume.allpouse.model.dto.SearchReviewDto;
 import com.perfume.allpouse.model.enums.Permission;
+import com.perfume.allpouse.utils.CommonUtils;
 import com.perfume.allpouse.utils.PageUtils;
 import com.perfume.allpouse.utils.QueryDslUtil;
 import com.querydsl.core.types.Order;
@@ -21,12 +22,12 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.perfume.allpouse.data.entity.QReviewBoard.reviewBoard;
-import static com.perfume.allpouse.exception.ExceptionEnum.INVALID_PARAMETER;
-import static com.perfume.allpouse.exception.ExceptionEnum.REVIEW_ID_NOT_FOUND;
+import static com.perfume.allpouse.exception.ExceptionEnum.*;
 import static com.perfume.allpouse.model.enums.BoardType.REVIEW;
 import static com.perfume.allpouse.model.enums.BoardType.USER;
 
@@ -350,6 +351,45 @@ public class ReviewBoardRepositoryImpl extends QuerydslRepositorySupport impleme
 
         return reviewDtoList;
     }
+
+    // 회원이 작성한 리뷰 기간별로 가져옴
+    @Override
+    public List<ReviewResponseDto> getReviewsByPeriod(Long userId, int periodNum) {
+
+        int days = CommonUtils.periodNumToDays(periodNum);
+
+        LocalDateTime now = LocalDateTime.now();
+
+        List<ReviewResponseDto> reviewDtoList = from(review)
+                .leftJoin(reviewPhoto)
+                .on(review.id.eq(reviewPhoto.boardId).and(reviewPhoto.boardType.eq(REVIEW)))
+                .leftJoin(userPhoto)
+                .on(review.user.id.eq(userPhoto.boardId).and(userPhoto.boardType.eq(USER)))
+                .where(review.createDateTime.between(now.minusDays(days), now))
+                .select(new QReviewResponseDto(
+                        review.id,
+                        review.user.id,
+                        userPhoto.path,
+                        review.user.userName,
+                        review.subject,
+                        review.content,
+                        review.perfume.subject,
+                        review.perfume.brand.name,
+                        review.hitCnt,
+                        review.recommendCnt,
+                        reviewPhoto.path,
+                        review.comments.size(),
+                        review.score,
+                        review.createDateTime))
+                .orderBy(review.createDateTime.desc())
+                .where()
+                .fetch();
+
+        return reviewDtoList;
+    }
+
+
+
 
 
     // Pageable에서 정렬기준 추출

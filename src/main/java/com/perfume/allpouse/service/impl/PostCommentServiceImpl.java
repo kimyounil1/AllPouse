@@ -128,11 +128,21 @@ public class PostCommentServiceImpl implements PostCommentService {
     @Override
     public List<PostCommentResponseDto> getPostCommentList(Long postId, Long userId) {
 
-        List<PostCommentResponseDto> postCommentList = postCommentRepository.getPostCommentList(postId, userId);
+        List<PostCommentResponseDto> postCommentList = postCommentRepository.getPostCommentList(postId);
 
         postCommentList.forEach(dto -> dto.setRecommended(isRecommended(dto.getId(), userId)));
 
         return postCommentList;
+    }
+
+    // 게시글에 달린 댓글 페이지네이션으로 가져옴
+    @Override
+    public Page<PostCommentResponseDto> getPostCommentPageList(Long postId, Long userId, Pageable pageable) {
+        Page<PostCommentResponseDto> postCommentPageList = postCommentRepository.getPostCommentPageList(postId, pageable);
+
+        postCommentPageList.forEach(dto -> dto.setRecommended(isRecommended(dto.getId(), userId)));
+
+        return postCommentPageList;
     }
 
     // 유저가 게시글 댓글 추천했는지 여부
